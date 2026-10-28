@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@vinui/tailwind";
+
+/* Component sources live outside this app; scan them for class names. */
+@source "../../../../packages/react/src";
+@source "../../../../packages/vue/src";
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
