@@ -1,6 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 
-import { cn } from "@/lib/utils"
+import { cn, cnState } from "@/lib/utils"
 
 const variants = {
   primary: "btn-primary",
@@ -36,16 +36,10 @@ function buttonVariants({
 interface ButtonProps extends ButtonPrimitive.Props, ButtonVariantProps {}
 
 function Button({ className, variant, size, ...props }: ButtonProps) {
-  const base = buttonVariants({ variant, size })
-
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={
-        typeof className === "function"
-          ? (state) => cn(base, className(state))
-          : cn(base, className)
-      }
+      className={cnState(buttonVariants({ variant, size }), className)}
       {...props}
     />
   )

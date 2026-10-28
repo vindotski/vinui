@@ -11,7 +11,7 @@ export function toCssObject(nodes: ChildNode[]): CssObject {
 
   for (const node of nodes) {
     if (node.type === "decl") {
-      out[node.prop] = node.value
+      out[node.prop] = node.important ? `${node.value} !important` : node.value
     } else if (node.type === "rule" || node.type === "atrule") {
       const key =
         node.type === "rule"

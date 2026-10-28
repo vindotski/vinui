@@ -25,6 +25,28 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+  @keyframes vinui-fade-in {
+  from {
+    opacity: 0;
+        }
+    }
+  @keyframes vinui-fade-out {
+  to {
+    opacity: 0;
+        }
+    }
+  @keyframes vinui-zoom-in {
+  from {
+    opacity: 0;
+    scale: 0.95;
+        }
+    }
+  @keyframes vinui-zoom-out {
+  to {
+    opacity: 0;
+    scale: 0.95;
+        }
+    }
 }
 
 :root {
@@ -160,4 +182,121 @@
     --btn-h: --spacing(9);
     --btn-px: 0;
     aspect-ratio: 1 / 1;
+}
+
+@utility dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background-color: rgb(0 0 0 / 50%);
+  &:is([data-open], [data-state="open"]) {
+    animation: vinui-fade-in 150ms ease-out;
+    }
+  &:is([data-closed], [data-state="closed"]) {
+    animation: vinui-fade-out 150ms ease-in forwards;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+    }
+}
+
+@utility dialog-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 50;
+    display: grid;
+    gap: --spacing(4);
+    width: 100%;
+    max-width: min(calc(100% - --spacing(8)), var(--container-lg));
+    translate: -50% -50%;
+    padding: --spacing(6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-lg);
+    outline: none;
+  &:is([data-open], [data-state="open"]) {
+    animation: vinui-zoom-in 150ms ease-out;
+    }
+  &:is([data-closed], [data-state="closed"]) {
+    animation: vinui-zoom-out 150ms ease-in forwards;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+    }
+}
+
+@utility dialog-close {
+    position: absolute;
+    top: --spacing(4);
+    right: --spacing(4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: var(--color-muted-foreground);
+    opacity: 0.7;
+    cursor: pointer;
+    outline: none;
+    transition-property: opacity, box-shadow;
+    transition-duration: 150ms;
+  &:hover {
+    opacity: 1;
+    }
+  &:focus-visible {
+    opacity: 1;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 50%, transparent);
+    }
+  & svg {
+    width: --spacing(4);
+    height: --spacing(4);
+    pointer-events: none;
+    }
+}
+
+@utility dialog-header {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(2);
+    text-align: center;
+  @variant sm {
+    text-align: left;
+    }
+  @variant sm {
+    text-align: left;
+    }
+}
+
+@utility dialog-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: --spacing(2);
+  @variant sm {
+    flex-direction: row;
+    justify-content: flex-end;
+    }
+  @variant sm {
+    flex-direction: row;
+    justify-content: flex-end;
+    }
+}
+
+@utility dialog-title {
+    font-size: var(--text-lg);
+    line-height: 1;
+    font-weight: var(--font-weight-semibold);
+}
+
+@utility dialog-description {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--color-muted-foreground);
 }

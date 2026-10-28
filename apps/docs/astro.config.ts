@@ -28,6 +28,19 @@ function registryAlias(): Plugin {
   }
 }
 
+/**
+ * In dev, @vitejs/plugin-vue compiles `<script lang="ts">` with Vite's full
+ * `oxc` config, including plugin-react's `jsx.refresh`, so Vue components that
+ * call `use*()` get React Fast Refresh calls. The browser has the refresh
+ * runtime; SSR does not, so give the server no-op stand-ins.
+ */
+const refreshGlobals = globalThis as {
+  $RefreshReg$?: () => void
+  $RefreshSig$?: () => <T>(type: T) => T
+}
+refreshGlobals.$RefreshReg$ ??= () => {}
+refreshGlobals.$RefreshSig$ ??= () => (type) => type
+
 export default defineConfig({
   integrations: [react(), vue()],
   vite: {
