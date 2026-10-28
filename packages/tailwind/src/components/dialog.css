@@ -1,7 +1,8 @@
 /*
  * Dialog
  *   dialog-overlay      backdrop (DialogOverlay)
- *   dialog-content      popup panel (DialogContent)
+ *   dialog-panel        the panel's look (all platforms; native centers it itself)
+ *   dialog-content      dialog-panel + web positioning (DialogContent on web)
  *   dialog-close        corner close button inside dialog-content
  *   dialog-header       title + description stack
  *   dialog-footer       actions row
@@ -57,23 +58,31 @@
   }
 }
 
-@utility dialog-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 50;
-  display: grid;
+/* The panel's look, shared by every platform (native centers it in an overlay). */
+@utility dialog-panel {
   gap: --spacing(4);
-  width: 100%;
-  max-width: min(calc(100% - --spacing(8)), var(--container-lg));
-  translate: -50% -50%;
   padding: --spacing(6);
-  border: 1px solid var(--color-border);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-border);
   border-radius: var(--radius-lg);
   background-color: var(--color-background);
   color: var(--color-foreground);
   box-shadow: var(--shadow-lg);
   outline: none;
+}
+
+/* Web: the panel's look + fixed, centered positioning and enter/exit animation. */
+@utility dialog-content {
+  @apply dialog-panel;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 50;
+  display: grid;
+  width: 100%;
+  max-width: min(calc(100% - --spacing(8)), var(--container-lg));
+  translate: -50% -50%;
 
   &[data-state="open"] {
     animation: vinui-zoom-in 150ms ease-out;

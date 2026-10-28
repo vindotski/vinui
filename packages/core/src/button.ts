@@ -1,3 +1,5 @@
+import { allPlatforms, type PropDoc } from "./props.ts"
+
 /** Button `variant` values, in shadcn's order. */
 export const buttonVariantValues = [
   "default",
@@ -22,3 +24,33 @@ export const buttonSizeValues = [
 
 export type ButtonVariant = (typeof buttonVariantValues)[number]
 export type ButtonSize = (typeof buttonSizeValues)[number]
+
+/** Button props for the docs' API reference (checked against each platform by tests). */
+export const buttonProps = [
+  {
+    name: "variant",
+    values: buttonVariantValues,
+    default: "default",
+    description: "Visual style.",
+    platforms: allPlatforms,
+  },
+  {
+    name: "size",
+    values: buttonSizeValues,
+    default: "default",
+    description: "Height and padding. `icon` sizes are square.",
+    platforms: allPlatforms,
+  },
+  {
+    name: "asChild",
+    default: "false",
+    description: "Render the child element instead, with the button's props and classes.",
+    platforms: allPlatforms,
+  },
+  {
+    name: "className",
+    names: { vue: "class" },
+    description: "Extra classes, merged after vinui's with `cn()`.",
+    platforms: allPlatforms,
+  },
+] as const satisfies readonly PropDoc[]

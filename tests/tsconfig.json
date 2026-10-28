@@ -3,7 +3,19 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowImportingTsExtensions": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@/*": [
+        "../packages/native/*"
+      ]
+    }
   },
-  "include": ["env.d.ts", "parity", "specs", "*.config.ts"]
+  "include": [
+    "env.d.ts",
+    "parity",
+    "specs",
+    "*.config.ts"
+  ]
 }

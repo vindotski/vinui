@@ -15,6 +15,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vinui/core": "workspace:*",
+    "@vinui/native": "workspace:*",
     "@vinui/react": "workspace:*",
     "@vinui/vue": "workspace:*",
     "@vitejs/plugin-vue": "6.0.10",

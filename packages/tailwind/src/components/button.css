@@ -1,7 +1,7 @@
 /*
  * Button — names match shadcn's Button props; the default variant and size need
  * no class (a bare `btn` is variant="default" size="default").
- *   base:     btn
+ *   base:     btn            (label text on native: btn-label + the same variant/size classes)
  *   variants: btn-secondary | btn-outline | btn-ghost | btn-destructive | btn-link
  *   sizes:    btn-xs | btn-sm | btn-lg | btn-icon | btn-icon-xs | btn-icon-sm | btn-icon-lg
  *
@@ -16,7 +16,10 @@
   gap: --spacing(2);
   height: var(--btn-h, --spacing(9));
   padding-inline: var(--btn-px, --spacing(4));
-  border: 1px solid var(--btn-border, transparent);
+  /* Longhands, not `border:` (React Native drops the shorthand). */
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--btn-border, transparent);
   border-radius: var(--radius-md);
   background-color: var(--btn-bg, var(--color-primary));
   color: var(--btn-fg, var(--color-primary-foreground));
@@ -33,6 +36,12 @@
   &:hover {
     background-color: var(--btn-bg-hover, color-mix(in oklab, var(--color-primary) 90%, transparent));
     color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+  }
+
+  /* The single press-feedback mechanism (web and native); motion builds on it. */
+  &:active {
+    background-color: var(--btn-bg-active, color-mix(in oklab, var(--color-primary) 80%, transparent));
+    opacity: var(--btn-opacity-active, 1);
   }
 
   &:focus-visible {
@@ -54,12 +63,25 @@
   }
 }
 
+/*
+ * Text styles for a button's label element. Web text inherits from `btn`, so
+ * this is only needed where it doesn't (React Native `Text`): pair it with the
+ * same variant/size classes, e.g. `btn-label btn-outline btn-sm`.
+ */
+@utility btn-label {
+  color: var(--btn-fg, var(--color-primary-foreground));
+  font-size: var(--btn-text, var(--text-sm));
+  line-height: var(--btn-leading, var(--text-sm--line-height));
+  font-weight: var(--font-weight-medium);
+}
+
 /* variants (default lives in `btn` itself) */
 
 @utility btn-secondary {
   --btn-bg: var(--color-secondary);
   --btn-fg: var(--color-secondary-foreground);
   --btn-bg-hover: color-mix(in oklab, var(--color-secondary) 80%, transparent);
+  --btn-bg-active: color-mix(in oklab, var(--color-secondary) 65%, transparent);
 }
 
 @utility btn-outline {
@@ -68,6 +90,7 @@
   --btn-border: var(--color-input);
   --btn-bg-hover: var(--color-accent);
   --btn-fg-hover: var(--color-accent-foreground);
+  --btn-bg-active: color-mix(in oklab, var(--color-accent) 88%, var(--color-foreground));
 }
 
 @utility btn-ghost {
@@ -75,18 +98,22 @@
   --btn-fg: var(--color-foreground);
   --btn-bg-hover: var(--color-accent);
   --btn-fg-hover: var(--color-accent-foreground);
+  --btn-bg-active: color-mix(in oklab, var(--color-accent) 88%, var(--color-foreground));
 }
 
 @utility btn-destructive {
   --btn-bg: var(--color-destructive);
   --btn-fg: var(--color-destructive-foreground);
   --btn-bg-hover: color-mix(in oklab, var(--color-destructive) 90%, transparent);
+  --btn-bg-active: color-mix(in oklab, var(--color-destructive) 80%, transparent);
 }
 
 @utility btn-link {
   --btn-bg: transparent;
   --btn-fg: var(--color-primary);
   --btn-bg-hover: transparent;
+  --btn-bg-active: transparent;
+  --btn-opacity-active: 0.7;
   text-underline-offset: 4px;
 
   &:hover {

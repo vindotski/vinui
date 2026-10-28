@@ -1,0 +1,133 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "vinui",
+  "homepage": "https://vinui.dev",
+  "items": [
+    {
+      "name": "engine",
+      "type": "registry:lib",
+      "title": "Engine check",
+      "description": "Native-only. Fails loudly if Uniwind is missing or not configured (vinui addition).",
+      "files": [
+        {
+          "path": "lib/vinui-engine.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "text",
+      "type": "registry:ui",
+      "title": "Text",
+      "description": "Native-only. Text with TextClassContext, so parents like Button can style their labels.",
+      "dependencies": [
+        "@rn-primitives/slot",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@vinui/engine"
+      ],
+      "files": [
+        {
+          "path": "components/ui/text.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "icon",
+      "type": "registry:ui",
+      "title": "Icon",
+      "description": "Native-only. Lucide icon with className support: <Icon as={X} />.",
+      "dependencies": [
+        "lucide-react-native",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@vinui/text"
+      ],
+      "files": [
+        {
+          "path": "components/ui/icon.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "native-only-animated-view",
+      "type": "registry:ui",
+      "title": "Native-only animated view",
+      "description": "Native-only. Reanimated view used for overlay enter/exit animations (Reanimated 4 needs react-native-worklets).",
+      "files": [
+        {
+          "path": "components/ui/native-only-animated-view.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Button built on Pressable, styled with vinui btn classes.",
+      "dependencies": [
+        "@rn-primitives/slot",
+        "clsx",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@vinui/text",
+        "@vinui/engine"
+      ],
+      "files": [
+        {
+          "path": "components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog built on rn-primitives, styled with vinui dialog classes.",
+      "dependencies": [
+        "@rn-primitives/dialog",
+        "@rn-primitives/portal",
+        "lucide-react-native",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@vinui/button",
+        "@vinui/icon",
+        "@vinui/native-only-animated-view",
+        "@vinui/engine"
+      ],
+      "files": [
+        {
+          "path": "components/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "theme-root",
+      "type": "registry:ui",
+      "title": "ThemeRoot",
+      "description": "Native-only. The app's base layer: theme background, status bar, native root color and PortalHost; plus useNavigationTheme() (vinui addition). Needs expo-status-bar and expo-system-ui (npx expo install).",
+      "dependencies": [
+        "@rn-primitives/portal",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@vinui/engine"
+      ],
+      "files": [
+        {
+          "path": "components/ui/theme-root.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

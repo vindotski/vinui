@@ -94,7 +94,9 @@
     gap: --spacing(2);
     height: var(--btn-h, --spacing(9));
     padding-inline: var(--btn-px, --spacing(4));
-    border: 1px solid var(--btn-border, transparent);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--btn-border, transparent);
     border-radius: var(--radius-md);
     background-color: var(--btn-bg, var(--color-primary));
     color: var(--btn-fg, var(--color-primary-foreground));
@@ -110,6 +112,10 @@
   &:hover {
     background-color: var(--btn-bg-hover, color-mix(in oklab, var(--color-primary) 90%, transparent));
     color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+    }
+  &:active {
+    background-color: var(--btn-bg-active, color-mix(in oklab, var(--color-primary) 80%, transparent));
+    opacity: var(--btn-opacity-active, 1);
     }
   &:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 50%, transparent);
@@ -128,10 +134,18 @@
     }
 }
 
+@utility btn-label {
+    color: var(--btn-fg, var(--color-primary-foreground));
+    font-size: var(--btn-text, var(--text-sm));
+    line-height: var(--btn-leading, var(--text-sm--line-height));
+    font-weight: var(--font-weight-medium);
+}
+
 @utility btn-secondary {
     --btn-bg: var(--color-secondary);
     --btn-fg: var(--color-secondary-foreground);
     --btn-bg-hover: color-mix(in oklab, var(--color-secondary) 80%, transparent);
+    --btn-bg-active: color-mix(in oklab, var(--color-secondary) 65%, transparent);
 }
 
 @utility btn-outline {
@@ -140,6 +154,7 @@
     --btn-border: var(--color-input);
     --btn-bg-hover: var(--color-accent);
     --btn-fg-hover: var(--color-accent-foreground);
+    --btn-bg-active: color-mix(in oklab, var(--color-accent) 88%, var(--color-foreground));
 }
 
 @utility btn-ghost {
@@ -147,18 +162,22 @@
     --btn-fg: var(--color-foreground);
     --btn-bg-hover: var(--color-accent);
     --btn-fg-hover: var(--color-accent-foreground);
+    --btn-bg-active: color-mix(in oklab, var(--color-accent) 88%, var(--color-foreground));
 }
 
 @utility btn-destructive {
     --btn-bg: var(--color-destructive);
     --btn-fg: var(--color-destructive-foreground);
     --btn-bg-hover: color-mix(in oklab, var(--color-destructive) 90%, transparent);
+    --btn-bg-active: color-mix(in oklab, var(--color-destructive) 80%, transparent);
 }
 
 @utility btn-link {
     --btn-bg: transparent;
     --btn-fg: var(--color-primary);
     --btn-bg-hover: transparent;
+    --btn-bg-active: transparent;
+    --btn-opacity-active: 0.7;
     text-underline-offset: 4px;
   &:hover {
     text-decoration-line: underline;
@@ -223,23 +242,29 @@
     }
 }
 
-@utility dialog-content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 50;
-    display: grid;
+@utility dialog-panel {
     gap: --spacing(4);
-    width: 100%;
-    max-width: min(calc(100% - --spacing(8)), var(--container-lg));
-    translate: -50% -50%;
     padding: --spacing(6);
-    border: 1px solid var(--color-border);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--color-border);
     border-radius: var(--radius-lg);
     background-color: var(--color-background);
     color: var(--color-foreground);
     box-shadow: var(--shadow-lg);
     outline: none;
+}
+
+@utility dialog-content {
+    @apply dialog-panel;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 50;
+    display: grid;
+    width: 100%;
+    max-width: min(calc(100% - --spacing(8)), var(--container-lg));
+    translate: -50% -50%;
   &[data-state="open"] {
     animation: vinui-zoom-in 150ms ease-out;
     }

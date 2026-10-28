@@ -21,6 +21,22 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
       await expect(dialog).toHaveAccessibleDescription(/permanently removes/)
       await expect(dialog.locator(":focus")).toHaveCount(1)
       await expect(dialog.locator(".dialog-close")).toBeVisible()
+      // dialog-content composes dialog-panel: the panel's look must be intact.
+      const tokenBg = await page.evaluate(() => {
+        const probe = document.createElement("div")
+        probe.style.backgroundColor = "var(--color-background)"
+        document.body.append(probe)
+        const c = getComputedStyle(probe).backgroundColor
+        probe.remove()
+        return c
+      })
+      await expect(dialog).toHaveCSS("background-color", tokenBg)
+      await expect(dialog).toHaveCSS("border-top-width", "1px")
+      await expect(dialog).toHaveCSS("border-top-style", "solid")
+      await expect(dialog).toHaveCSS("padding-top", "24px")
+      await expect(dialog).toHaveCSS("border-top-left-radius", "10px")
+      await expect(dialog).toHaveCSS("display", "grid")
+      expect(await dialog.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none")
     })
 
     test("Escape plays the exit animation, unmounts, returns focus", async ({ page, demo, visit }) => {
@@ -51,6 +67,21 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
         await expect(page.getByRole("dialog")).toHaveCount(0)
       })
     }
+
+    test("footer showCloseButton renders a Close button that closes; no corner X", async ({ page, demo, visit }) => {
+      await visit(page)
+      await demo(page, framework, "Dialog").getByRole("button", { name: "Footer close" }).click()
+      const dialog = page.getByRole("dialog")
+      await expect(dialog).toHaveAttribute("data-state", "open")
+      await expect(dialog).toHaveAccessibleName("Saved")
+      await expect(dialog.locator(".dialog-close")).toHaveCount(0)
+      const close = dialog.getByRole("button", { name: "Close" })
+      await expect(close).toHaveCount(1)
+      await expect(close).toHaveClass(/\bbtn-outline\b/)
+      await page.waitForTimeout(200)
+      await close.click()
+      await expect(dialog).toHaveCount(0)
+    })
 
     test("reduced motion: no animation, still closes", async ({ browser, baseURL, layout, visit }) => {
       const context = await browser.newContext({ reducedMotion: "reduce", baseURL })

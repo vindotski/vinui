@@ -43,5 +43,17 @@ function toggleDark() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    <Dialog>
+      <DialogTrigger as-child>
+        <Button variant="secondary">Footer close</Button>
+      </DialogTrigger>
+      <DialogContent :show-close-button="false">
+        <DialogHeader>
+          <DialogTitle>Saved</DialogTitle>
+          <DialogDescription>Your changes were saved.</DialogDescription>
+        </DialogHeader>
+        <DialogFooter show-close-button />
+      </DialogContent>
+    </Dialog>
   </main>
 </template>

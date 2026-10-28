@@ -24,6 +24,8 @@ test.describe("Button parity (docs)", () => {
               background: cs.backgroundColor,
               color: cs.color,
               border: cs.borderTopColor,
+              borderWidth: cs.borderTopWidth,
+              borderStyle: cs.borderTopStyle,
             }
           }),
         )
@@ -40,5 +42,45 @@ test.describe("Button parity (docs)", () => {
       await link.hover()
       await expect(link).toHaveCSS("text-decoration-line", "underline")
     }
+  })
+
+  test("outline has a 1px solid input-colored border; default border is transparent", async ({ page, demo, visit }) => {
+    await visit(page)
+    const inputColor = await page.evaluate(() => {
+      const probe = document.createElement("div")
+      probe.style.color = "var(--color-input)"
+      document.body.append(probe)
+      const c = getComputedStyle(probe).color
+      probe.remove()
+      return c
+    })
+    for (const framework of ["react", "vue"] as const) {
+      const root = demo(page, framework, "Button")
+      const outline = root.locator(".btn-outline").first()
+      await expect(outline).toHaveCSS("border-top-width", "1px")
+      await expect(outline).toHaveCSS("border-top-style", "solid")
+      await expect(outline).toHaveCSS("border-top-color", inputColor)
+      const plain = root.locator('[data-variant="default"]').first()
+      await expect(plain).toHaveCSS("border-top-width", "1px")
+      await expect(plain).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)")
+    }
+  })
+
+  test(":active press tint changes the background, identically in both", async ({ page, demo, visit }) => {
+    await visit(page)
+    const pressed: Record<string, [string, string]> = {}
+    for (const framework of ["react", "vue"] as const) {
+      const btn = demo(page, framework, "Button").locator('[data-variant="default"]').first()
+      await btn.hover()
+      await page.waitForTimeout(200) // let the hover transition settle
+      const hover = await btn.evaluate((el) => getComputedStyle(el).backgroundColor)
+      await page.mouse.down()
+      await page.waitForTimeout(200)
+      const active = await btn.evaluate((el) => getComputedStyle(el).backgroundColor)
+      await page.mouse.up()
+      expect(active, `${framework} :active differs from hover`).not.toBe(hover)
+      pressed[framework] = [hover, active]
+    }
+    expect(pressed.vue).toEqual(pressed.react)
   })
 })

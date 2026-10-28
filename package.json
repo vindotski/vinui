@@ -11,8 +11,9 @@
     "dev:docs": "pnpm --filter docs dev",
     "registry:build": "pnpm --filter @vinui/registry build",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @vinui/tests test && pnpm --filter @vinui/tests test:e2e",
-    "lint": "pnpm -r lint"
+    "test": "pnpm --filter @vinui/tests test && pnpm --filter @vinui/native test && pnpm --filter @vinui/tests test:e2e",
+    "lint": "pnpm -r lint",
+    "spike:native-engine": "node spikes/native-engine/run.ts"
   },
   "devDependencies": {
     "typescript": "7.0.2"

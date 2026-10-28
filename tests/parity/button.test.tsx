@@ -6,6 +6,7 @@
 import { buttonSizeValues, buttonVariantValues } from "@vinui/core"
 import { Button as ReactButton, buttonVariants as reactButtonVariants } from "@vinui/react/ui/button"
 import { Button as VueButton, buttonVariants as vueButtonVariants } from "@vinui/vue/ui/button"
+import { buttonVariants as nativeButtonVariants } from "@vinui/native/ui/button"
 import { renderToString as renderReact } from "react-dom/server"
 import { describe, expect, test } from "vitest"
 import { createSSRApp, h } from "vue"
@@ -16,6 +17,7 @@ type ButtonVariantsFn = typeof reactButtonVariants
 const frameworks: [name: string, buttonVariants: ButtonVariantsFn][] = [
   ["react", reactButtonVariants],
   ["vue", vueButtonVariants],
+  ["native", nativeButtonVariants],
 ]
 
 /** Every variant × size, including omitted props (where "plain btn" lives). */
@@ -39,6 +41,11 @@ describe("buttonVariants class matrix", () => {
   // Plain equality, not a second snapshot: `vitest -u` can't paper over drift.
   test("Vue matrix equals React matrix", () => {
     expect(matrix(vueButtonVariants)).toEqual(reactMatrix)
+  })
+
+  // Native shares web's component classes (docs/decisions/0005), so it must match too.
+  test("native matrix equals React matrix", () => {
+    expect(matrix(nativeButtonVariants)).toEqual(reactMatrix)
   })
 })
 

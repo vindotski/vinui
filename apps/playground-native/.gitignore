@@ -1,0 +1,4 @@
+# Uniwind generates this when Metro runs
+uniwind-types.d.ts
+.expo/
+dist/

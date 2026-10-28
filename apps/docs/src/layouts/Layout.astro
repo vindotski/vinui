@@ -44,16 +44,44 @@ const nav = [
             ))
           }
         </nav>
-        <button id="theme-toggle" class="btn btn-outline btn-sm ml-auto" type="button">
-          Toggle dark
-        </button>
+        <div class="ml-auto flex gap-2" role="group" aria-label="Theme">
+          {
+            ["light", "dark", "system"].map((theme) => (
+              <button
+                class:list={["btn btn-sm", theme !== "system" && "btn-outline"]}
+                type="button"
+                data-theme={theme}
+                aria-pressed={theme === "system" ? "true" : "false"}
+              >
+                {theme}
+              </button>
+            ))
+          }
+        </div>
       </div>
     </header>
     <slot />
     <script>
-      document.getElementById("theme-toggle")?.addEventListener("click", () => {
-        document.documentElement.classList.toggle("dark")
-      })
+      // Light / dark / system, like the native playground. "system" follows the OS live.
+      const media = matchMedia("(prefers-color-scheme: dark)")
+      const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-theme]")
+      let theme = "system"
+      function apply() {
+        const dark = theme === "dark" || (theme === "system" && media.matches)
+        document.documentElement.classList.toggle("dark", dark)
+        for (const button of buttons) {
+          const selected = button.dataset.theme === theme
+          button.setAttribute("aria-pressed", String(selected))
+          button.classList.toggle("btn-outline", !selected)
+        }
+      }
+      for (const button of buttons) {
+        button.addEventListener("click", () => {
+          theme = button.dataset.theme ?? "system"
+          apply()
+        })
+      }
+      media.addEventListener("change", apply)
     </script>
   </body>
 </html>

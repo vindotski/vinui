@@ -4,5 +4,6 @@ packages:
   - "tests"
 allowBuilds:
   '@parcel/watcher': false
+  unrs-resolver: false
 minimumReleaseAgeExclude:
   - shadcn-vue@2.9.0

@@ -45,6 +45,18 @@ export function App() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="secondary">Footer close</Button>
+        </DialogTrigger>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Saved</DialogTitle>
+            <DialogDescription>Your changes were saved.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter showCloseButton />
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }
