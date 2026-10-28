@@ -1,0 +1,23 @@
+{
+  "name": "@vinui/react",
+  "version": "0.0.0",
+  "private": true,
+  "description": "vinui React components (registry source, consumed via the shadcn CLI)",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@base-ui/react": "1.9.0",
+    "clsx": "2.1.1",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "shadcn": "4.23.0",
+    "typescript": "7.0.2"
+  }
+}
