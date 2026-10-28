@@ -6,14 +6,14 @@ import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import type { Plugin } from "vite"
 
-const packageSrc = {
-  react: fileURLToPath(new URL("../../packages/react/src/", import.meta.url)),
-  vue: fileURLToPath(new URL("../../packages/vue/src/", import.meta.url)),
+const packageRoots = {
+  react: fileURLToPath(new URL("../../packages/react/", import.meta.url)),
+  vue: fileURLToPath(new URL("../../packages/vue/", import.meta.url)),
 }
 
 /**
  * Registry sources import `@/lib/utils` the way they will inside a user's app.
- * Resolve `@/` to the src dir of whichever package the import comes from.
+ * Resolve `@/` to the root of whichever package the import comes from.
  */
 function registryAlias(): Plugin {
   return {
@@ -21,9 +21,9 @@ function registryAlias(): Plugin {
     enforce: "pre",
     async resolveId(source, importer, options) {
       if (!source.startsWith("@/") || !importer) return null
-      const src = Object.values(packageSrc).find((dir) => importer.startsWith(dir))
-      if (!src) return null
-      return this.resolve(src + source.slice(2), importer, { ...options, skipSelf: true })
+      const root = Object.values(packageRoots).find((dir) => importer.startsWith(dir))
+      if (!root) return null
+      return this.resolve(root + source.slice(2), importer, { ...options, skipSelf: true })
     },
   }
 }

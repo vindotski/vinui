@@ -11,7 +11,7 @@
       "dependencies": ["clsx", "tailwind-merge"],
       "files": [
         {
-          "path": "src/lib/utils.ts",
+          "path": "lib/utils.ts",
           "type": "registry:lib"
         }
       ]
@@ -25,7 +25,7 @@
       "registryDependencies": ["@vinui/utils"],
       "files": [
         {
-          "path": "src/components/ui/button.tsx",
+          "path": "components/ui/button.tsx",
           "type": "registry:ui"
         }
       ]

@@ -5,7 +5,7 @@
   "description": "vinui Vue components (registry source, consumed via the shadcn-vue CLI)",
   "type": "module",
   "exports": {
-    "./ui/*": "./src/components/ui/*/index.ts"
+    "./ui/*": "./components/ui/*/index.ts"
   },
   "scripts": {
     "typecheck": "vue-tsc -p ."

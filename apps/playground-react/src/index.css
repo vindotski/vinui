@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --radius: 0.625rem;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+}
+
+@utility btn {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: --spacing(2);
+    height: var(--btn-h, --spacing(9));
+    padding-inline: var(--btn-px, --spacing(4));
+    border: 1px solid var(--btn-border, transparent);
+    border-radius: var(--radius-md);
+    background-color: var(--btn-bg, var(--color-primary));
+    color: var(--btn-fg, var(--color-primary-foreground));
+    font-size: var(--btn-text, var(--text-sm));
+    line-height: var(--btn-leading, var(--text-sm--line-height));
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+  &:hover {
+    background-color: var(--btn-bg-hover, color-mix(in oklab, var(--color-primary) 90%, transparent));
+    color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+    }
+  &:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 50%, transparent);
+    border-color: var(--color-ring);
+    }
+  &:disabled,
+  &[data-disabled] {
+    pointer-events: none;
+    opacity: 0.5;
+    }
+  & svg {
+    flex-shrink: 0;
+    width: --spacing(4);
+    height: --spacing(4);
+    pointer-events: none;
+    }
+}
+
+@utility btn-primary {
+    --btn-bg: var(--color-primary);
+    --btn-fg: var(--color-primary-foreground);
+    --btn-bg-hover: color-mix(in oklab, var(--color-primary) 90%, transparent);
+}
+
+@utility btn-secondary {
+    --btn-bg: var(--color-secondary);
+    --btn-fg: var(--color-secondary-foreground);
+    --btn-bg-hover: color-mix(in oklab, var(--color-secondary) 80%, transparent);
+}
+
+@utility btn-outline {
+    --btn-bg: var(--color-background);
+    --btn-fg: var(--color-foreground);
+    --btn-border: var(--color-input);
+    --btn-bg-hover: var(--color-accent);
+    --btn-fg-hover: var(--color-accent-foreground);
+}
+
+@utility btn-ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-foreground);
+    --btn-bg-hover: var(--color-accent);
+    --btn-fg-hover: var(--color-accent-foreground);
+}
+
+@utility btn-destructive {
+    --btn-bg: var(--color-destructive);
+    --btn-fg: var(--color-destructive-foreground);
+    --btn-bg-hover: color-mix(in oklab, var(--color-destructive) 90%, transparent);
+}
+
+@utility btn-md {
+    --btn-h: --spacing(9);
+    --btn-px: --spacing(4);
+}
+
+@utility btn-sm {
+    --btn-h: --spacing(8);
+    --btn-px: --spacing(3);
+    --btn-text: var(--text-xs);
+    --btn-leading: var(--text-xs--line-height);
+}
+
+@utility btn-lg {
+    --btn-h: --spacing(10);
+    --btn-px: --spacing(6);
+}
+
+@utility btn-icon {
+    --btn-h: --spacing(9);
+    --btn-px: 0;
+    aspect-ratio: 1 / 1;
+}

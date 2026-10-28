@@ -5,7 +5,7 @@
   "description": "vinui React components (registry source, consumed via the shadcn CLI)",
   "type": "module",
   "exports": {
-    "./ui/*": "./src/components/ui/*.tsx"
+    "./ui/*": "./components/ui/*.tsx"
   },
   "scripts": {
     "typecheck": "tsc -p ."
