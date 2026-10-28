@@ -194,9 +194,25 @@ importers:
       react-dom:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+
+  packages/registry-build:
+    dependencies:
+      postcss:
+        specifier: 8.5.32
+        version: 8.5.32
       shadcn:
         specifier: 4.23.0
         version: 4.23.0
+      shadcn-vue:
+        specifier: 2.9.0
+        version: 2.9.0(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/language-core@3.3.13)(eslint@10.13.0(jiti@2.7.0))
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.5
+        version: 26.6.5
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -225,9 +241,6 @@ importers:
       '@vue/tsconfig':
         specifier: 0.9.1
         version: 0.9.1(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
-      shadcn-vue:
-        specifier: 2.9.0
-        version: 2.9.0(@volar/typescript@2.4.28(typescript@6.0.3))(@vue/language-core@3.3.13)(eslint@10.13.0(jiti@2.7.0))
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -893,6 +906,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/node@26.6.5':
+    resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
 
   '@types/react-dom@19.3.0':
     resolution: {integrity: sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==}
@@ -2758,6 +2774,9 @@ packages:
   ufo@1.6.4:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
+
   undici@6.29.1:
     resolution: {integrity: sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==}
     engines: {node: '>=18.17'}
@@ -3588,6 +3607,10 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/node@26.6.5':
+    dependencies:
+      undici-types: 8.9.0
+
   '@types/react-dom@19.3.0(@types/react@19.3.0)':
     dependencies:
       '@types/react': 19.3.0
@@ -3673,6 +3696,15 @@ snapshots:
       vscode-uri: 3.2.0
     optionalDependencies:
       typescript: 6.0.3
+
+  '@volar/typescript@2.4.28(typescript@7.0.2)':
+    dependencies:
+      '@volar/language-core': 2.4.28
+      path-browserify: 1.0.1
+      vscode-uri: 3.2.0
+    optionalDependencies:
+      typescript: 7.0.2
+    optional: true
 
   '@vue/compiler-core@3.5.44':
     dependencies:
@@ -5141,7 +5173,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn-vue@2.9.0(@volar/typescript@2.4.28(typescript@6.0.3))(@vue/language-core@3.3.13)(eslint@10.13.0(jiti@2.7.0)):
+  shadcn-vue@2.9.0(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/language-core@3.3.13)(eslint@10.13.0(jiti@2.7.0)):
     dependencies:
       '@dotenvx/dotenvx': 2.38.2
       '@modelcontextprotocol/sdk': 1.32.2(zod@3.25.76)
@@ -5179,7 +5211,7 @@ snapshots:
       validate-npm-package-name: 8.0.0
       vue: 3.5.44(typescript@5.9.3)
       vue-metamorph: 3.3.4(eslint@10.13.0(jiti@2.7.0))
-      vue-sfc-transformer: 0.3.1(@volar/typescript@2.4.28(typescript@6.0.3))(@vue/compiler-core@3.5.44)(@vue/language-core@3.3.13)(rolldown@1.2.15)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3))
+      vue-sfc-transformer: 0.3.1(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/compiler-core@3.5.44)(@vue/language-core@3.3.13)(rolldown@1.2.15)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3))
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
     transitivePeerDependencies:
@@ -5456,6 +5488,8 @@ snapshots:
 
   ufo@1.6.4: {}
 
+  undici-types@8.9.0: {}
+
   undici@6.29.1: {}
 
   undici@7.30.1: {}
@@ -5530,13 +5564,13 @@ snapshots:
       - eslint
       - supports-color
 
-  vue-sfc-transformer@0.3.1(@volar/typescript@2.4.28(typescript@6.0.3))(@vue/compiler-core@3.5.44)(@vue/language-core@3.3.13)(rolldown@1.2.15)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)):
+  vue-sfc-transformer@0.3.1(@volar/typescript@2.4.28(typescript@7.0.2))(@vue/compiler-core@3.5.44)(@vue/language-core@3.3.13)(rolldown@1.2.15)(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3)):
     dependencies:
       '@vue/compiler-core': 3.5.44
       tinyglobby: 0.2.17
       vue: 3.5.44(typescript@5.9.3)
     optionalDependencies:
-      '@volar/typescript': 2.4.28(typescript@6.0.3)
+      '@volar/typescript': 2.4.28(typescript@7.0.2)
       '@vue/language-core': 3.3.13
       rolldown: 1.2.15
       typescript: 5.9.3
