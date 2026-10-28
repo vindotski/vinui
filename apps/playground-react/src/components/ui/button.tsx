@@ -1,6 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 
-import { cn, cnState } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 const variants = {
   primary: "btn-primary",
@@ -33,13 +33,17 @@ function buttonVariants({
   return cn("btn", variants[variant], sizes[size])
 }
 
-interface ButtonProps extends ButtonPrimitive.Props, ButtonVariantProps {}
+// className is string-only: cn() can't merge Base UI's state-function form.
+// Style states with data-* variants instead (e.g. data-disabled:opacity-50).
+interface ButtonProps extends Omit<ButtonPrimitive.Props, "className">, ButtonVariantProps {
+  className?: string
+}
 
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cnState(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   )

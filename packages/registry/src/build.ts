@@ -83,6 +83,9 @@ function buildInitItem(theme: RegistryItem, target: string): RegistryItem {
       registries: { [NAMESPACE]: `${REGISTRY_URL}/${target}/{name}.json` },
     },
     registryDependencies: ["utils"],
+    // shadcn-vue's `add` inserts `@import "tw-animate-css"` whenever an item
+    // brings cssVars (our theme does), so the package must already be installed.
+    ...(target === "vue" && { dependencies: ["tw-animate-css"] }),
     cssVars: theme.cssVars,
     css: theme.css,
   }

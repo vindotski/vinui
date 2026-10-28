@@ -1,7 +1,11 @@
 import type * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
-import { cn, cnState } from "@/lib/utils"
+import { cn } from "@/lib/utils"
+
+// Parts that merge vinui classes take a string className: cn() can't merge
+// Base UI's state-function form. Style states with data-* variants instead.
+type WithClassName<Props> = Omit<Props, "className"> & { className?: string }
 
 function Dialog(props: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
@@ -19,17 +23,17 @@ function DialogClose(props: DialogPrimitive.Close.Props) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
-function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
+function DialogOverlay({ className, ...props }: WithClassName<DialogPrimitive.Backdrop.Props>) {
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
-      className={cnState("dialog-overlay", className)}
+      className={cn("dialog-overlay", className)}
       {...props}
     />
   )
 }
 
-interface DialogContentProps extends DialogPrimitive.Popup.Props {
+type DialogContentProps = WithClassName<DialogPrimitive.Popup.Props> & {
   showCloseButton?: boolean
 }
 
@@ -44,7 +48,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
-        className={cnState("dialog-content", className)}
+        className={cn("dialog-content", className)}
         {...props}
       >
         {children}
@@ -82,21 +86,24 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+function DialogTitle({ className, ...props }: WithClassName<DialogPrimitive.Title.Props>) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cnState("dialog-title", className)}
+      className={cn("dialog-title", className)}
       {...props}
     />
   )
 }
 
-function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
+function DialogDescription({
+  className,
+  ...props
+}: WithClassName<DialogPrimitive.Description.Props>) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cnState("dialog-description", className)}
+      className={cn("dialog-description", className)}
       {...props}
     />
   )

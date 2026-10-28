@@ -196,9 +196,6 @@
     animation: vinui-fade-out 150ms ease-in forwards;
     }
   @media (prefers-reduced-motion: reduce) {
-    animation: none;
-    }
-  @media (prefers-reduced-motion: reduce) {
     animation: none !important;
     }
 }
@@ -225,9 +222,6 @@
     }
   &:is([data-closed], [data-state="closed"]) {
     animation: vinui-zoom-out 150ms ease-in forwards;
-    }
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
     }
   @media (prefers-reduced-motion: reduce) {
     animation: none !important;
@@ -270,19 +264,12 @@
   @variant sm {
     text-align: left;
     }
-  @variant sm {
-    text-align: left;
-    }
 }
 
 @utility dialog-footer {
     display: flex;
     flex-direction: column-reverse;
     gap: --spacing(2);
-  @variant sm {
-    flex-direction: row;
-    justify-content: flex-end;
-    }
   @variant sm {
     flex-direction: row;
     justify-content: flex-end;

@@ -4,22 +4,6 @@
   "homepage": "https://vinui.dev",
   "items": [
     {
-      "name": "utils",
-      "type": "registry:lib",
-      "title": "Utils",
-      "description": "cn() helper: clsx + tailwind-merge.",
-      "dependencies": [
-        "clsx",
-        "tailwind-merge"
-      ],
-      "files": [
-        {
-          "path": "lib/utils.ts",
-          "type": "registry:lib"
-        }
-      ]
-    },
-    {
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
@@ -28,7 +12,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "@vinui/utils"
+        "utils"
       ],
       "files": [
         {
@@ -46,7 +30,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "@vinui/utils"
+        "utils"
       ],
       "files": [
         {
