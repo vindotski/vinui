@@ -8,7 +8,10 @@
       "type": "registry:lib",
       "title": "Utils",
       "description": "cn() helper: clsx + tailwind-merge.",
-      "dependencies": ["clsx", "tailwind-merge"],
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
       "files": [
         {
           "path": "lib/utils.ts",
@@ -21,8 +24,12 @@
       "type": "registry:ui",
       "title": "Button",
       "description": "Button built on Reka UI, styled with vinui btn classes.",
-      "dependencies": ["reka-ui"],
-      "registryDependencies": ["@vinui/utils"],
+      "dependencies": [
+        "reka-ui"
+      ],
+      "registryDependencies": [
+        "@vinui/utils"
+      ],
       "files": [
         {
           "path": "components/ui/button/Button.vue",
@@ -30,6 +37,64 @@
         },
         {
           "path": "components/ui/button/index.ts",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog built on Reka UI, styled with vinui dialog classes.",
+      "dependencies": [
+        "reka-ui"
+      ],
+      "registryDependencies": [
+        "@vinui/utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/dialog/Dialog.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogClose.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogContent.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogDescription.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogFooter.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogHeader.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogOverlay.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogPortal.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogTitle.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/DialogTrigger.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/dialog/index.ts",
           "type": "registry:ui"
         }
       ]
