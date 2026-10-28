@@ -1,0 +1,48 @@
+---
+import Layout from "./Layout.astro"
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+const path = Astro.url.pathname.replace(/\/$/, "")
+const sections = [
+  {
+    title: "Installation",
+    links: [{ href: "/docs/installation/react", label: "React" }],
+  },
+]
+---
+
+<Layout title={`${title} · vinui`}>
+  <div class="mx-auto flex max-w-5xl gap-10 px-4 py-10">
+    <aside class="hidden w-40 shrink-0 text-sm md:block">
+      {
+        sections.map((section) => (
+          <div class="mb-6">
+            <p class="mb-2 font-medium">{section.title}</p>
+            <ul class="flex flex-col gap-1.5">
+              {section.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    class:list={[
+                      "hover:text-foreground",
+                      path === link.href ? "text-foreground" : "text-muted-foreground",
+                    ]}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </aside>
+    <article class="docs min-w-0 flex-1">
+      <slot />
+    </article>
+  </div>
+</Layout>

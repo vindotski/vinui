@@ -1,0 +1,184 @@
+---
+import { REGISTRY_URL } from "@vinui/registry/config"
+
+import CodeBlock from "../../../components/CodeBlock.astro"
+import DocsLayout from "../../../layouts/DocsLayout.astro"
+
+const registry = `${REGISTRY_URL}/react`
+
+const tsconfig = `
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}`
+
+const tsconfigApp = `
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+    // ...keep the existing options
+  }
+}`
+
+const viteConfig = `
+import path from "node:path"
+import tailwindcss from "@tailwindcss/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+})`
+
+const app = `
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+export default function App() {
+  return (
+    <main className="flex min-h-svh items-center justify-center gap-2">
+      <Button>Save</Button>
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>Delete…</DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete project?</DialogTitle>
+            <DialogDescription>This can't be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+            <DialogClose render={<Button variant="destructive" />}>Delete</DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </main>
+  )
+}`
+
+const registries = `
+{
+  "registries": {
+    "@vinui": "${registry}/{name}.json"
+  }
+}`
+---
+
+<DocsLayout title="Installation · React">
+  <h1>Installation · React</h1>
+  <p class="lead">
+    vinui is a <a href="https://ui.shadcn.com">shadcn</a> style: you use the shadcn CLI and
+    shadcn's component API, and get vinui's look. Components are copied into your project,
+    built on <a href="https://base-ui.com">Base UI</a> and Tailwind CSS v4.
+  </p>
+  <p>
+    Already using shadcn? Skip to <a href="#existing-project">Existing shadcn project</a>.
+  </p>
+
+  <h2 id="new-project">New project</h2>
+  <p>
+    This guide uses Vite. For other frameworks, set up Tailwind CSS v4 and the <code>@/</code> import alias as in <a href="https://ui.shadcn.com/docs/installation">shadcn's installation guide</a>, then
+    continue from <a href="#init">Initialize vinui</a>.
+  </p>
+
+  <h3>1. Create a project</h3>
+  <CodeBlock code={`npm create vite@latest my-app -- --template react-ts\ncd my-app`} />
+
+  <h3>2. Add Tailwind CSS</h3>
+  <CodeBlock code="npm install tailwindcss @tailwindcss/vite" />
+  <p>Replace everything in <code>src/index.css</code> with:</p>
+  <CodeBlock code={`@import "tailwindcss";`} lang="css" file="src/index.css" />
+
+  <h3>3. Set up the <code>@/</code> import alias</h3>
+  <p>Add <code>paths</code> to both TypeScript configs:</p>
+  <CodeBlock code={tsconfig} lang="json" file="tsconfig.json" />
+  <CodeBlock code={tsconfigApp} lang="jsonc" file="tsconfig.app.json" />
+  <p>Then add the Tailwind plugin and the alias to Vite:</p>
+  <CodeBlock code="npm install -D @types/node" />
+  <CodeBlock code={viteConfig} lang="ts" file="vite.config.ts" />
+
+  <h3 id="init">4. Initialize vinui</h3>
+  <CodeBlock code={`npx shadcn@latest init ${registry}/init.json`} />
+  <p>This writes:</p>
+  <ul>
+    <li><code>components.json</code>, with the <code>@vinui</code> registry already configured</li>
+    <li><code>src/lib/utils.ts</code>, shadcn's standard <code>cn()</code> helper</li>
+    <li>vinui's theme (colors, radius, dark mode) into <code>src/index.css</code></li>
+  </ul>
+  <p>Nothing else: no shadcn theme, fonts or icon library.</p>
+
+  <h3>5. Add components</h3>
+  <CodeBlock code="npx shadcn@latest add @vinui/button @vinui/dialog" />
+  <p>
+    Each component lands in <code>src/components/ui/</code>, and its styles are added to <code>src/index.css</code>.
+  </p>
+
+  <h3>6. Use them</h3>
+  <CodeBlock code={app} lang="tsx" file="src/App.tsx" />
+  <CodeBlock code="npm run dev" />
+
+  <h2 id="existing-project">Existing shadcn project</h2>
+  <p>vinui components can replace shadcn's one at a time.</p>
+  <h3>1. Add the vinui registry</h3>
+  <CodeBlock code={registries} lang="json" file="components.json" />
+  <h3>2. Add components</h3>
+  <CodeBlock code="npx shadcn@latest add @vinui/button" />
+  <ul>
+    <li>
+      If you already have shadcn's version, the CLI asks before overwriting it. vinui uses
+      the same props (<code>variant="outline"</code>, <code>size="sm"</code>, …), so your
+      existing code keeps working.
+    </li>
+    <li>Your colors are kept; vinui only adds tokens your theme doesn't define yet.</li>
+  </ul>
+  <h3>3. Switch to vinui's colors (optional)</h3>
+  <CodeBlock code="npx shadcn@latest add @vinui/theme" />
+  <p>
+    This <strong>replaces</strong> the values of the tokens vinui defines
+    (<code>--primary</code>, <code>--radius</code>, …) with vinui's. Tokens vinui doesn't
+    define, such as <code>--card</code> or <code>--chart-1</code>, stay as they are.
+  </p>
+
+  <h2 id="dark-mode">Dark mode</h2>
+  <p>
+    Add the <code>dark</code> class to <code>&lt;html&gt;</code>; every component switches to
+    the dark palette.
+  </p>
+
+  <h2 id="styling">Styling</h2>
+  <p>
+    Pass Tailwind classes with <code>className</code>; they override vinui's styles. For
+    state-based styles, use data-attribute variants, for example <code>className="data-disabled:opacity-40"</code>. <code>className</code> takes a
+    string; Base UI's function form isn't supported.
+  </p>
+
+  <h2 id="updating">Updating components</h2>
+  <CodeBlock code="npx shadcn@latest add @vinui/button --overwrite" />
+  <p>
+    The CLI currently appends a component's nested <code>@media</code> and <code>@variant</code> rules again instead of replacing them. Before updating, delete the
+    component's <code>@utility</code> blocks (for example <code>@utility btn</code> …) from <code>src/index.css</code>.
+  </p>
+</DocsLayout>

@@ -184,6 +184,9 @@ importers:
       '@vinui/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@vinui/registry':
+        specifier: workspace:*
+        version: link:../../packages/registry
       '@vinui/tailwind':
         specifier: workspace:*
         version: link:../../packages/tailwind

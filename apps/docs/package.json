@@ -14,6 +14,7 @@
     "@astrojs/vue": "7.1.2",
     "@tailwindcss/vite": "4.3.3",
     "@vinui/react": "workspace:*",
+    "@vinui/registry": "workspace:*",
     "@vinui/tailwind": "workspace:*",
     "@vinui/vue": "workspace:*",
     "astro": "7.4.2",

@@ -4,6 +4,9 @@
   "private": true,
   "description": "Builds the vinui React and Vue registries, injecting CSS from @vinui/tailwind",
   "type": "module",
+  "exports": {
+    "./config": "./src/config.ts"
+  },
   "scripts": {
     "build": "node src/build.ts",
     "typecheck": "tsc -p ."

@@ -1,0 +1,21 @@
+---
+import { Code } from "astro:components"
+
+interface Props {
+  code: string
+  lang?: string
+  /** File the snippet belongs to, shown above the code. */
+  file?: string
+}
+
+const { code, lang = "bash", file } = Astro.props
+---
+
+<figure class="code-block">
+  {file && <figcaption>{file}</figcaption>}
+  <Code
+    code={code.trim()}
+    lang={lang as never}
+    themes={{ light: "github-light", dark: "github-dark" }}
+  />
+</figure>

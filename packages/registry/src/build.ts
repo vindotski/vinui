@@ -4,6 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { REGISTRY_URL } from "./config.ts"
 import { type CssObject, parseCss, toCssObject, toCssVars } from "./css.ts"
 
 const pkgDir = resolve(dirname(fileURLToPath(import.meta.url)), "..")
@@ -15,8 +16,6 @@ const outDir = join(root, "apps/docs/public/r")
 const THEME_ITEM = "theme"
 const INIT_ITEM = "init"
 const NAMESPACE = "@vinui"
-/** Public base URL of the built registry (`<url>/react/*.json`, `<url>/vue/*.json`). */
-const REGISTRY_URL = (process.env.VINUI_REGISTRY_URL ?? "http://localhost:4321/r").replace(/\/$/, "")
 
 const targets = [
   { name: "react", cli: "shadcn", pkg: join(root, "packages/react") },
