@@ -13,7 +13,10 @@ const cacheDir = join(pkgDir, ".cache")
 const outDir = join(root, "apps/docs/public/r")
 
 const THEME_ITEM = "theme"
+const INIT_ITEM = "init"
 const NAMESPACE = "@vinui"
+/** Public base URL of the built registry (`<url>/react/*.json`, `<url>/vue/*.json`). */
+const REGISTRY_URL = (process.env.VINUI_REGISTRY_URL ?? "http://localhost:4321/r").replace(/\/$/, "")
 
 const targets = [
   { name: "react", cli: "shadcn", pkg: join(root, "packages/react") },
@@ -63,6 +66,28 @@ async function buildThemeItem(): Promise<RegistryItem> {
   }
 }
 
+/**
+ * `init` item for `shadcn init <url>` / `shadcn-vue init <url>`: a registry:base
+ * that skips shadcn's own style (`extends: "none"`), registers the @vinui
+ * namespace in components.json, and carries the theme inline (the namespace
+ * does not resolve yet while init is running).
+ */
+function buildInitItem(theme: RegistryItem, target: string): RegistryItem {
+  return {
+    name: INIT_ITEM,
+    type: "registry:base",
+    extends: "none",
+    title: "vinui",
+    description: "Initialize a project with the vinui style.",
+    config: {
+      registries: { [NAMESPACE]: `${REGISTRY_URL}/${target}/{name}.json` },
+    },
+    registryDependencies: ["utils"],
+    cssVars: theme.cssVars,
+    css: theme.css,
+  }
+}
+
 /** Attaches packages/tailwind/src/components/<name>.css to the matching ui item. */
 async function withComponentCss(item: RegistryItem): Promise<RegistryItem> {
   const file = join(tailwindSrc, "components", `${item.name}.css`)
@@ -88,7 +113,11 @@ for (const target of targets) {
   ) as Registry
   const registry: Registry = {
     ...source,
-    items: [theme, ...(await Promise.all(source.items.map(withComponentCss)))],
+    items: [
+      buildInitItem(theme, target.name),
+      theme,
+      ...(await Promise.all(source.items.map(withComponentCss))),
+    ],
   }
 
   const manifest = join(cacheDir, `${target.name}.registry.json`)
