@@ -1,0 +1,22 @@
+{
+  "name": "@vinui/vue",
+  "version": "0.0.0",
+  "private": true,
+  "description": "vinui Vue components (registry source, consumed via the shadcn-vue CLI)",
+  "type": "module",
+  "scripts": {
+    "typecheck": "vue-tsc -p ."
+  },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "reka-ui": "2.11.0",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@vue/tsconfig": "0.9.1",
+    "shadcn-vue": "2.9.0",
+    "typescript": "6.0.3",
+    "vue": "3.5.44",
+    "vue-tsc": "3.3.13"
+  }
+}

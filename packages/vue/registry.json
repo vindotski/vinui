@@ -1,0 +1,38 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry.json",
+  "name": "vinui",
+  "homepage": "https://vinui.dev",
+  "items": [
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "Utils",
+      "description": "cn() helper: clsx + tailwind-merge.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Button built on Reka UI, styled with vinui btn classes.",
+      "dependencies": ["reka-ui"],
+      "registryDependencies": ["@vinui/utils"],
+      "files": [
+        {
+          "path": "src/components/ui/button/Button.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/button/index.ts",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}
