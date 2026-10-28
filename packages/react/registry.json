@@ -10,6 +10,7 @@
       "description": "Button built on Radix, styled with vinui btn classes.",
       "dependencies": [
         "radix-ui",
+        "clsx",
         "cn"
       ],
       "files": [

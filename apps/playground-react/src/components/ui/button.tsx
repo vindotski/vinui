@@ -1,4 +1,5 @@
 import * as React from "react"
+import { clsx, type ClassValue } from "clsx"
 import { cn } from "cn"
 import { Slot } from "radix-ui"
 
@@ -30,12 +31,23 @@ interface ButtonVariantProps {
   size?: ButtonSize
 }
 
-/** Class string for elements that should look like a button (e.g. links). */
+// Same as class-variance-authority's ClassProp: `class` or `className`, not both.
+type ClassProp =
+  | { class: ClassValue; className?: never }
+  | { class?: never; className: ClassValue }
+  | { class?: never; className?: never }
+
+/**
+ * Class string for elements that should look like a button (e.g. links).
+ * Behaves like a cva function: extra classes are appended, not merged.
+ */
 function buttonVariants({
   variant = "default",
   size = "default",
-}: ButtonVariantProps = {}) {
-  return cn("btn", variants[variant], sizes[size])
+  class: classValue,
+  className,
+}: ButtonVariantProps & ClassProp = {}) {
+  return clsx("btn", variants[variant], sizes[size], classValue, className)
 }
 
 type ButtonProps = React.ComponentProps<"button"> &
@@ -57,7 +69,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
   )

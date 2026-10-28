@@ -1,0 +1,16 @@
+{
+  "name": "@vinui/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "vinui's cross-framework contract (repo-only): variant/size unions that every framework must match",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@vinui/tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cross-framework parity tests (types, classes, rendering) and browser specs",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --typecheck",
+    "test:e2e": "pnpm -w registry:build && playwright test",
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vinui/core": "workspace:*",
+    "@vinui/react": "workspace:*",
+    "@vinui/vue": "workspace:*",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vue/server-renderer": "3.5.44",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "vue": "3.5.44"
+  }
+}

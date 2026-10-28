@@ -11,7 +11,7 @@
     "dev:docs": "pnpm --filter docs dev",
     "registry:build": "pnpm --filter @vinui/registry build",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "test": "pnpm --filter @vinui/tests test && pnpm --filter @vinui/tests test:e2e",
     "lint": "pnpm -r lint"
   },
   "devDependencies": {

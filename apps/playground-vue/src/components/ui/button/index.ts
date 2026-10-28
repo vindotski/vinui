@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { clsx, type ClassValue } from "clsx"
 
 export { default as Button } from "./Button.vue"
 
@@ -30,10 +30,21 @@ export interface ButtonVariantProps {
   size?: ButtonSize
 }
 
-/** Class string for elements that should look like a button (e.g. links). */
+// Same as class-variance-authority's ClassProp: `class` or `className`, not both.
+type ClassProp =
+  | { class: ClassValue; className?: never }
+  | { class?: never; className: ClassValue }
+  | { class?: never; className?: never }
+
+/**
+ * Class string for elements that should look like a button (e.g. links).
+ * Behaves like a cva function: extra classes are appended, not merged.
+ */
 export function buttonVariants({
   variant = "default",
   size = "default",
-}: ButtonVariantProps = {}) {
-  return cn("btn", variants[variant], sizes[size])
+  class: classValue,
+  className,
+}: ButtonVariantProps & ClassProp = {}) {
+  return clsx("btn", variants[variant], sizes[size], classValue, className)
 }

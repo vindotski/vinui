@@ -10,6 +10,7 @@
       "description": "Button built on Reka UI, styled with vinui btn classes.",
       "dependencies": [
         "reka-ui",
+        "clsx",
         "cn"
       ],
       "files": [
