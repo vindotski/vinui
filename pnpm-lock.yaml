@@ -336,7 +336,7 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
 
-  packages/registry-build:
+  packages/registry:
     dependencies:
       postcss:
         specifier: 8.5.32

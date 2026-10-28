@@ -9,7 +9,7 @@
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",
     "dev:docs": "pnpm --filter docs dev",
-    "registry:build": "pnpm --filter @vinui/registry-build build",
+    "registry:build": "pnpm --filter @vinui/registry build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"

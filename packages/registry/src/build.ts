@@ -6,9 +6,10 @@ import { fileURLToPath } from "node:url"
 
 import { type CssObject, parseCss, toCssObject, toCssVars } from "./css.ts"
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
+const pkgDir = resolve(dirname(fileURLToPath(import.meta.url)), "..")
+const root = resolve(pkgDir, "../..")
 const tailwindSrc = join(root, "packages/tailwind/src")
-const cacheDir = join(root, "packages/registry-build/.cache")
+const cacheDir = join(pkgDir, ".cache")
 const outDir = join(root, "apps/docs/public/r")
 
 const THEME_ITEM = "theme"
@@ -99,6 +100,6 @@ for (const target of targets) {
   execFileSync(
     "pnpm",
     ["exec", target.cli, "build", manifest, "--cwd", target.pkg, "--output", output],
-    { cwd: join(root, "packages/registry-build"), stdio: "inherit" },
+    { cwd: pkgDir, stdio: "inherit" },
   )
 }
