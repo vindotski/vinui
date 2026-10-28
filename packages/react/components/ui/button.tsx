@@ -3,18 +3,23 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cn } from "@/lib/utils"
 
 const variants = {
-  primary: "btn-primary",
+  default: "",
   secondary: "btn-secondary",
   outline: "btn-outline",
   ghost: "btn-ghost",
   destructive: "btn-destructive",
+  link: "btn-link",
 } as const
 
 const sizes = {
-  md: "btn-md",
+  default: "",
+  xs: "btn-xs",
   sm: "btn-sm",
   lg: "btn-lg",
   icon: "btn-icon",
+  "icon-xs": "btn-icon-xs",
+  "icon-sm": "btn-icon-sm",
+  "icon-lg": "btn-icon-lg",
 } as const
 
 type ButtonVariant = keyof typeof variants
@@ -27,8 +32,8 @@ interface ButtonVariantProps {
 
 /** Class string for elements that should look like a button (e.g. links). */
 function buttonVariants({
-  variant = "primary",
-  size = "md",
+  variant = "default",
+  size = "default",
 }: ButtonVariantProps = {}) {
   return cn("btn", variants[variant], sizes[size])
 }

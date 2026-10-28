@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Button, buttonVariants } from "@vinui/vue/ui/button"
 
-const variants = ["primary", "secondary", "outline", "ghost", "destructive"] as const
-const sizes = ["sm", "md", "lg"] as const
+const variants = ["default", "secondary", "outline", "ghost", "destructive", "link"] as const
+const sizes = ["xs", "sm", "default", "lg"] as const
+const iconSizes = ["icon-xs", "icon-sm", "icon", "icon-lg"] as const
 </script>
 
 <template>
@@ -16,7 +17,17 @@ const sizes = ["sm", "md", "lg"] as const
       <Button v-for="size in sizes" :key="size" variant="outline" :size="size">
         {{ size }}
       </Button>
-      <Button variant="outline" size="icon" aria-label="Add">+</Button>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <Button
+        v-for="size in iconSizes"
+        :key="size"
+        variant="outline"
+        :size="size"
+        :aria-label="`Add (${size})`"
+      >
+        +
+      </Button>
     </div>
     <div class="flex flex-wrap gap-2">
       <Button disabled>disabled</Button>

@@ -1,7 +1,8 @@
 import { Button, buttonVariants } from "@vinui/react/ui/button"
 
-const variants = ["primary", "secondary", "outline", "ghost", "destructive"] as const
-const sizes = ["sm", "md", "lg"] as const
+const variants = ["default", "secondary", "outline", "ghost", "destructive", "link"] as const
+const sizes = ["xs", "sm", "default", "lg"] as const
+const iconSizes = ["icon-xs", "icon-sm", "icon", "icon-lg"] as const
 
 export function ReactButtons() {
   return (
@@ -19,9 +20,13 @@ export function ReactButtons() {
             {size}
           </Button>
         ))}
-        <Button variant="outline" size="icon" aria-label="Add">
-          +
-        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {iconSizes.map((size) => (
+          <Button key={size} variant="outline" size={size} aria-label={`Add (${size})`}>
+            +
+          </Button>
+        ))}
       </div>
       <div className="flex flex-wrap gap-2">
         <Button disabled>disabled</Button>

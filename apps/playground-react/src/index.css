@@ -128,12 +128,6 @@
     }
 }
 
-@utility btn-primary {
-    --btn-bg: var(--color-primary);
-    --btn-fg: var(--color-primary-foreground);
-    --btn-bg-hover: color-mix(in oklab, var(--color-primary) 90%, transparent);
-}
-
 @utility btn-secondary {
     --btn-bg: var(--color-secondary);
     --btn-fg: var(--color-secondary-foreground);
@@ -161,9 +155,21 @@
     --btn-bg-hover: color-mix(in oklab, var(--color-destructive) 90%, transparent);
 }
 
-@utility btn-md {
-    --btn-h: --spacing(9);
-    --btn-px: --spacing(4);
+@utility btn-link {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-primary);
+    --btn-bg-hover: transparent;
+    text-underline-offset: 4px;
+  &:hover {
+    text-decoration-line: underline;
+    }
+}
+
+@utility btn-xs {
+    --btn-h: --spacing(7);
+    --btn-px: --spacing(2);
+    --btn-text: var(--text-xs);
+    --btn-leading: var(--text-xs--line-height);
 }
 
 @utility btn-sm {
@@ -179,7 +185,24 @@
 }
 
 @utility btn-icon {
-    --btn-h: --spacing(9);
+    --btn-px: 0;
+    aspect-ratio: 1 / 1;
+}
+
+@utility btn-icon-xs {
+    --btn-h: --spacing(7);
+    --btn-px: 0;
+    aspect-ratio: 1 / 1;
+}
+
+@utility btn-icon-sm {
+    --btn-h: --spacing(8);
+    --btn-px: 0;
+    aspect-ratio: 1 / 1;
+}
+
+@utility btn-icon-lg {
+    --btn-h: --spacing(10);
     --btn-px: 0;
     aspect-ratio: 1 / 1;
 }
