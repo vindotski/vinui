@@ -5,5 +5,5 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["components/**/*.ts", "components/**/*.vue", "lib/**/*.ts"]
+  "include": ["components/**/*.ts", "components/**/*.vue"]
 }

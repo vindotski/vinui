@@ -1,31 +1,33 @@
-import type * as React from "react"
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
+"use client"
 
-import { cn } from "@/lib/utils"
+import * as React from "react"
+import { cn } from "cn"
+import { Dialog as DialogPrimitive } from "radix-ui"
 
-// Parts that merge vinui classes take a string className: cn() can't merge
-// Base UI's state-function form. Style states with data-* variants instead.
-type WithClassName<Props> = Omit<Props, "className"> & { className?: string }
+import { Button } from "@/components/ui/button"
 
-function Dialog(props: DialogPrimitive.Root.Props) {
+function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
 
-function DialogTrigger(props: DialogPrimitive.Trigger.Props) {
+function DialogTrigger({ ...props }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
 }
 
-function DialogPortal(props: DialogPrimitive.Portal.Props) {
+function DialogPortal({ ...props }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
 }
 
-function DialogClose(props: DialogPrimitive.Close.Props) {
+function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
-function DialogOverlay({ className, ...props }: WithClassName<DialogPrimitive.Backdrop.Props>) {
+function DialogOverlay({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
-    <DialogPrimitive.Backdrop
+    <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn("dialog-overlay", className)}
       {...props}
@@ -33,20 +35,18 @@ function DialogOverlay({ className, ...props }: WithClassName<DialogPrimitive.Ba
   )
 }
 
-type DialogContentProps = WithClassName<DialogPrimitive.Popup.Props> & {
-  showCloseButton?: boolean
-}
-
 function DialogContent({
   className,
   children,
   showCloseButton = true,
   ...props
-}: DialogContentProps) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  showCloseButton?: boolean
+}) {
   return (
-    <DialogPortal>
+    <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
-      <DialogPrimitive.Popup
+      <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn("dialog-content", className)}
         {...props}
@@ -69,7 +69,7 @@ function DialogContent({
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
-      </DialogPrimitive.Popup>
+      </DialogPrimitive.Content>
     </DialogPortal>
   )
 }
@@ -80,13 +80,30 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
+function DialogFooter({
+  className,
+  showCloseButton = false,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  showCloseButton?: boolean
+}) {
   return (
-    <div data-slot="dialog-footer" className={cn("dialog-footer", className)} {...props} />
+    <div data-slot="dialog-footer" className={cn("dialog-footer", className)} {...props}>
+      {children}
+      {showCloseButton && (
+        <DialogPrimitive.Close asChild>
+          <Button variant="outline">Close</Button>
+        </DialogPrimitive.Close>
+      )}
+    </div>
   )
 }
 
-function DialogTitle({ className, ...props }: WithClassName<DialogPrimitive.Title.Props>) {
+function DialogTitle({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -99,7 +116,7 @@ function DialogTitle({ className, ...props }: WithClassName<DialogPrimitive.Titl
 function DialogDescription({
   className,
   ...props
-}: WithClassName<DialogPrimitive.Description.Props>) {
+}: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
@@ -121,4 +138,3 @@ export {
   DialogTitle,
   DialogTrigger,
 }
-export type { DialogContentProps }

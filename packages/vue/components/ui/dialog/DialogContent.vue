@@ -3,7 +3,7 @@ import type { DialogContentEmits, DialogContentProps } from "reka-ui"
 import type { HTMLAttributes } from "vue"
 import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from "reka-ui"
 import { computed } from "vue"
-import { cn } from "@/lib/utils"
+import { cn } from "cn"
 import DialogOverlay from "./DialogOverlay.vue"
 
 defineOptions({

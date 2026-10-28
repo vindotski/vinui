@@ -6,5 +6,5 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["components", "lib"]
+  "include": ["components"]
 }

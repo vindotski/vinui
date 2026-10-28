@@ -63,15 +63,21 @@ export default function App() {
     <main className="flex min-h-svh items-center justify-center gap-2">
       <Button>Save</Button>
       <Dialog>
-        <DialogTrigger render={<Button variant="outline" />}>Delete…</DialogTrigger>
+        <DialogTrigger asChild>
+          <Button variant="outline">Delete…</Button>
+        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete project?</DialogTitle>
             <DialogDescription>This can't be undone.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
-            <DialogClose render={<Button variant="destructive" />}>Delete</DialogClose>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="destructive">Delete</Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -92,7 +98,7 @@ const registries = `
   <p class="lead">
     vinui is a <a href="https://ui.shadcn.com">shadcn</a> style: you use the shadcn CLI and
     shadcn's component API, and get vinui's look. Components are copied into your project,
-    built on <a href="https://base-ui.com">Base UI</a> and Tailwind CSS v4.
+    built on <a href="https://www.radix-ui.com/primitives">Radix</a> and Tailwind CSS v4.
   </p>
   <p>
     Already using shadcn? Skip to <a href="#existing-project">Existing shadcn project</a>.
@@ -142,6 +148,9 @@ const registries = `
 
   <h2 id="existing-project">Existing shadcn project</h2>
   <p>vinui components can replace shadcn's one at a time.</p>
+  <p>
+    This needs a <strong>Radix-based</strong> shadcn project (a <code>radix-*</code> or <code>new-york</code> style in <code>components.json</code>). Base UI projects (<code>base-*</code> styles) aren't supported: there the CLI rewrites <code>asChild</code> to Base UI's <code>render</code>, which vinui's Radix components don't accept.
+  </p>
   <h3>1. Add the vinui registry</h3>
   <CodeBlock code={registries} lang="json" file="components.json" />
   <h3>2. Add components</h3>
@@ -170,9 +179,7 @@ const registries = `
 
   <h2 id="styling">Styling</h2>
   <p>
-    Pass Tailwind classes with <code>className</code>; they override vinui's styles. For
-    state-based styles, use data-attribute variants, for example <code>className="data-disabled:opacity-40"</code>. <code>className</code> takes a
-    string; Base UI's function form isn't supported.
+    Pass Tailwind classes with <code>className</code>; they override vinui's styles. For state-based styles, use the data attributes Radix sets, for example <code>className="data-[state=open]:shadow-xl"</code> on <code>DialogContent</code>.
   </p>
 
   <h2 id="updating">Updating components</h2>

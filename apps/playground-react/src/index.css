@@ -212,10 +212,10 @@
     inset: 0;
     z-index: 50;
     background-color: rgb(0 0 0 / 50%);
-  &:is([data-open], [data-state="open"]) {
+  &[data-state="open"] {
     animation: vinui-fade-in 150ms ease-out;
     }
-  &:is([data-closed], [data-state="closed"]) {
+  &[data-state="closed"] {
     animation: vinui-fade-out 150ms ease-in forwards;
     }
   @media (prefers-reduced-motion: reduce) {
@@ -240,10 +240,10 @@
     color: var(--color-foreground);
     box-shadow: var(--shadow-lg);
     outline: none;
-  &:is([data-open], [data-state="open"]) {
+  &[data-state="open"] {
     animation: vinui-zoom-in 150ms ease-out;
     }
-  &:is([data-closed], [data-state="closed"]) {
+  &[data-state="closed"] {
     animation: vinui-zoom-out 150ms ease-in forwards;
     }
   @media (prefers-reduced-motion: reduce) {

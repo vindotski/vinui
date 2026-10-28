@@ -13,7 +13,9 @@ import {
 export function ReactDialog() {
   return (
     <Dialog>
-      <DialogTrigger render={<Button variant="outline" />}>Open dialog</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant="outline">Open dialog</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete project?</DialogTitle>
@@ -22,8 +24,12 @@ export function ReactDialog() {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
-          <DialogClose render={<Button variant="destructive" />}>Delete</DialogClose>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button variant="destructive">Delete</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

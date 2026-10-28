@@ -9,10 +9,8 @@
       "title": "Button",
       "description": "Button built on Reka UI, styled with vinui btn classes.",
       "dependencies": [
-        "reka-ui"
-      ],
-      "registryDependencies": [
-        "utils"
+        "reka-ui",
+        "cn"
       ],
       "files": [
         {
@@ -31,10 +29,11 @@
       "title": "Dialog",
       "description": "Modal dialog built on Reka UI, styled with vinui dialog classes.",
       "dependencies": [
-        "reka-ui"
+        "reka-ui",
+        "cn"
       ],
       "registryDependencies": [
-        "utils"
+        "@vinui/button"
       ],
       "files": [
         {
