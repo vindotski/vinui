@@ -8,7 +8,10 @@
       "type": "registry:lib",
       "title": "Utils",
       "description": "cn() helper: clsx + tailwind-merge.",
-      "dependencies": ["clsx", "tailwind-merge"],
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
       "files": [
         {
           "path": "lib/utils.ts",
@@ -21,11 +24,33 @@
       "type": "registry:ui",
       "title": "Button",
       "description": "Button built on Base UI, styled with vinui btn classes.",
-      "dependencies": ["@base-ui/react"],
-      "registryDependencies": ["@vinui/utils"],
+      "dependencies": [
+        "@base-ui/react"
+      ],
+      "registryDependencies": [
+        "@vinui/utils"
+      ],
       "files": [
         {
           "path": "components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog built on Base UI, styled with vinui dialog classes.",
+      "dependencies": [
+        "@base-ui/react"
+      ],
+      "registryDependencies": [
+        "@vinui/utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/dialog.tsx",
           "type": "registry:ui"
         }
       ]
