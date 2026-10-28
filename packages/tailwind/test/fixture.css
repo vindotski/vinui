@@ -1,0 +1,4 @@
+/* Compile check: consumes the package the way a user would. */
+@import "tailwindcss" source(none);
+@import "../src/index.css";
+@source "./fixture.html";

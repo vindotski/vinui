@@ -1,0 +1,7 @@
+/*
+ * vinui — import after Tailwind:
+ *   @import "tailwindcss";
+ *   @import "@vinui/tailwind";
+ */
+@import "./theme.css";
+@import "./components/button.css";
