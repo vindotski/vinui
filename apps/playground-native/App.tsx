@@ -35,8 +35,23 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+/** `?dialog=open` in the launch URL opens the first Dialog (screenshots, docs previews). */
+function useDialogFromUrl() {
+  const [open, setOpen] = React.useState(false)
+  React.useEffect(() => {
+    const apply = (url: string | null | undefined) => {
+      if (url && /[?&]dialog=open\b/.test(url)) setOpen(true)
+    }
+    void Linking.getInitialURL().then(apply)
+    const subscription = Linking.addEventListener("url", ({ url }) => apply(url))
+    return () => subscription.remove()
+  }, [])
+  return [open, setOpen] as const
+}
+
 export default function App() {
   const { theme } = useUniwind()
+  const [dialogOpen, setDialogOpen] = useDialogFromUrl()
   return (
     <SafeAreaProvider>
       {/* safe-area-context's SafeAreaView isn't a core component, so Uniwind ignores its
@@ -93,7 +108,7 @@ export default function App() {
             </Section>
 
             <Section title="Dialog">
-              <Dialog>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">Open dialog</Button>
                 </DialogTrigger>
