@@ -74,7 +74,7 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 - **Engine-specific code lives in a marked engine layer** (header comment `Engine layer: Uniwind`):
   - native `icon.tsx` and `lib/vinui-engine.ts`,
   - `packages/registry/src/engines/uniwind.ts`,
-  - one docs setup partial.
+  - the docs' Uniwind setup, only on the React Native install page (`apps/docs/src/pages/docs/installation/react-native.astro`).
 - **Engine upgrades are one commit:** harness baselines, `init` pin, docs' tested version, repo version.
 
 ## Testing (required for every component)
@@ -96,7 +96,8 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 ## Docs
 
 - **Component pages:** preview, install (same `@vinui/<name>`, per-tab CLI, package-manager switcher), usage per framework, API reference from core metadata, platform notes.
-- **Every command is copy-paste runnable**, with no placeholders.
+- **Every command is copy-paste runnable**, with no placeholders, and goes through the package-manager switcher (`<PmCommand>` / `<InstallCommand>`, built by `apps/docs/src/lib/pm.ts`); never a bare `npm …` code block.
+- **Multi-part components** get one API table per part that has vinui props.
 - **Install pages are verified** by running their own extracted snippets in a fresh app.
 
 ## Commits

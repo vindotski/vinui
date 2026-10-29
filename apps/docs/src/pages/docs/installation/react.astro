@@ -2,7 +2,10 @@
 import { REGISTRY_URL } from "@vinui/registry/config"
 
 import CodeBlock from "../../../components/CodeBlock.astro"
+import InstallCommand from "../../../components/InstallCommand.astro"
+import PmCommand from "../../../components/PmCommand.astro"
 import DocsLayout from "../../../layouts/DocsLayout.astro"
+import { add, create, followedBy, run } from "../../../lib/pm"
 
 const registry = `${REGISTRY_URL}/react`
 
@@ -111,10 +114,10 @@ const registries = `
   </p>
 
   <h3>1. Create a project</h3>
-  <CodeBlock code={`npm create vite@latest my-app -- --template react-ts\ncd my-app`} />
+  <PmCommand commands={followedBy(create("vite", "my-app", "--template react-ts"), "cd my-app")} />
 
   <h3>2. Add Tailwind CSS</h3>
-  <CodeBlock code="npm install tailwindcss @tailwindcss/vite" />
+  <PmCommand commands={add("tailwindcss @tailwindcss/vite")} />
   <p>Replace everything in <code>src/index.css</code> with:</p>
   <CodeBlock code={`@import "tailwindcss";`} lang="css" file="src/index.css" />
 
@@ -123,11 +126,11 @@ const registries = `
   <CodeBlock code={tsconfig} lang="json" file="tsconfig.json" />
   <CodeBlock code={tsconfigApp} lang="jsonc" file="tsconfig.app.json" />
   <p>Then add the Tailwind plugin and the alias to Vite:</p>
-  <CodeBlock code="npm install -D @types/node" />
+  <PmCommand commands={add("@types/node", { dev: true })} />
   <CodeBlock code={viteConfig} lang="ts" file="vite.config.ts" />
 
   <h3 id="init">4. Initialize vinui</h3>
-  <CodeBlock code={`npx shadcn@latest init ${registry}/init.json`} />
+  <InstallCommand framework="react" args={`init ${registry}/init.json`} />
   <p>This writes:</p>
   <ul>
     <li><code>components.json</code>, with the <code>@vinui</code> registry already configured</li>
@@ -137,14 +140,14 @@ const registries = `
   <p>Nothing else: no shadcn theme, fonts or icon library.</p>
 
   <h3>5. Add components</h3>
-  <CodeBlock code="npx shadcn@latest add @vinui/button @vinui/dialog" />
+  <InstallCommand framework="react" args="add @vinui/button @vinui/dialog" />
   <p>
     Each component lands in <code>src/components/ui/</code>, and its styles are added to <code>src/index.css</code>.
   </p>
 
   <h3>6. Use them</h3>
   <CodeBlock code={app} lang="tsx" file="src/App.tsx" />
-  <CodeBlock code="npm run dev" />
+  <PmCommand commands={run("dev")} />
 
   <h2 id="existing-project">Existing shadcn project</h2>
   <p>vinui components can replace shadcn's one at a time.</p>
@@ -154,7 +157,7 @@ const registries = `
   <h3>1. Add the vinui registry</h3>
   <CodeBlock code={registries} lang="json" file="components.json" />
   <h3>2. Add components</h3>
-  <CodeBlock code="npx shadcn@latest add @vinui/button" />
+  <InstallCommand framework="react" args="add @vinui/button" />
   <ul>
     <li>
       If you already have shadcn's version, the CLI asks before overwriting it. vinui uses
@@ -164,7 +167,7 @@ const registries = `
     <li>Your colors are kept; vinui only adds tokens your theme doesn't define yet.</li>
   </ul>
   <h3>3. Switch to vinui's colors (optional)</h3>
-  <CodeBlock code="npx shadcn@latest add @vinui/theme" />
+  <InstallCommand framework="react" args="add @vinui/theme" />
   <p>
     This <strong>replaces</strong> the values of the tokens vinui defines
     (<code>--primary</code>, <code>--radius</code>, …) with vinui's. Tokens vinui doesn't
@@ -183,7 +186,7 @@ const registries = `
   </p>
 
   <h2 id="updating">Updating components</h2>
-  <CodeBlock code="npx shadcn@latest add @vinui/button --overwrite" />
+  <InstallCommand framework="react" args="add @vinui/button --overwrite" />
   <p>
     The CLI currently appends a component's nested <code>@media</code> and <code>@variant</code> rules again instead of replacing them. Before updating, delete the
     component's <code>@utility</code> blocks (for example <code>@utility btn</code> …) from <code>src/index.css</code>.

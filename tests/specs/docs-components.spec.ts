@@ -93,6 +93,23 @@ test.describe("docs component pages", () => {
     await expect(page.getByRole("dialog", { name: "Delete project?" })).toBeVisible()
   })
 
+  test("install pages give every command per package manager", async ({ page }) => {
+    await page.goto("/docs/installation/react")
+    await page.getByRole("button", { name: "pnpm" }).first().click()
+    const visible = (text: string) => page.locator(".install pre:visible", { hasText: text })
+    await expect(visible("pnpm create vite my-app --template react-ts")).toHaveCount(1)
+    await expect(visible("pnpm add -D @types/node")).toHaveCount(1)
+    await expect(visible("pnpm dlx shadcn@latest init")).toHaveCount(1)
+    // The choice carries over to the React Native page.
+    await page.goto("/docs/installation/react-native")
+    await expect(visible("pnpm create expo-app my-app --template blank-typescript")).toHaveCount(1)
+    await expect(visible("pnpm expo install react-native-reanimated")).toHaveCount(1)
+    await expect(visible("pnpm add -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
+    await expect(visible("/r/native/init.json")).toHaveCount(1)
+    await page.getByRole("button", { name: "npm" }).first().click()
+    await expect(visible("npm install -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
+  })
+
   test("works when storage is blocked", async ({ page }, testInfo) => {
     // Astro's dev toolbar reads localStorage unguarded and throws; it doesn't exist in production.
     test.skip(testInfo.project.name.endsWith("-dev"), "Astro's dev toolbar needs storage")

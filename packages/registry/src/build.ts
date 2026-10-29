@@ -119,8 +119,10 @@ function buildInitItem(theme: RegistryItem, target: string): RegistryItem {
 }
 
 /**
- * Native `theme` item: the Uniwind-shaped theme as a file at the project root,
+ * Native `theme` item: the Uniwind-shaped theme as a file next to global.css,
  * plus an `@import` of it in global.css (the CLI can't write the nesting itself).
+ * The target has no `~/`, so the CLI puts it under `src/` in src-layout apps (Expo
+ * Router's template), where global.css lives too; `~/` would always mean the root.
  */
 async function buildNativeThemeItem(target: Target): Promise<RegistryItem> {
   const generated = join(target.pkg, ".generated", NATIVE_THEME_FILE)
@@ -131,7 +133,7 @@ async function buildNativeThemeItem(target: Target): Promise<RegistryItem> {
     type: "registry:item",
     title: "Theme",
     description: "vinui design tokens (colors, radius) for Uniwind, light and dark.",
-    files: [{ path: `.generated/${NATIVE_THEME_FILE}`, type: "registry:file", target: `~/${NATIVE_THEME_FILE}` }],
+    files: [{ path: `.generated/${NATIVE_THEME_FILE}`, type: "registry:file", target: NATIVE_THEME_FILE }],
     css: { [`@import "./${NATIVE_THEME_FILE}"`]: {} },
   }
 }

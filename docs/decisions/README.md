@@ -43,6 +43,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native disabled Button adds `opacity-50`; `DialogTitle` adds `text-foreground`; the Dialog close button uses `aria-label="Close"` | React Native has no `:disabled` pseudo-class and no text inheritance. `aria-label` is announced by VoiceOver / TalkBack and queryable in tests (RNR uses an `sr-only` Text). | 2026-10-28 |
 | Native Dialog layout: overlay `absolute inset-0 items-center justify-center bg-black/50 p-4`, panel `dialog-panel w-full max-w-lg`, Reanimated fades, `FullWindowOverlay` on iOS | Follows RNR's structure with vinui's panel classes; the padding and max width keep the panel off the screen edges and stop it stretching on tablets. | 2026-10-28 |
 | Native engine check uses Uniwind's **public** `useResolveClassNames("bg-background")`: an empty result means Uniwind isn't configured or vinui's theme isn't loaded | **Corrected, same day.** The first signal, `globalThis.__uniwindThemes__`, exists only in Uniwind's type declarations and is never set, so it was a false positive in a correctly configured app. Verified on a device: configured → no warning; Metro plugin removed → exactly one warning. | 2026-10-28 |
+| The engine check judges **1 s after mount**, on the latest resolved value, not on the first render | **Corrected, 2026-10-29.** On web, Uniwind resolves classes from the loaded stylesheet and re-resolves when it arrives; under Expo Router in development the CSS arrives after the first render, so the first-render check warned in a correctly configured app. Verified in Expo's Router template on web: configured → silent; Metro plugin removed → one warning. The delay doesn't change native, where resolution is synchronous. | 2026-10-29 |
 | Native `Text` applies its defaults (`text-foreground text-base`) only when no parent class context is set | Found on a device: Tailwind sorts single-property utilities after multi-property ones like `btn-label`, and tailwind-merge doesn't know custom utilities, so the defaults overrode button label colours and sizes. A Jest regression spec now checks the label's classes. | 2026-10-28 |
 
 | Decision | Reason / trade-off | Date |
@@ -92,8 +93,13 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native web specs: `native-web-dev` / `native-web-prod` targets on the playground's web build; `native-web-parity.spec.ts` compares computed styles (as sRGB pixels) with the React demo on the docs; `dialog.spec.ts` shares its scenarios, with native-specific structure / animation expectations | One look across React and native web; Radix underneath makes behaviour specs shareable. | 2026-10-28 |
 | Docs component pages: one site-wide framework choice and package manager, stored in `localStorage` (guarded) and applied on `<html>` before paint, so CSS shows the matching panels without a flash. `docs-components.spec.ts` covers it, including blocked storage (production only) | A Vue user picks Vue once; pages work without storage. | 2026-10-29 |
 | Docs API reference for multi-part components: one table per part that has vinui props (Dialog: `DialogContent`, `DialogFooter`), each under an `h4`; parts that only pass through (`Dialog`, `DialogTrigger`, …) get a link to the primitive's docs instead | Same rule as Button: only document what vinui defines or changes; shadcn does the same. | 2026-10-29 |
+| Every command on the docs (install pages included) has the package-manager switcher, built by `apps/docs/src/lib/pm.ts` (`dlx`, `exec`, `add`, `create`, `run`) | One place translates npm → pnpm / yarn / bun, so commands stay consistent. | 2026-10-29 |
 
 ### Native platform setup
+| The native theme file's target is `vinui-theme.css` (no `~/`), so it lands next to `global.css` in src-layout apps too | `~/` always means the project root; in Expo Router's template (`src/global.css`) the `@import "./vinui-theme.css"` didn't resolve ([0006](0006-native-theme-as-file.md)). | 2026-10-29 |
+| Install docs pin Uniwind and Tailwind with `-E` (`npm install -E uniwind@1.13.0 tailwindcss@4.3.3`) | The tested versions, without a `^` range that a later install would float. | 2026-10-29 |
+| Expo Router snippets import `ThemeProvider` / `DarkTheme` / `DefaultTheme` from `expo-router` | Expo SDK 58's template re-exports them there and doesn't list `@react-navigation/native` as a direct dependency. | 2026-10-29 |
+| **The React Native install page is verified by running its own snippets** (npm tab, read from the rendered page) in a fresh blank-TypeScript app, and its Expo Router section in Expo's default template: no prompts, typecheck clean after the first bundle, `expo export` for iOS / Android / web, web smoke test in light and dark | Same standard as the web install pages. pnpm / yarn / bun commands are translations of the npm ones, not separately run. | 2026-10-29 |
 
 | Decision | Reason / trade-off | Date |
 |---|---|---|
@@ -146,6 +152,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - The `css` writer flattens nested rules ([0006](0006-native-theme-as-file.md)).
 - **shadcn CLI (native):** `add` drops a file's leading comment block, so the `Engine layer: Uniwind` header survives in the repo but not in users' copies.
 - **Expo CLI:** `CI=1 expo start` turns off Metro's file watching ("reloads are disabled"), so devices keep the old bundle.
+- **Expo SDK 58's default (Router) template** has one TypeScript error of its own (`src/components/app-tabs.web.tsx`), unrelated to vinui.
 - **Metro** doesn't tree-shake `lucide-react-native`'s root export; vinui uses per-icon imports.
 - **`uniwind/vite`** only covers styling (it also switches Vite's CSS transformer to lightningcss). Running React Native inside Vite / Astro additionally needs `.web.*` resolution, a JSX loader for `@rn-primitives` (it ships untranspiled JSX), CommonJS handling for Reanimated, and SSR that never loads `react-native`. The docs embed the Expo web export instead.
 - **Registry build:** PostCSS keeps `!important` as a separate flag; the converter re-attaches it.
@@ -155,6 +162,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - HTML compression drops line-break whitespace before inline elements, so keep text and inline tags on one line.
   - `astro dev` / `astro preview` move to the background when run by AI agents; test servers pass `--ignore-lock`.
   - The dev toolbar reads `localStorage` without a guard and throws when storage is blocked, so the blocked-storage spec runs on production builds only.
+  - A module that exports a function named `then` hangs SSR: the module namespace becomes a thenable, so awaiting the dynamic import never resolves. `lib/pm.ts` uses `followedBy`.
 - **TypeScript 7** has no JS API, so `vue-tsc`, `astro check`, the Vue SFC compiler and the tests package use TS 6.0.3.
 - **pnpm 12:**
   - It blocks very new releases (minimum release age).
