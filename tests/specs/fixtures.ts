@@ -50,3 +50,12 @@ export const test = base.extend<TargetOptions & Fixtures>({
 })
 
 export { expect }
+
+/** Paints a CSS colour on a canvas and reads the pixel back, so any colour syntax compares equal. */
+export const rgba = (page: Page, color: string) =>
+  page.evaluate((color) => {
+    const ctx = Object.assign(document.createElement("canvas"), { width: 1, height: 1 }).getContext("2d")!
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, 1, 1)
+    return Array.from(ctx.getImageData(0, 0, 1, 1).data).join(",")
+  }, color)

@@ -5,6 +5,7 @@ import CodeBlock from "../../../components/CodeBlock.astro"
 import FrameworkTabs from "../../../components/FrameworkTabs.astro"
 import InstallCommand from "../../../components/InstallCommand.astro"
 import NativePreview from "../../../components/NativePreview.astro"
+import NativeWebPreview from "../../../components/NativeWebPreview.astro"
 import PropsTable from "../../../components/PropsTable.astro"
 import { ReactButtons } from "../../../components/ReactButtons"
 import VueButtons from "../../../components/VueButtons.vue"
@@ -89,6 +90,7 @@ import { Text } from "@/components/ui/text"
     <div slot="react" class="border-border rounded-lg border p-6"><ReactButtons client:load /></div>
     <div slot="vue" class="border-border rounded-lg border p-6"><VueButtons client:load /></div>
     <div slot="native">
+      <NativeWebPreview demo="button" title="Button demo" />
       <NativePreview shot="button-default" />
       <p class="text-muted-foreground mt-3 text-xs">Device screenshots of the native playground's release build.</p>
     </div>

@@ -94,6 +94,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Docs component pages: one site-wide framework choice and package manager, stored in `localStorage` (guarded) and applied on `<html>` before paint, so CSS shows the matching panels without a flash. `docs-components.spec.ts` covers it, including blocked storage (production only) | A Vue user picks Vue once; pages work without storage. | 2026-10-29 |
 | Docs API reference for multi-part components: one table per part that has vinui props (Dialog: `DialogContent`, `DialogFooter`), each under an `h4`; parts that only pass through (`Dialog`, `DialogTrigger`, …) get a link to the primitive's docs instead | Same rule as Button: only document what vinui defines or changes; shadcn does the same. | 2026-10-29 |
 | Every command on the docs (install pages included) has the package-manager switcher, built by `apps/docs/src/lib/pm.ts` (`dlx`, `exec`, `add`, `create`, `run`) | One place translates npm → pnpm / yarn / bun, so commands stay consistent. | 2026-10-29 |
+| Component pages show a live **"React Native (web)"** iframe above the device screenshots, loaded only when the React Native tab is shown ([0008](0008-native-web-support.md)) | Honest about what it is (react-native-web, not a device), costs nothing for React / Vue readers, and the screenshots stay the reference for devices. | 2026-10-29 |
+| The preview export is cached by a hash of the playground's inputs (source, installed components, CSS, config, `pnpm-lock.yaml`) | `expo export` takes tens of seconds; docs builds only pay for it when native demos change. | 2026-10-29 |
 
 ### Native platform setup
 | The native theme file's target is `vinui-theme.css` (no `~/`), so it lands next to `global.css` in src-layout apps too | `~/` always means the project root; in Expo Router's template (`src/global.css`) the `@import "./vinui-theme.css"` didn't resolve ([0006](0006-native-theme-as-file.md)). | 2026-10-29 |
@@ -162,6 +164,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - HTML compression drops line-break whitespace before inline elements, so keep text and inline tags on one line.
   - `astro dev` / `astro preview` move to the background when run by AI agents; test servers pass `--ignore-lock`.
   - The dev toolbar reads `localStorage` without a guard and throws when storage is blocked, so the blocked-storage spec runs on production builds only.
+  - `astro check` type-checks everything the tsconfig includes, `public/` too; the docs exclude `public/native-preview` (the Expo export ran it out of memory).
   - A module that exports a function named `then` hangs SSR: the module namespace becomes a thenable, so awaiting the dynamic import never resolves. `lib/pm.ts` uses `followedBy`.
 - **TypeScript 7** has no JS API, so `vue-tsc`, `astro check`, the Vue SFC compiler and the tests package use TS 6.0.3.
 - **pnpm 12:**

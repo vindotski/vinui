@@ -5,6 +5,7 @@ import CodeBlock from "../../../components/CodeBlock.astro"
 import FrameworkTabs from "../../../components/FrameworkTabs.astro"
 import InstallCommand from "../../../components/InstallCommand.astro"
 import NativePreview from "../../../components/NativePreview.astro"
+import NativeWebPreview from "../../../components/NativeWebPreview.astro"
 import PropsTable from "../../../components/PropsTable.astro"
 import { ReactDialog } from "../../../components/ReactDialog"
 import VueDialog from "../../../components/VueDialog.vue"
@@ -184,6 +185,7 @@ const [open, setOpen] = React.useState(false)
     <div slot="react" class="border-border rounded-lg border p-6"><ReactDialog client:load /></div>
     <div slot="vue" class="border-border rounded-lg border p-6"><VueDialog client:load /></div>
     <div slot="native">
+      <NativeWebPreview demo="dialog" title="Dialog demo" minHeight={380} />
       <NativePreview shot="dialog-open" />
       <p class="text-muted-foreground mt-3 text-xs">Device screenshots of the native playground's release build.</p>
     </div>

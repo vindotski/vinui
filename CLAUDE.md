@@ -29,6 +29,7 @@ tests/        parity tests (Vitest) + browser specs (Playwright)
 ## Commands
 - `pnpm registry:build` builds the registry. `VINUI_REGISTRY_URL` sets its public URL.
 - `pnpm dev:docs` runs the docs and serves the registry at `http://localhost:4321/r`.
+  - It also builds the "React Native (web)" preview (`pnpm --filter docs native-preview`), skipped when the native playground hasn't changed.
 - `pnpm test` runs, in order:
   1. the type + class parity tests,
   2. the native Jest specs,

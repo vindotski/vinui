@@ -1,6 +1,6 @@
 import type { Locator, Page } from "@playwright/test"
 
-import { expect, test } from "./fixtures.ts"
+import { expect, rgba, test } from "./fixtures.ts"
 
 /**
  * vinui native on react-native-web must look like vinui React: same classes, same CSS.
@@ -17,15 +17,6 @@ async function openReference(page: Page) {
   await page.waitForFunction(() => document.querySelectorAll("astro-island[ssr]").length === 0)
   return page.locator('section:has(h2:text-is("Button")) [data-framework="react"]')
 }
-
-/** Paints a CSS colour on a canvas and reads the pixel back, so any colour syntax compares equal. */
-const rgba = (page: Page, color: string) =>
-  page.evaluate((color) => {
-    const ctx = Object.assign(document.createElement("canvas"), { width: 1, height: 1 }).getContext("2d")!
-    ctx.fillStyle = color
-    ctx.fillRect(0, 0, 1, 1)
-    return Array.from(ctx.getImageData(0, 0, 1, 1).data).join(",")
-  }, color)
 
 /** Every .btn in order; the label colour comes from the btn-label Text on native. */
 async function readButtons(page: Page, root: Locator) {

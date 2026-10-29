@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run --typecheck",
-    "test:e2e": "pnpm -w registry:build && playwright test",
+    "test:e2e": "pnpm -w registry:build && pnpm --filter docs native-preview && playwright test",
     "typecheck": "tsc -p ."
   },
   "devDependencies": {

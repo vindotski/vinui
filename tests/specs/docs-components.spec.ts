@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test"
 
-import { expect, test } from "./fixtures.ts"
+import { expect, rgba, test } from "./fixtures.ts"
 
 /** Component pages: remembered framework tabs, package-manager switcher, API tables from core. */
 const PAGE = "/docs/components/button"
@@ -108,6 +108,55 @@ test.describe("docs component pages", () => {
     await expect(visible("/r/native/init.json")).toHaveCount(1)
     await page.getByRole("button", { name: "npm" }).first().click()
     await expect(visible("npm install -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
+  })
+
+  test("the React Native (web) preview loads on the tab, follows the theme and fits its content", async ({ page }) => {
+    await open(page)
+    const iframe = page.locator("iframe[data-native-preview]")
+    await expect(iframe).not.toHaveAttribute("src")
+    await page.getByRole("tab", { name: "React Native" }).first().click()
+    await expect(iframe).toHaveAttribute("src", /\/native-preview\/index\.html\?demo=button/)
+    const frame = page.frameLocator("iframe[data-native-preview]")
+    const outline = frame.getByRole("button", { name: "outline", exact: true })
+    await expect(outline).toBeVisible({ timeout: 60_000 })
+    // Sized to the demo (the frame starts at 120px), with nothing cut off.
+    await expect.poll(() => iframe.evaluate((f) => f.getBoundingClientRect().height)).toBeGreaterThan(200)
+    const last = frame.getByRole("button", { name: "link" }).last()
+    const [frameBox, lastBox] = [await iframe.boundingBox(), await last.boundingBox()]
+    expect(lastBox!.y + lastBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
+    // The docs' theme reaches the frame: its background matches the page's.
+    const background = (dark: boolean) =>
+      expect.poll(async () => {
+        // The first painted background under the frame's top-left corner (ThemeRoot's view).
+        const frameBg = await frame.locator("body").evaluate(() => {
+          for (let el = document.elementFromPoint(4, 4); el; el = el.parentElement) {
+            const bg = getComputedStyle(el).backgroundColor
+            if (bg !== "rgba(0, 0, 0, 0)") return bg
+          }
+        })
+        const pageBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+        const same = (await rgba(page, frameBg ?? "")) === (await rgba(page, pageBg))
+        return [same, await page.evaluate(() => document.documentElement.classList.contains("dark"))]
+      }).toEqual([true, dark])
+    await page.getByRole("button", { name: "light", exact: true }).click()
+    await background(false)
+    await page.getByRole("button", { name: "dark", exact: true }).click()
+    await background(true)
+  })
+
+  test("the dialog preview opens a dialog that fits the frame", async ({ page }) => {
+    await page.goto("/docs/components/dialog")
+    await page.getByRole("tab", { name: "React Native" }).first().click()
+    const iframe = page.locator("iframe[data-native-preview]")
+    const frame = page.frameLocator("iframe[data-native-preview]")
+    await frame.getByRole("button", { name: "Open dialog" }).click({ timeout: 60_000 })
+    const dialog = frame.getByRole("dialog", { name: "Delete project?" })
+    await expect(dialog).toBeVisible()
+    const [frameBox, dialogBox] = [await iframe.boundingBox(), await dialog.locator(".dialog-panel").boundingBox()]
+    expect(dialogBox!.y).toBeGreaterThanOrEqual(frameBox!.y)
+    expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
+    await frame.getByRole("button", { name: "Cancel" }).click()
+    await expect(dialog).toBeHidden()
   })
 
   test("works when storage is blocked", async ({ page }, testInfo) => {

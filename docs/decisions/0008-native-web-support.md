@@ -33,4 +33,7 @@ Expo apps often ship iOS, Android **and** web from one codebase, and React Nativ
   | + vinui Button, Dialog, ThemeRoot | 376 KB | ≈79 KB (incl. Radix Dialog, rn-primitives, react-native-svg) |
 
 - **Found by the bundle measurement:** importing from the `lucide-react-native` root bundles every icon under Metro (+203 KB on web; native bundles too). vinui components use per-icon imports (`lucide-react-native/icons/x`).
-- **Docs preview:** Astro islands would need a hand-built React Native toolchain inside Vite. So the docs embed the playground's Expo web export in an iframe, labelled "React Native (web)", next to the device screenshots (built in the docs step).
+- **Docs preview:** Astro islands would need a hand-built React Native toolchain inside Vite. So the docs embed the playground's Expo web export in an iframe, labelled "React Native (web)", next to the device screenshots. Built 2026-10-29:
+  - `apps/docs/scripts/native-preview.ts` exports the playground with `EXPO_BASE_URL=/native-preview` (read by `app.config.js`) into `apps/docs/public/native-preview/`, and skips the export when a hash of the playground's inputs is unchanged.
+  - `?demo=<name>` renders one demo (`apps/playground-native/docs-preview.tsx`), mirroring the docs' React demo.
+  - The frame gets its `src` only when the React Native tab is shown. It sizes itself to the demo's height (`vinui:preview-size`) and follows the docs' theme (`?theme=` for the first paint, then `vinui:theme` messages, plus a `vinui:preview-ready` handshake for changes made while it loads). Messages are same-origin only.

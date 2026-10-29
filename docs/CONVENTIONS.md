@@ -95,6 +95,7 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 
 ## Docs
 
+- **Native previews:** each component page's React Native tab shows a `<NativeWebPreview demo="…">` (add the demo to `apps/playground-native/docs-preview.tsx`, matching the React demo) above the device screenshots.
 - **Component pages:** preview, install (same `@vinui/<name>`, per-tab CLI, package-manager switcher), usage per framework, API reference from core metadata, platform notes.
 - **Every command is copy-paste runnable**, with no placeholders, and goes through the package-manager switcher (`<PmCommand>` / `<InstallCommand>`, built by `apps/docs/src/lib/pm.ts`); never a bare `npm …` code block.
 - **Multi-part components** get one API table per part that has vinui props.
