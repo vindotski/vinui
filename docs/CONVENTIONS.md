@@ -47,7 +47,7 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 - **Use longhands** (`border-width` / `-style` / `-color`, etc.), not shorthands React Native drops.
 - **State hook:** `data-state` (`[data-state="open"]`). No `data-open` / `data-closed`.
 - **Overlays:** `*-panel` = the look; `*-content` = the look (`@apply <x>-panel`) + web positioning. Native uses `*-panel` inside a centred overlay with padding and a max width.
-- **Animations:** our own `@keyframes`, keyed on `data-state` (Presence waits for animations, not transitions). Honour `prefers-reduced-motion`.
+- **Animations:** our own `@keyframes`, keyed on `data-state` (Presence waits for animations, not transitions). Honour `prefers-reduced-motion`. Native (devices and web) uses Reanimated with `ReduceMotion.System`.
 - **One press-feedback mechanism:** the `:active` style. Motion work must replace or build on it, never stack another one on top.
 - **Dark mode on web:** `@custom-variant dark (&:is(.dark *))`, shadcn's exact string.
 - **Native has no CSS inheritance:**
@@ -55,14 +55,19 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
   - A parent's text classes **replace** a child's defaults; don't stack them. Custom utilities lose to single-property utilities in Tailwind's order, and tailwind-merge can't resolve them.
   - **Only React Native core components take `className`.** Third-party components (`react-native-safe-area-context`'s `SafeAreaView`, …) need a core `View` behind them or `withUniwind`.
   - **The base layer is `<ThemeRoot>`**; colours needed in JavaScript come from the tokens via the engine layer, never a JS copy ([0007](decisions/0007-native-base-layer.md)).
-  - Pseudo-classes React Native lacks (`:disabled`, `:hover`) get an explicit prop-driven class or are skipped.
+  - Pseudo-classes React Native lacks (`:disabled`, `:hover`) get an explicit prop-driven class or are skipped on devices. On react-native-web the shared CSS applies them.
+- **Native on web (react-native-web, [0008](decisions/0008-native-web-support.md)):**
+  - Web-only styling goes in the class string with Uniwind's `web:` variant (`web:mx-auto`), never `Platform.select`.
+  - Shared CSS may carry a rule only web needs (e.g. `.btn:hover .btn-label`) when native ignores it. Check the native harness baselines and the web class snapshot.
+  - Positioning: native-on-web is for Expo universal apps; web-only apps use vinui React.
 
 ## Registry and dependencies
 
 - **Item names are the same on every platform**, under `/r/<platform>/{name}.json`. Platform-only items are marked as such in the docs (native: `text`, `icon`, `engine`, `theme-root`).
 - **Components import `cn` from `"cn"`** and never ship a `lib/utils.ts` ([0004](decisions/0004-cva-exact-button-variants.md)).
 - **Items declare every npm package they import** (e.g. `clsx`). Never rely on something arriving indirectly.
-- **Expo-managed native modules** (Reanimated, Worklets, Screens, SVG, Status Bar, System UI) are **setup prerequisites**, installed with `npx expo install`. Native items don't list them: the shadcn CLI would install their latest versions, not SDK-matched ones.
+- **Native icons are imported per icon** (`lucide-react-native/icons/x`): Metro doesn't tree-shake the root export.
+- **Expo-managed native modules** (Reanimated, Worklets, Screens, SVG, Status Bar, System UI; for web: react-native-web, react-dom, `@expo/metro-runtime`) are **setup prerequisites**, installed with `npx expo install`. Native items don't list them: the shadcn CLI would install their latest versions, not SDK-matched ones.
 - **Setup prerequisites (Uniwind, Tailwind) are pinned in `init` and the install docs, never on component items.**
 - **Pin exact versions** of engines and primitives in the repo.
 - **pnpm's minimum release age is respected.** Pin the newest version past the window; don't add exclusions. Add a `minimumReleaseAgeExclude` only when a specific fix is needed, with a comment naming that fix.
@@ -81,7 +86,7 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
   - Plus explicit expectations per platform (defaults, one variant, one size), and the extra-class cases.
 - **Stale-docs guard:** every prop in core's metadata exists on each listed platform, under that platform's name.
 - **Behaviour specs on every platform:**
-  - Playwright for web (docs + playgrounds, dev and production).
+  - Playwright for web (docs + playgrounds, dev and production), including native on react-native-web (`native-web-*` targets).
   - Jest + Testing Library for native.
   - The same scenario list on every platform.
 - **Behaviour specs query controls by role** (`getByRole("button", { name })`), not just by label or text. Simulated presses can bubble to a parent handler and hide a broken control.

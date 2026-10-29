@@ -48,6 +48,9 @@
     height: --spacing(4);
     pointer-events: none;
     }
+  &:hover .btn-label {
+    color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+    }
 }
 
 @utility btn-label {

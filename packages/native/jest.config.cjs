@@ -27,6 +27,7 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/$1",
     // lucide-react-native resolves to its .mjs build under Jest; use the CommonJS one.
     "^lucide-react-native$": "<rootDir>/node_modules/lucide-react-native/dist/cjs/lucide-react-native.js",
+    "^lucide-react-native/icons/(.*)$": "<rootDir>/node_modules/lucide-react-native/dist/cjs/icons/$1.js",
   },
   testMatch: ["<rootDir>/__tests__/**/*.test.tsx"],
   transformIgnorePatterns: [`/node_modules/(?!(${transpile.join("|")}))`],

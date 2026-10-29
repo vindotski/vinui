@@ -1,6 +1,6 @@
 import "./global.css"
 
-import { Plus } from "lucide-react-native"
+import Plus from "lucide-react-native/icons/plus"
 import * as React from "react"
 import { Linking, Pressable, ScrollView, View } from "react-native"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"

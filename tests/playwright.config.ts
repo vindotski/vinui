@@ -50,6 +50,20 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     command: "pnpm --filter playground-vue build && pnpm --filter playground-vue exec vite preview --port 4402 --strictPort",
     options: { layout: "playground", frameworks: ["vue"] },
   },
+  // vinui native on react-native-web (Expo universal apps).
+  {
+    name: "native-web-dev",
+    port: 4601,
+    command: "pnpm --filter playground-native exec expo start --web --port 4601",
+    options: { layout: "playground", frameworks: ["native"] },
+  },
+  {
+    name: "native-web-prod",
+    port: 4602,
+    command:
+      "pnpm --filter playground-native exec expo export --platform web && pnpm --filter playground-native exec expo serve --port 4602",
+    options: { layout: "playground", frameworks: ["native"] },
+  },
 ]
 
 export default defineConfig<TargetOptions>({

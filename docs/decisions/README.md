@@ -17,6 +17,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | [0005](0005-native-styling-engine.md) | Native styling engine: Uniwind | Accepted |
 | [0006](0006-native-theme-as-file.md) | Native theme delivered as a file | Accepted |
 | [0007](0007-native-base-layer.md) | Native base layer: ThemeRoot | Accepted |
+| [0008](0008-native-web-support.md) | vinui native supports react-native-web (Expo universal apps) | Accepted |
 
 ---
 
@@ -70,6 +71,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | A `btn-label` utility for native button text | React Native text doesn't inherit colour. Unused on web, which is fine (shadcn's web Button doesn't wrap its text). | 2026-10-28 |
 | `:active` pressed tint on `btn`, built from tokens, dark-mode aware | A deliberate design change on web too (shadcn's web Button has none). **One press-feedback mechanism:** future Motion must replace or build on it, not stack on it. | 2026-10-28 |
 | Overlays: `*-panel` = the look; `*-content` = the look + web positioning (`dialog-content` composes `dialog-panel` via `@apply`) | Native has no `position: fixed` / `calc(100%…)`. Native centres the panel with overlay padding and a max width. Applies to Popover, Sheet, Select and DropdownMenu too. **Verified on web:** the compiled `.dialog-content` declarations are unchanged, and the dialog specs assert the panel's background, border, padding, radius and shadow. `display: grid` stays in `*-content` (React Native is flex-only). | 2026-10-28 |
+| Web-only styling uses Uniwind's `web:` variant in class strings, not `Platform.select`; shared CSS may carry rules only web needs (e.g. `.btn:hover .btn-label`) when native ignores them, checked against the native harness baselines | Keeps web-only styling visible next to the shared classes ([0008](0008-native-web-support.md)). | 2026-10-28 |
+| Native components import icons per icon (`lucide-react-native/icons/x`) | Metro doesn't tree-shake the root export: +203 KB gzipped on web, and native bundles grow too. | 2026-10-28 |
 
 ### Testing
 | Native Jest: Uniwind, Reanimated and `FullWindowOverlay` are stubbed; the Worklets Jest resolver is used; Lucide is mapped to its CJS build; Testing Library 14's `render` / `fireEvent` are awaited | The specs check props, classes and accessibility, not pixels (those are covered by the engine harness and devices). | 2026-10-28 |
@@ -85,6 +88,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Browser specs run against the docs and playgrounds in dev **and** production | Dev-only bugs (Fast Refresh in Vue SFCs, hydration mismatches) exist. | 2026-10-28 |
 | Native engine harness (`spikes/native-engine/`): live `@vinui/tailwind` input, per-platform golden baselines, an explicit script (`pnpm spike:native-engine`), outside workspace builds | Upgrade checks are a diff against the baseline. The baselines from Uniwind 1.13.0 are identical on iOS and Android, and a rerun reproduces them exactly. | 2026-10-28 |
 | Native behaviour specs: Jest + `@testing-library/react-native` | Device e2e is a later step. | 2026-10-28 |
+| Native web specs: `native-web-dev` / `native-web-prod` targets on the playground's web build; `native-web-parity.spec.ts` compares computed styles (as sRGB pixels) with the React demo on the docs; `dialog.spec.ts` shares its scenarios, with native-specific structure / animation expectations | One look across React and native web; Radix underneath makes behaviour specs shareable. | 2026-10-28 |
 
 ### Native platform setup
 
@@ -95,6 +99,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Android checks and docs screenshots use a stable API 36 emulator (Expo 58 / RN 0.88 `targetSdk`); a newer beta image is used occasionally for forward-compatibility | Consistent screenshots. A `minSdk` (24) emulator is a later step. | 2026-10-28 |
 | Third-party components (e.g. `react-native-safe-area-context`'s `SafeAreaView`) don't take `className`; put a core `View` (or `ThemeRoot`) behind them, or wrap them with `withUniwind` | Uniwind maps `className` only on React Native core components ([0007](0007-native-base-layer.md)). | 2026-10-28 |
 | `expo-status-bar` and `expo-system-ui` are setup prerequisites (`npx expo install`), used by ThemeRoot | Expo-managed, like Reanimated. | 2026-10-28 |
+| react-native-web prerequisites: `npx expo install react-native-web react-dom @expo/metro-runtime` | Expo-managed, like Reanimated ([0008](0008-native-web-support.md)). | 2026-10-28 |
 
 ---
 
@@ -111,8 +116,10 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Events | `onClick` | `@click` | `onPress` |
 | Dialog positioning | `dialog-content` | `dialog-content` | `dialog-panel w-full max-w-lg` in a padded, centred overlay |
 | `DialogScrollContent` | — | in shadcn-vue, skipped | — |
-| Hover styles | yes | yes | none (`:active` only) |
-| Dialog close icon | inline SVG | inline SVG | lucide `X` via `Icon` |
+| Hover styles | yes | yes | devices: none (`:active` only); **react-native-web: yes**, from the shared CSS (changed 2026-10-28, [0008](0008-native-web-support.md)) |
+| Dialog close icon | inline SVG | inline SVG | lucide `X` via `Icon` (per-icon import) |
+| Animations | CSS `@keyframes` | CSS `@keyframes` | Reanimated (devices and react-native-web) |
+| Web support | — | — | react-native-web, for Expo universal apps ([0008](0008-native-web-support.md)) |
 | Theme via `init` | `cssVars` + `css` | `cssVars` + `css`; shadcn-vue also adds an Inter `@import` and `@lucide/vue`, and needs `tw-animate-css` | `vinui-theme.css` file + `@import` |
 | Dark mode | `.dark` class | `.dark` class | Uniwind themes (`Uniwind.setTheme`, follows the system) |
 | Missing-setup detection | — | — | `@vinui/engine` (**vinui addition**) |
@@ -131,6 +138,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - The `css` writer flattens nested rules ([0006](0006-native-theme-as-file.md)).
 - **shadcn CLI (native):** `add` drops a file's leading comment block, so the `Engine layer: Uniwind` header survives in the repo but not in users' copies.
 - **Expo CLI:** `CI=1 expo start` turns off Metro's file watching ("reloads are disabled"), so devices keep the old bundle.
+- **Metro** doesn't tree-shake `lucide-react-native`'s root export; vinui uses per-icon imports.
+- **`uniwind/vite`** only covers styling (it also switches Vite's CSS transformer to lightningcss). Running React Native inside Vite / Astro additionally needs `.web.*` resolution, a JSX loader for `@rn-primitives` (it ships untranspiled JSX), CommonJS handling for Reanimated, and SSR that never loads `react-native`. The docs embed the Expo web export instead.
 - **Registry build:** PostCSS keeps `!important` as a separate flag; the converter re-attaches it.
 - **Astro (docs):**
   - plugin-vue injects React Fast Refresh calls into Vue SFC scripts in dev, so the docs stub `$RefreshSig$` / `$RefreshReg$` for SSR.
@@ -148,7 +157,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 - Registry deploy (host, domain, `VINUI_REGISTRY_URL`).
 - vinui's own visual identity (palette, radius, typography, motion).
 - Combobox API divergence (shadcn/ui Popover + Command vs shadcn-vue Reka Combobox): resolve before building it.
-- Native: global icon interop, react-native-web, device e2e, a `minSdk` emulator.
+- Native: global icon interop, device e2e, a `minSdk` emulator.
 - CI: none yet. When it exists, run the native engine harness on PRs that change the Uniwind version (needs a macOS runner).
 - `DialogScrollContent`.
 - Bump Uniwind from 1.13.0 once newer releases pass the release-age policy, using the upgrade checklist in [0005](0005-native-styling-engine.md).

@@ -32,7 +32,7 @@ tests/        parity tests (Vitest) + browser specs (Playwright)
 - `pnpm test` runs, in order:
   1. the type + class parity tests,
   2. the native Jest specs,
-  3. the browser specs.
+  3. the browser specs (docs, web playgrounds, and the native playground's web build).
   - Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to reuse an installed Chromium, or run `pnpm --filter @vinui/tests exec playwright install chromium` once.
 - `pnpm -r typecheck` typechecks every package.
 - In a playground, `pnpm --filter playground-<react|vue> registry:add` reinstalls from the local registry (the docs dev server must be running).

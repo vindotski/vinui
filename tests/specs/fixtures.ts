@@ -1,9 +1,10 @@
 import { test as base, expect, type Locator, type Page } from "@playwright/test"
 
-export type Framework = "react" | "vue"
+/** "native" is vinui native on react-native-web (the Expo playground's web build). */
+export type Framework = "react" | "vue" | "native"
 
 export interface TargetOptions {
-  /** "docs": side-by-side panels per framework; "playground": one app in <main>. */
+  /** "docs": side-by-side panels per framework; "playground": one app (in <main>, or #root for Expo web). */
   layout: "docs" | "playground"
   frameworks: Framework[]
 }
@@ -33,7 +34,7 @@ export const test = base.extend<TargetOptions & Fixtures>({
     await use((page, framework, section) =>
       layout === "docs"
         ? page.locator(`section:has(h2:text-is("${section}")) [data-framework="${framework}"]`)
-        : page.locator("main"),
+        : page.locator(framework === "native" ? "#root" : "main"),
     )
   },
   pageErrors: [
