@@ -56,6 +56,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native `@vinui/engine` (`lib/vinui-engine.ts`): missing Uniwind fails the bundle; installed-but-unconfigured gives one `__DEV__` warning (silenced in tests, `disableEngineCheck()` to opt out) | Without it, components would render unstyled with no error. A vinui addition. Unit-tested; the real-app failure modes are verified with the fresh-app checks. | 2026-10-28 |
 | Native `<ThemeRoot>` and `useNavigationTheme()` (`@vinui/theme-root`), with `portalHost` / `statusBar` opt-outs | Native has no `body` base layer ([0007](0007-native-base-layer.md)). A vinui addition. | 2026-10-28 |
 | Native `<Button asChild>` needs a **box child** (`Pressable`, or anything that renders a `View`). For links, put the router's link around the Button: `<Link href asChild><Button>…</Button></Link>` | On web the `btn` classes turn an `<a>` into a centring flex box. A React Native `Text` is a leaf and can't centre its own glyphs (iOS has no `textAlignVertical`), so a bare `Text` child shows its label at the top. A `lineHeight` hack would tie labels to fixed heights. The `Link asChild` nesting is the Expo Router / RNR idiom. | 2026-10-28 |
+| Prop metadata: `addition` lists the **platforms** where something is a vinui addition (e.g. Button `asChild` is standard in shadcn/ui and shadcn-vue, an addition vs RNR); `type` shows a type when there are no fixed `values` | One prop can be standard on one platform and an addition on another. | 2026-10-29 |
 
 ### Styling
 
@@ -89,6 +90,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native engine harness (`spikes/native-engine/`): live `@vinui/tailwind` input, per-platform golden baselines, an explicit script (`pnpm spike:native-engine`), outside workspace builds | Upgrade checks are a diff against the baseline. The baselines from Uniwind 1.13.0 are identical on iOS and Android, and a rerun reproduces them exactly. | 2026-10-28 |
 | Native behaviour specs: Jest + `@testing-library/react-native` | Device e2e is a later step. | 2026-10-28 |
 | Native web specs: `native-web-dev` / `native-web-prod` targets on the playground's web build; `native-web-parity.spec.ts` compares computed styles (as sRGB pixels) with the React demo on the docs; `dialog.spec.ts` shares its scenarios, with native-specific structure / animation expectations | One look across React and native web; Radix underneath makes behaviour specs shareable. | 2026-10-28 |
+| Docs component pages: one site-wide framework choice and package manager, stored in `localStorage` (guarded) and applied on `<html>` before paint, so CSS shows the matching panels without a flash. `docs-components.spec.ts` covers it, including blocked storage (production only) | A Vue user picks Vue once; pages work without storage. | 2026-10-29 |
+| Docs API reference for multi-part components: one table per part that has vinui props (Dialog: `DialogContent`, `DialogFooter`), each under an `h4`; parts that only pass through (`Dialog`, `DialogTrigger`, …) get a link to the primitive's docs instead | Same rule as Button: only document what vinui defines or changes; shadcn does the same. | 2026-10-29 |
 
 ### Native platform setup
 
@@ -151,6 +154,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - `slot` goes on `<Fragment>`, not on islands (avoids a hydration mismatch).
   - HTML compression drops line-break whitespace before inline elements, so keep text and inline tags on one line.
   - `astro dev` / `astro preview` move to the background when run by AI agents; test servers pass `--ignore-lock`.
+  - The dev toolbar reads `localStorage` without a guard and throws when storage is blocked, so the blocked-storage spec runs on production builds only.
 - **TypeScript 7** has no JS API, so `vue-tsc`, `astro check`, the Vue SFC compiler and the tests package use TS 6.0.3.
 - **pnpm 12:**
   - It blocks very new releases (minimum release age).

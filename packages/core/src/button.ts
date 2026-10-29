@@ -43,13 +43,17 @@ export const buttonProps = [
   },
   {
     name: "asChild",
+    type: "boolean",
     default: "false",
     description: "Render the child element instead, with the button's props and classes.",
     platforms: allPlatforms,
+    // React Native Reusables' Button has no asChild; native keeps shadcn's.
+    addition: ["native"],
   },
   {
     name: "className",
     names: { vue: "class" },
+    type: "string",
     description: "Extra classes, merged after vinui's with `cn()`.",
     platforms: allPlatforms,
   },

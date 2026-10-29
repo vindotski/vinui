@@ -9,6 +9,13 @@ const { title } = Astro.props
 const path = Astro.url.pathname.replace(/\/$/, "")
 const sections = [
   {
+    title: "Components",
+    links: [
+      { href: "/docs/components/button", label: "Button" },
+      { href: "/docs/components/dialog", label: "Dialog" },
+    ],
+  },
+  {
     title: "Installation",
     links: [
       { href: "/docs/installation/react", label: "React" },

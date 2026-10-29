@@ -1,0 +1,39 @@
+---
+import { Code } from "astro:components"
+
+/** A copy-paste runnable CLI command, with a remembered package-manager switcher. */
+interface Props {
+  framework: "react" | "vue" | "native"
+  /** Arguments after the CLI, e.g. `add @vinui/button`. */
+  args: string
+}
+
+const { framework, args } = Astro.props
+const cli = framework === "vue" ? "shadcn-vue@latest" : "shadcn@latest"
+const runners = [
+  ["npm", "npx"],
+  ["pnpm", "pnpm dlx"],
+  ["yarn", "yarn dlx"],
+  ["bun", "bunx --bun"],
+] as const
+---
+
+<div class="install" data-install>
+  <div class="install-bar" role="group" aria-label="Package manager">
+    {
+      runners.map(([pm]) => (
+        <button type="button" data-pm-tab={pm} aria-pressed={pm === "npm" ? "true" : "false"}>
+          {pm}
+        </button>
+      ))
+    }
+    <button type="button" data-copy>Copy</button>
+  </div>
+  {
+    runners.map(([pm, runner]) => (
+      <div data-pm-panel={pm}>
+        <Code code={`${runner} ${cli} ${args}`} lang="bash" themes={{ light: "github-light", dark: "github-dark" }} />
+      </div>
+    ))
+  }
+</div>

@@ -11,11 +11,13 @@ export interface PropDoc {
   /** Name where a platform's idiom differs (e.g. Vue `class`, native `onPress`). */
   names?: Partial<Record<Platform, string>>
   values?: readonly string[]
+  /** Type shown when there are no fixed `values` (e.g. `boolean`). */
+  type?: string
   default?: string
   description: string
   platforms: readonly Platform[]
-  /** vinui-only: not in the platform's shadcn reference. */
-  addition?: boolean
+  /** Platforms where this is a vinui addition (not in that platform's shadcn reference). */
+  addition?: readonly Platform[]
 }
 
 export const allPlatforms = ["react", "vue", "native"] as const satisfies readonly Platform[]
