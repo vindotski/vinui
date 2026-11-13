@@ -5,12 +5,13 @@ import { expect, test, type Framework } from "./fixtures.ts"
  * options, typeahead), Escape, a controlled popper select, reduced motion.
  * Scenarios match the playgrounds' SelectDemo.
  * While the list is open, the primitives aria-hide everything outside it, the
- * trigger included, so the open trigger is found by attribute, not by role.
+ * trigger included, so the open trigger is found by attribute, not by role, inside
+ * its framework's demo (the docs show the frameworks side by side).
  * Native (react-native-web) wraps the same Radix Select but sets no data-slot, so
  * parts are found by role or by vinui class.
  */
-const trigger = (page: import("@playwright/test").Page, name: string) =>
-  page.locator(`[role="combobox"][aria-label="${name}"]`)
+const trigger = (root: import("@playwright/test").Locator, name: string) =>
+  root.locator(`[role="combobox"][aria-label="${name}"]`)
 const selectContent = (page: import("@playwright/test").Page) => page.locator(".select-content")
 /**
  * Where Radix's data-state / data-side live, and what animates. On the web ports that's
@@ -34,10 +35,8 @@ const token = (page: import("@playwright/test").Page, name: string) =>
 for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework[]) {
   const native = framework === "native"
   test.describe(`${framework} Select`, () => {
-    test.beforeEach(({ frameworks, layout }) => {
+    test.beforeEach(({ frameworks }) => {
       test.skip(!frameworks.includes(framework), `no ${framework} app on this target`)
-      // The Select docs page comes once every platform has a Select.
-      test.skip(layout === "docs", "no Select demo on the docs site yet")
     })
 
     test("trigger shows the placeholder, with vinui's look and sizes", async ({ page, demo, visit }) => {
@@ -72,7 +71,7 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
       await fruit.click()
       const listbox = page.getByRole("listbox")
       await expect(listbox).toBeVisible()
-      await expect(trigger(page, "Fruit")).toHaveAttribute("aria-expanded", "true")
+      await expect(trigger(demo(page, framework, "Select"), "Fruit")).toHaveAttribute("aria-expanded", "true")
       const content = selectContent(page)
       await expect(listState(page, native)).toHaveAttribute("data-state", "open")
       await expect(content).toHaveClass(/\bselect-content\b/)

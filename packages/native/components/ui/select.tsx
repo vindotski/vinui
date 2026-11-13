@@ -71,7 +71,9 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       ref={mergeRefs(ref, comboboxRoleOnWeb)}
       className={cn(
-        "select-trigger flex-row",
+        // Fixed height, centred content: React Native would clip the text inside the
+        // vertical padding (32px small trigger, 20px text), where the web lets it overflow evenly.
+        "select-trigger flex-row py-0",
         triggerSizes[size],
         // React Native has no :disabled pseudo-class.
         props.disabled && "opacity-50",

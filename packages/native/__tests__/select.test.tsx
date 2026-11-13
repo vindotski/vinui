@@ -1,7 +1,7 @@
 import { PortalHost } from "@rn-primitives/portal"
-import { fireEvent, render, screen } from "@testing-library/react-native"
+import { act, fireEvent, render, screen } from "@testing-library/react-native"
 import * as React from "react"
-import { View } from "react-native"
+import { BackHandler, View } from "react-native"
 
 import {
   Select,
@@ -72,7 +72,7 @@ function hasSvg(node: Node): boolean {
 describe("Select", () => {
   test("trigger: vinui's classes, sizes, and the muted placeholder", async () => {
     await render(<Example />)
-    expect(trigger().props.className).toMatch(/^select-trigger flex-row\b/)
+    expect(trigger().props.className).toMatch(/^select-trigger flex-row py-0\b/)
     expect(trigger().props.className).toContain("w-44")
     const placeholder = screen.getByText("Pick a fruit")
     expect(placeholder.props.className).toContain("text-muted-foreground")
@@ -88,7 +88,7 @@ describe("Select", () => {
       </Select>,
     )
     const size = screen.getByLabelText("Size")
-    expect(size.props.className).toBe("select-trigger flex-row select-trigger-sm opacity-50")
+    expect(size.props.className).toBe("select-trigger flex-row py-0 select-trigger-sm opacity-50")
   })
 
   test("opens a panel with groups, labels, a separator and options", async () => {
@@ -134,5 +134,33 @@ describe("Select", () => {
     // The check icon (an SVG) renders inside the selected option only.
     expect(hasSvg(item)).toBe(true)
     expect(hasSvg(ancestorWithClass(screen.getByText("Apple"), "select-item")!)).toBe(false)
+  })
+
+  test("tapping outside the list closes it without choosing", async () => {
+    const onValueChange = jest.fn()
+    await render(<Example onValueChange={onValueChange} />)
+    await open()
+    const overlay = ancestorWithClass(screen.getByText("Apple"), "z-50")
+    expect(overlay).not.toBeNull()
+    await fireEvent.press(overlay!)
+    expect(screen.queryByText("Apple")).toBeNull()
+    expect(onValueChange).not.toHaveBeenCalled()
+  })
+
+  test("Android back button closes the list", async () => {
+    const handlers: Array<Parameters<typeof BackHandler.addEventListener>[1]> = []
+    const spy = jest.spyOn(BackHandler, "addEventListener").mockImplementation((_event, handler) => {
+      handlers.push(handler)
+      return { remove: jest.fn() }
+    })
+    await render(<Example />)
+    await open()
+    expect(screen.getByText("Apple")).toBeOnTheScreen()
+    expect(handlers.length).toBeGreaterThan(0)
+    await act(async () => {
+      handlers.at(-1)!({} as never)
+    })
+    expect(screen.queryByText("Apple")).toBeNull()
+    spy.mockRestore()
   })
 })

@@ -3,10 +3,13 @@ import Demo from "../components/Demo.astro"
 import Layout from "../layouts/Layout.astro"
 import { ReactButtons } from "../components/ReactButtons"
 import { ReactDialog } from "../components/ReactDialog"
+import { ReactSelect } from "../components/ReactSelect"
 import VueButtons from "../components/VueButtons.vue"
 import VueDialog from "../components/VueDialog.vue"
+import VueSelect from "../components/VueSelect.vue"
 import SvelteButtons from "../components/SvelteButtons.svelte"
 import SvelteDialog from "../components/SvelteDialog.svelte"
+import SvelteSelect from "../components/SvelteSelect.svelte"
 ---
 
 <Layout title="vinui">
@@ -28,6 +31,12 @@ import SvelteDialog from "../components/SvelteDialog.svelte"
       <Fragment slot="react"><ReactDialog client:load /></Fragment>
       <Fragment slot="vue"><VueDialog client:load /></Fragment>
       <Fragment slot="svelte"><SvelteDialog client:load /></Fragment>
+    </Demo>
+
+    <Demo title="Select">
+      <Fragment slot="react"><ReactSelect client:load /></Fragment>
+      <Fragment slot="vue"><VueSelect client:load /></Fragment>
+      <Fragment slot="svelte"><SvelteSelect client:load /></Fragment>
     </Demo>
   </main>
 

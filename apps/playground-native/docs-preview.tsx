@@ -17,6 +17,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Icon } from "@/components/ui/icon"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+  type Option,
+} from "@/components/ui/select"
 import { Text } from "@/components/ui/text"
 import { ThemeRoot } from "@/components/ui/theme-root"
 
@@ -30,6 +41,7 @@ import { ThemeRoot } from "@/components/ui/theme-root"
 const demos = {
   button: ButtonDemo,
   dialog: DialogDemo,
+  select: SelectDemo,
 }
 type Demo = keyof typeof demos
 
@@ -107,6 +119,63 @@ function DialogDemo() {
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
+    </View>
+  )
+}
+
+const fruits = [
+  { value: "apple", label: "Apple" },
+  { value: "banana", label: "Banana" },
+  { value: "blueberry", label: "Blueberry" },
+  { value: "grapes", label: "Grapes", disabled: true },
+  { value: "pineapple", label: "Pineapple" },
+]
+const vegetables = [
+  { value: "carrot", label: "Carrot" },
+  { value: "leek", label: "Leek" },
+]
+const sizeOptions = [
+  { value: "s", label: "Small" },
+  { value: "m", label: "Medium" },
+  { value: "l", label: "Large" },
+]
+
+/** Also the playground's Select section. */
+export function SelectDemo() {
+  const [size, setSize] = React.useState<Option>(sizeOptions[1])
+  return (
+    <View className="gap-2">
+      <Select>
+        <SelectTrigger aria-label="Fruit" className="w-44">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent className="w-44">
+          <SelectGroup>
+            <SelectLabel>Fruits</SelectLabel>
+            {fruits.map((f) => (
+              <SelectItem key={f.value} value={f.value} label={f.label} disabled={f.disabled} />
+            ))}
+          </SelectGroup>
+          <SelectSeparator />
+          <SelectGroup>
+            <SelectLabel>Vegetables</SelectLabel>
+            {vegetables.map((v) => (
+              <SelectItem key={v.value} value={v.value} label={v.label} />
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Select value={size} onValueChange={(option) => option && setSize(option)}>
+        <SelectTrigger aria-label="Size" size="sm" className="w-44">
+          <SelectValue placeholder="Size" />
+        </SelectTrigger>
+        <SelectContent className="w-44">
+          {sizeOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value} label={o.label} />
+          ))}
+        </SelectContent>
+      </Select>
+      <Text testID="size-value">Size: {size?.value}</Text>
     </View>
   )
 }

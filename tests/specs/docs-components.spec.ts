@@ -110,6 +110,46 @@ test.describe("docs component pages", () => {
     await expect(page.getByRole("dialog", { name: "Delete project?" })).toBeVisible()
   })
 
+  test("the select page documents the trigger size under each framework, and its previews work", async ({ page }) => {
+    await page.goto("/docs/components/select")
+    await page.waitForFunction(() => document.querySelectorAll("astro-island[ssr]").length === 0)
+    await expect(installFor(page, "react")).toContainText("npx shadcn@latest add @vinui/select")
+    const api = (framework: string) => page.locator(`#api-reference ~ .framework-tabs [data-framework-panel="${framework}"]`).first()
+    await expect(api("react").locator(".props-table")).toHaveCount(1)
+    await expect(api("react").locator("tr", { hasText: "size" })).toContainText('"default"')
+    // The React preview opens and chooses.
+    const react = page.locator('[data-framework-panel="react"]').first()
+    await react.getByRole("combobox", { name: "Fruit" }).click()
+    await page.getByRole("option", { name: "Banana" }).click()
+    await expect(react.getByRole("combobox", { name: "Fruit" })).toHaveText("Banana")
+    // Svelte: its install command is the item URL; its preview works too.
+    await page.getByRole("tab", { name: "Svelte" }).first().click()
+    await expect(installFor(page, "svelte")).toContainText("/r/svelte/select.json --yes --overwrite")
+    const svelte = page.locator('[data-framework-panel="svelte"]').first()
+    await svelte.getByRole("combobox", { name: "Size" }).click()
+    await page.getByRole("option", { name: "Large" }).click()
+    await expect(svelte.getByText("Size: l")).toBeVisible()
+    // React Native: device screenshots and the size row.
+    await page.getByRole("tab", { name: "React Native" }).first().click()
+    await expect(page.locator('[data-framework-panel="native"] figure img').first()).toBeVisible()
+    await expect(api("native").locator("tr", { hasText: "size" })).toBeVisible()
+  })
+
+  test("the select preview on React Native (web) opens a list inside the frame", async ({ page }) => {
+    await page.goto("/docs/components/select")
+    await page.getByRole("tab", { name: "React Native" }).first().click()
+    const iframe = page.locator("iframe[data-native-preview]")
+    const frame = page.frameLocator("iframe[data-native-preview]")
+    await frame.getByRole("combobox", { name: "Fruit" }).click({ timeout: 60_000 })
+    const listbox = frame.getByRole("listbox")
+    await expect(listbox).toBeVisible()
+    const [frameBox, listBox] = [await iframe.boundingBox(), await listbox.boundingBox()]
+    expect(listBox!.y).toBeGreaterThanOrEqual(frameBox!.y)
+    expect(listBox!.y + listBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
+    await frame.getByRole("option", { name: "Carrot" }).click()
+    await expect(frame.getByRole("combobox", { name: "Fruit" })).toHaveText("Carrot")
+  })
+
   test("install pages give every command per package manager", async ({ page }) => {
     await page.goto("/docs/installation/react")
     await page.getByRole("button", { name: "pnpm" }).first().click()
