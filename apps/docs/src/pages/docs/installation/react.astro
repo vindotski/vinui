@@ -114,7 +114,8 @@ const registries = `
   </p>
 
   <h3>1. Create a project</h3>
-  <PmCommand commands={followedBy(create("vite", "my-app", "--template react-ts"), "cd my-app")} />
+  <PmCommand commands={followedBy(create("vite", "my-app", "--template react-ts --no-interactive"), "cd my-app")} />
+  <p><code>--no-interactive</code> takes create-vite's defaults instead of asking (it asks about a linter, for example).</p>
 
   <h3>2. Add Tailwind CSS</h3>
   <PmCommand commands={add("tailwindcss @tailwindcss/vite")} />

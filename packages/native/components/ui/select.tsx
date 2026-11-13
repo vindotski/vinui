@@ -103,6 +103,7 @@ function SelectContent({
   return (
     <SelectPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
+        {/* A style, not a class, as in RNR: the overlay must fill the window on devices only. */}
         <SelectPrimitive.Overlay
           style={Platform.select({ native: StyleSheet.absoluteFill })}
           asChild={Platform.OS !== "web"}
@@ -114,10 +115,14 @@ function SelectContent({
             as="Pressable"
           >
             <TextClassContext.Provider value="text-popover-foreground">
-              {/* select-panel is the shared look; on web (Radix underneath) select-content
-                  adds the positioning and zoom, as on the web ports. */}
+              {/* select-panel is the shared look. On web the class lands on a View inside Radix's
+                  listbox (which keeps data-state / data-side), so select-content's positioning and
+                  zoom can't apply: the web only needs the height cap and scrolling. */}
               <SelectPrimitive.Content
-                className={cn(Platform.select({ web: "select-content", default: "select-panel p-1" }), className)}
+                className={cn(
+                  "select-panel p-1 web:max-h-(--radix-select-content-available-height) web:overflow-y-auto web:p-0",
+                  className,
+                )}
                 position={position}
                 {...props}
               >
@@ -126,9 +131,7 @@ function SelectContent({
                   className={cn(
                     "select-viewport",
                     position === "popper" &&
-                      Platform.select({
-                        web: "h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)",
-                      }),
+                      "web:h-(--radix-select-trigger-height) web:w-full web:min-w-(--radix-select-trigger-width)",
                   )}
                 >
                   {children}

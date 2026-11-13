@@ -22,3 +22,15 @@ vinui is going to be adopted in three apps: Vinskiano, Sokobanko and TagTape. Bu
   - vinui's component classes key off `data-state`, so they don't style React Aria components. That's accepted, not worked around.
 - **Watch item:** a Radix overlay and a React Aria overlay open at the same time (e.g. a React Aria popover inside a vinui Dialog) can fight over focus trapping and outside clicks. Check this during integration and log the findings.
 - Native-only open items (device e2e, a `minSdk` emulator, global icon interop) wait until after the integration.
+
+## MVP check (2026-11-13)
+What was verified, at the commits that finish Select and its docs:
+- **Fresh apps, every platform.** Each install page's "New project" section was run verbatim (commands and files, in page order) in an empty directory, with stdin closed and a timeout, so any prompt fails the run. Then `@vinui/select` was added with the same CLI, and the Select page's usage snippet was dropped in.
+  - React (Vite) and Vue (Vite): no prompts; `tsc -b` / `vue-tsc -b` and `vite build` pass.
+  - Svelte (SvelteKit 3): only shadcn-svelte's own `init` "Continue?", as the page says; `svelte-check` and `vite build` pass.
+  - React Native (Expo): no prompts; `tsc` passes and `expo export` bundles iOS, Android and web.
+- **Simulator and emulator** (release builds, iPhone 17 Pro and API 36): Button, Dialog and Select render and work in light and dark; Dialog closes with Cancel and with Android back; Select opens below the trigger, chooses, shows its check, and closes by tapping outside. One bug was found and fixed (the small native trigger clipped its text).
+- **Automated suites:** parity (types, classes, documented props), native Jest, Playwright on the docs site, the three web playgrounds and react-native-web, in development and production builds; the native engine harness on iOS and Android.
+- **Corrected during the check:** the React and Vue install pages now pass `--no-interactive` to create-vite (it asks about a linter otherwise), and the component pages link to every platform's setup.
+
+**Still open: the hands-on pass on physical devices.** When it's done, the MVP is declared here and native moves to "maintained, no new components".
