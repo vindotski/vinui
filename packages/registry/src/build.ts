@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process"
-import { existsSync } from "node:fs"
+import { existsSync, readdirSync } from "node:fs"
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -130,6 +130,21 @@ function forShadcnSvelte(item: RegistryItem, pkg: string): RegistryItem {
   }
 }
 
+/**
+ * Output that older builds left in apps/docs/public and nothing regenerates: registry
+ * folders of retired targets (`r/native`), and the React Native preview (ADR 0011).
+ * Both are gitignored, so a pull doesn't remove them, and Astro would keep serving
+ * them. `docs` dev and build run this build first.
+ */
+async function removeRetiredOutput() {
+  const current = new Set<string>(targets.map((target) => target.name))
+  const stale = existsSync(outDir) ? readdirSync(outDir).filter((dir) => !current.has(dir)) : []
+  for (const dir of stale) await rm(join(outDir, dir), { recursive: true, force: true })
+  await rm(join(outDir, "../native-preview"), { recursive: true, force: true })
+  if (stale.length) console.log(`Removed retired registry output: ${stale.join(", ")}`)
+}
+
+await removeRetiredOutput()
 const theme = await buildThemeItem()
 await mkdir(cacheDir, { recursive: true })
 
