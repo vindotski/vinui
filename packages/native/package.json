@@ -14,6 +14,7 @@
   "dependencies": {
     "@rn-primitives/dialog": "1.5.2",
     "@rn-primitives/portal": "1.5.3",
+    "@rn-primitives/select": "1.5.2",
     "@rn-primitives/slot": "1.5.2",
     "clsx": "2.1.1",
     "cn": "0.5.0",

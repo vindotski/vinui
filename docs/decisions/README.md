@@ -75,6 +75,10 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Svelte `SelectContent` defaults to **`sideOffset = 0`** (shadcn-svelte: 4); the 4px gap comes from `select-content`'s `data-side` translate | Then `sideOffset` means the same as on Radix and Reka, where it adds to the same translate. | 2026-11-13 |
 | Svelte `SelectItem` sets **`aria-disabled`** on disabled options (**vinui addition**) | Bits UI sets only `data-disabled`, so screen readers weren't told the option is unavailable; Radix and Reka set `aria-disabled`. Found by the shared spec. | 2026-11-13 |
 | Svelte `SelectSeparator` uses Bits UI's `Separator` directly, not a `separator` item | Keeps Select self-contained until vinui has a Separator. | 2026-11-13 |
+| Select (React Native) follows RNR's Select on `@rn-primitives/select`: the value is an **`Option` object** (`{ value, label }`) for `value` / `defaultValue` / `onValueChange`; each `SelectItem` takes `value` and `label`; `SelectContent position` defaults to `"popper"`; the scroll buttons render on web only | rn-primitives' API. Native has no item-aligned mode and no keyboard typeahead off the web. | 2026-11-13 |
+| Native `SelectItem` also takes a plain string child as its label (`<SelectItem value="apple">Apple</SelectItem>`) (**vinui addition**) | The union rule: web-style call sites work too. `label` wins when both are given. | 2026-11-13 |
+| Native `SelectTrigger` restores **`role="combobox"` on web** through a ref (**vinui addition**) | rn-primitives' web trigger hardcodes `role="button"` on its Pressable and drops a `role` prop, so on react-native-web the trigger didn't say it opens a listbox. iOS and Android already report combobox. Found by the shared spec; worth reporting upstream. | 2026-11-13 |
+| Native Select styling: trigger `select-trigger flex-row` (+ `opacity-50` when disabled), list `select-panel p-1` on devices and `select-content` on web, value and item text get explicit text classes; the list fades with Reanimated, as in RNR | Same rules as Dialog: React Native has no `:disabled`, no text inheritance and no row default. On web, rn-primitives puts the class on a View inside Radix's listbox, so `data-state` / `data-side` and the zoom don't reach it; Reanimated's fade animates instead (and honours reduced motion). | 2026-11-13 |
 
 ### Styling
 
@@ -100,6 +104,9 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native Jest: Uniwind, Reanimated and `FullWindowOverlay` are stubbed; the Worklets Jest resolver is used; Lucide is mapped to its CJS build; Testing Library 14's `render` / `fireEvent` are awaited | The specs check props, classes and accessibility, not pixels (those are covered by the engine harness and devices). | 2026-10-28 |
 | Native specs query controls **by role**, not just by label | Testing Library's `press` bubbles to the nearest `onPress` (the overlay, which also closes), so a label-only query passed with a broken close button. Found by fault injection. | 2026-10-28 |
 | Svelte class parity renders `SelectTrigger` through a fixture component (`tests/parity/fixtures/`), and Vitest inlines `bits-ui`, `runed` and `svelte-toolbelt` | A trigger needs its `Root`, and Svelte has no `h()` to compose in a test. Bits UI ships `.svelte` files, which Node can't import (same as the docs' `ssr.noExternal`). | 2026-11-13 |
+| Native Select Jest specs make React Native's mocked `View.measure` report a fixed layout | rn-primitives opens the list only after measuring the trigger, and the Jest mock never calls back. | 2026-11-13 |
+| The native engine harness also renders the Select trigger sizes from core (`select-trigger select-trigger-sm`); baselines updated on iOS and Android | `select-trigger-sm` only sets `--select-trigger-h`, so it resolves to `{}` on its own; the combination proves the size reaches devices (32px on both). | 2026-11-13 |
+| The Select spec runs on react-native-web too: parts by role or vinui class (native sets no `data-slot`), `data-state` / `data-side` read from Radix's listbox, the fade checked on the overlay; it waits for the trigger to regain focus before reopening | On native web, focus returns only after Reanimated's exit animation, so an immediate second Enter went to `body`. The native playground's Select sits near the top so the popper has room to open downwards. | 2026-11-13 |
 | Parity tests load native `buttonVariants` in Node with `react-native` / `@rn-primitives/slot` / `uniwind` stubs | Class logic only; rendering is covered by Jest and devices. | 2026-10-28 |
 
 | Decision | Reason / trade-off | Date |
@@ -171,9 +178,9 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) | yes (**vinui addition** vs RNR) |
 | Text component | — | — | — | `Text` + `TextClassContext` (subset of RNR's) |
 | Dialog title colour | inherits | inherits | inherits | explicit `text-foreground` |
-| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | popper only (Bits UI has no item-aligned; no `position` prop) | (Native step) |
-| Select value binding | `value` / `onValueChange` | `v-model` | `type="single"` + `bind:value`; `items` on the root for the trigger label | (Native step) |
-| Select item check icon | `ItemIndicator` (hidden unless selected) | `SelectItemIndicator` | rendered only when `selected` (Bits UI has no indicator part) | (Native step) |
+| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | popper only (Bits UI has no item-aligned; no `position` prop) | `"popper"` (as RNR); no item-aligned |
+| Select value binding | `value` / `onValueChange` | `v-model` | `type="single"` + `bind:value`; `items` on the root for the trigger label | `Option` object (`{ value, label }`) + `onValueChange` |
+| Select item check icon | `ItemIndicator` (hidden unless selected) | `SelectItemIndicator` | rendered only when `selected` (Bits UI has no indicator part) | `ItemIndicator` (lucide `Check` via `Icon`) |
 
 ## Tooling quirks we work around
 
