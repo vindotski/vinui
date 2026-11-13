@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
-    "registry:add": "shadcn-svelte add http://localhost:4321/r/svelte/button.json http://localhost:4321/r/svelte/dialog.json --yes --overwrite"
+    "registry:add": "shadcn-svelte add http://localhost:4321/r/svelte/button.json http://localhost:4321/r/svelte/dialog.json http://localhost:4321/r/svelte/select.json --yes --overwrite"
   },
   "devDependencies": {
     "@fontsource-variable/inter": "^5.3.0",

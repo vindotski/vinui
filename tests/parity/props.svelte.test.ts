@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 
-import { buttonProps, dialogContentProps, dialogFooterProps, type PropDoc } from "@vinui/core"
+import { buttonProps, dialogContentProps, dialogFooterProps, selectTriggerProps, type PropDoc } from "@vinui/core"
 import { parse } from "svelte/compiler"
 import { describe, expect, test } from "vitest"
 
@@ -49,6 +49,7 @@ describe.each([
   ["Button", "button/button.svelte", buttonProps],
   ["DialogContent", "dialog/dialog-content.svelte", dialogContentProps],
   ["DialogFooter", "dialog/dialog-footer.svelte", dialogFooterProps],
+  ["SelectTrigger", "select/select-trigger.svelte", selectTriggerProps],
 ] as const)("Svelte %s", (_name, file, meta) => {
   test("declares every documented prop", () => {
     const declared = declaredProps(readFileSync(ui(file), "utf8"))

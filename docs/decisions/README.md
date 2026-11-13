@@ -71,6 +71,10 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Svelte unions and `buttonVariants` live in `button/index.ts` (shadcn-svelte keeps them in `button.svelte`'s module script) | Type tests stay off `.svelte` files, as with Vue. | 2026-11-13 |
 | Select (React) follows shadcn/ui's new-york-v4 Select on Radix: the same ten parts, `SelectTrigger size="sm" | "default"` (with `data-size`), `SelectContent position` defaulting to `"item-aligned"`; icons are inline SVG, like Dialog's close icon | radix-vega has the same API, only icon placeholders and classes differ. Exports a `SelectTriggerSize` type (shadcn writes the union inline) for the parity tests. | 2026-11-13 |
 | Select (Vue) follows shadcn-vue's new-york-v4 Select on Reka UI: eleven parts (adds `SelectItemText`), `v-model`, an `indicator-icon` slot on `SelectItem`, and **`SelectContent position` defaulting to `"popper"`**, as shadcn-vue does; `SelectTriggerSize` and the size classes live in `select/index.ts` | Each port keeps its reference's defaults, so existing shadcn-vue code behaves the same after switching to vinui. `position` takes the same values on both, so `position="item-aligned"` (or `"popper"`) gives the same result everywhere. Delegation uses `computed`, not `@vueuse/core`'s `reactiveOmit`, so the item has no extra dependency. | 2026-11-13 |
+| Select (Svelte) follows shadcn-svelte's Select on Bits UI: `Select.Root type="single"` with `bind:value`, `items` on the root (so `Select.Value` shows the label before the list has opened), `label` on each item (used for typeahead), plus `GroupHeading` and `Portal`. `Select.Label` is a plain `div`, as in shadcn-svelte | Bits UI's API, unchanged. Bits UI positions the list as a popper only, so there's no `position` prop and no item-aligned mode. | 2026-11-13 |
+| Svelte `SelectContent` defaults to **`sideOffset = 0`** (shadcn-svelte: 4); the 4px gap comes from `select-content`'s `data-side` translate | Then `sideOffset` means the same as on Radix and Reka, where it adds to the same translate. | 2026-11-13 |
+| Svelte `SelectItem` sets **`aria-disabled`** on disabled options (**vinui addition**) | Bits UI sets only `data-disabled`, so screen readers weren't told the option is unavailable; Radix and Reka set `aria-disabled`. Found by the shared spec. | 2026-11-13 |
+| Svelte `SelectSeparator` uses Bits UI's `Separator` directly, not a `separator` item | Keeps Select self-contained until vinui has a Separator. | 2026-11-13 |
 
 ### Styling
 
@@ -95,6 +99,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 ### Testing
 | Native Jest: Uniwind, Reanimated and `FullWindowOverlay` are stubbed; the Worklets Jest resolver is used; Lucide is mapped to its CJS build; Testing Library 14's `render` / `fireEvent` are awaited | The specs check props, classes and accessibility, not pixels (those are covered by the engine harness and devices). | 2026-10-28 |
 | Native specs query controls **by role**, not just by label | Testing Library's `press` bubbles to the nearest `onPress` (the overlay, which also closes), so a label-only query passed with a broken close button. Found by fault injection. | 2026-10-28 |
+| Svelte class parity renders `SelectTrigger` through a fixture component (`tests/parity/fixtures/`), and Vitest inlines `bits-ui`, `runed` and `svelte-toolbelt` | A trigger needs its `Root`, and Svelte has no `h()` to compose in a test. Bits UI ships `.svelte` files, which Node can't import (same as the docs' `ssr.noExternal`). | 2026-11-13 |
 | Parity tests load native `buttonVariants` in Node with `react-native` / `@rn-primitives/slot` / `uniwind` stubs | Class logic only; rendering is covered by Jest and devices. | 2026-10-28 |
 
 | Decision | Reason / trade-off | Date |
@@ -166,8 +171,9 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) | yes (**vinui addition** vs RNR) |
 | Text component | — | — | — | `Text` + `TextClassContext` (subset of RNR's) |
 | Dialog title colour | inherits | inherits | inherits | explicit `text-foreground` |
-| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | (Svelte step) | (Native step) |
-| Select value binding | `value` / `onValueChange` | `v-model` | (Svelte step) | (Native step) |
+| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | popper only (Bits UI has no item-aligned; no `position` prop) | (Native step) |
+| Select value binding | `value` / `onValueChange` | `v-model` | `type="single"` + `bind:value`; `items` on the root for the trigger label | (Native step) |
+| Select item check icon | `ItemIndicator` (hidden unless selected) | `SelectItemIndicator` | rendered only when `selected` (Bits UI has no indicator part) | (Native step) |
 
 ## Tooling quirks we work around
 

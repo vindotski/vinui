@@ -49,6 +49,8 @@ export default defineConfig({
   },
   test: {
     include: ["parity/**/*.test.{ts,tsx}"],
+    // Bits UI ships .svelte files; bundle it (and its Svelte deps) instead of importing it from Node.
+    server: { deps: { inline: ["bits-ui", "runed", "svelte-toolbelt"] } },
     typecheck: {
       include: ["parity/**/*.test-d.ts"],
       tsconfig: "./tsconfig.json",

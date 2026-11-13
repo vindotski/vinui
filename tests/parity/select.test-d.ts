@@ -4,6 +4,7 @@ import type { SelectTrigger as ReactSelectTrigger, SelectTriggerSize as ReactSel
 import type { ComponentProps } from "react"
 // Vue unions come from the component's index.ts, never from a .vue file.
 import type { SelectTriggerSize as VueSelectTriggerSize } from "@vinui/vue/ui/select"
+import type { SelectTriggerSize as SvelteSelectTriggerSize } from "@vinui/svelte/ui/select"
 import { describe, expectTypeOf, test } from "vitest"
 
 describe("SelectTrigger size equals core", () => {
@@ -14,5 +15,9 @@ describe("SelectTrigger size equals core", () => {
 
   test("Vue", () => {
     expectTypeOf<VueSelectTriggerSize>().toEqualTypeOf<SelectTriggerSize>()
+  })
+
+  test("Svelte", () => {
+    expectTypeOf<SvelteSelectTriggerSize>().toEqualTypeOf<SelectTriggerSize>()
   })
 })

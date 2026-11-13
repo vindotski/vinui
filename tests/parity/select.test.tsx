@@ -1,4 +1,4 @@
-/** Runtime parity for Select: the trigger's classes per size and its data attributes, React and Vue alike. */
+/** Runtime parity for Select: the trigger's classes per size and its data attributes, React, Vue and Svelte alike. */
 import { selectTriggerSizeValues } from "@vinui/core"
 import { Select as ReactSelect, SelectTrigger as ReactSelectTrigger, SelectValue as ReactSelectValue } from "@vinui/react/ui/select"
 import {
@@ -7,6 +7,8 @@ import {
   SelectValue as VueSelectValue,
 } from "@vinui/vue/ui/select"
 import { renderToString as renderReact } from "react-dom/server"
+import { render as renderSvelte } from "svelte/server"
+import SvelteSelectTrigger from "./fixtures/SvelteSelectTrigger.svelte"
 import { renderToString as renderVue } from "@vue/server-renderer"
 import { createSSRApp, h } from "vue"
 import { describe, expect, test } from "vitest"
@@ -41,9 +43,13 @@ async function vue(size?: Size, className?: string) {
   return trigger(await renderVue(app))
 }
 
+const svelte = (size?: Size, className?: string) =>
+  trigger(renderSvelte(SvelteSelectTrigger, { props: { size, class: className } }).body)
+
 const renderers: [string, (size?: Size, className?: string) => ReturnType<typeof trigger> | Promise<ReturnType<typeof trigger>>][] = [
   ["react", react],
   ["vue", vue],
+  ["svelte", svelte],
 ]
 
 describe.each(renderers)("%s SelectTrigger classes", (_name, render) => {
