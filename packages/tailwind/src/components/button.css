@@ -1,7 +1,7 @@
 /*
  * Button — names match shadcn's Button props; the default variant and size need
  * no class (a bare `btn` is variant="default" size="default").
- *   base:     btn            (label text on native: btn-label + the same variant/size classes)
+ *   base:     btn
  *   variants: btn-secondary | btn-outline | btn-ghost | btn-destructive | btn-link
  *   sizes:    btn-xs | btn-sm | btn-lg | btn-icon | btn-icon-xs | btn-icon-sm | btn-icon-lg
  *
@@ -16,7 +16,7 @@
   gap: --spacing(2);
   height: var(--btn-h, --spacing(9));
   padding-inline: var(--btn-px, --spacing(4));
-  /* Longhands, not `border:` (React Native drops the shorthand). */
+  /* Longhands, not `border:`, so variants can override one part (--btn-border). */
   border-width: 1px;
   border-style: solid;
   border-color: var(--btn-border, transparent);
@@ -38,12 +38,7 @@
     color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
   }
 
-  /* React Native (web) puts the label on a child Text (btn-label), which doesn't inherit colour. */
-  &:hover .btn-label {
-    color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
-  }
-
-  /* The single press-feedback mechanism (web and native); motion builds on it. */
+  /* The single press-feedback mechanism; motion builds on it. */
   &:active {
     background-color: var(--btn-bg-active, color-mix(in oklab, var(--color-primary) 80%, transparent));
     opacity: var(--btn-opacity-active, 1);
@@ -66,18 +61,6 @@
     height: --spacing(4);
     pointer-events: none;
   }
-}
-
-/*
- * Text styles for a button's label element. Web text inherits from `btn`, so
- * this is only needed where it doesn't (React Native `Text`): pair it with the
- * same variant/size classes, e.g. `btn-label btn-outline btn-sm`.
- */
-@utility btn-label {
-  color: var(--btn-fg, var(--color-primary-foreground));
-  font-size: var(--btn-text, var(--text-sm));
-  line-height: var(--btn-leading, var(--text-sm--line-height));
-  font-weight: var(--font-weight-medium);
 }
 
 /* variants (default lives in `btn` itself) */

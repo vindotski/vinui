@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test"
 
-import { expect, rgba, test } from "./fixtures.ts"
+import { expect, test } from "./fixtures.ts"
 
 /** Component pages: remembered framework tabs, package-manager switcher, API tables from core. */
 const PAGE = "/docs/components/button"
@@ -44,8 +44,10 @@ test.describe("docs component pages", () => {
     await expect(page.locator("html")).toHaveAttribute("data-framework", "svelte")
     await page.keyboard.press("ArrowLeft")
     await page.keyboard.press("ArrowLeft")
+    await expect(page.locator("html")).toHaveAttribute("data-framework", "react")
+    // Wraps around from the first tab to the last.
     await page.keyboard.press("ArrowLeft")
-    await expect(page.locator("html")).toHaveAttribute("data-framework", "native")
+    await expect(page.locator("html")).toHaveAttribute("data-framework", "svelte")
   })
 
   test("install commands follow the package manager and each framework's CLI", async ({ page, context }) => {
@@ -59,13 +61,12 @@ test.describe("docs component pages", () => {
     // shadcn-svelte has no @vinui namespace: the item's URL, with --yes --overwrite.
     await page.getByRole("tab", { name: "Svelte" }).first().click()
     await expect(installFor(page, "svelte")).toContainText(/pnpm dlx shadcn-svelte@latest add https?:\/\/\S+\/r\/svelte\/button\.json --yes --overwrite/)
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(installFor(page, "native")).toContainText("pnpm dlx shadcn@latest add @vinui/button")
+    await page.getByRole("tab", { name: "Vue" }).first().click()
     // Copy copies exactly the visible command.
-    await installFor(page, "native").getByRole("button", { name: "Copy" }).click()
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("pnpm dlx shadcn@latest add @vinui/button")
+    await installFor(page, "vue").getByRole("button", { name: "Copy" }).click()
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("pnpm dlx shadcn-vue@latest add @vinui/button")
     await page.reload()
-    await expect(installFor(page, "native")).toContainText("pnpm dlx shadcn@latest add @vinui/button")
+    await expect(installFor(page, "vue")).toContainText("pnpm dlx shadcn-vue@latest add @vinui/button")
   })
 
   test("API tables use each framework's prop names and badges", async ({ page }) => {
@@ -82,8 +83,6 @@ test.describe("docs component pages", () => {
     await expect(api("svelte").locator("td code").filter({ hasText: /^class$/ })).toHaveCount(1)
     await expect(api("svelte").locator("tr", { hasText: "href" })).toContainText("Svelte only")
     await expect(api("svelte")).not.toContainText("asChild")
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(api("native").locator("tr", { hasText: "asChild" })).toContainText("vinui addition")
   })
 
   test("the dialog page documents each part under each framework", async ({ page }) => {
@@ -91,15 +90,10 @@ test.describe("docs component pages", () => {
     await page.waitForFunction(() => document.querySelectorAll("astro-island[ssr]").length === 0)
     await expect(installFor(page, "react")).toContainText("npx shadcn@latest add @vinui/dialog")
     const api = (framework: string) => page.locator(`#api-reference ~ .framework-tabs [data-framework-panel="${framework}"]`).first()
-    // DialogContent and DialogFooter tables; portalHost exists on native only.
+    // DialogContent and DialogFooter tables.
     await expect(api("react").locator(".props-table")).toHaveCount(2)
     await expect(api("react")).toContainText("showCloseButton")
-    await expect(api("react")).not.toContainText("portalHost")
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(api("native").locator("tr", { hasText: "portalHost" })).toContainText("React Native only")
-    await expect(page.locator('[data-framework-panel="native"] figure img').first()).toBeVisible()
     // The live demo opens from the preview.
-    await page.getByRole("tab", { name: "React", exact: true }).first().click()
     await page.getByRole("button", { name: "Open dialog" }).click()
     await expect(page.getByRole("dialog", { name: "Delete project?" })).toBeVisible()
     await page.keyboard.press("Escape")
@@ -129,25 +123,7 @@ test.describe("docs component pages", () => {
     await svelte.getByRole("combobox", { name: "Size" }).click()
     await page.getByRole("option", { name: "Large" }).click()
     await expect(svelte.getByText("Size: l")).toBeVisible()
-    // React Native: device screenshots and the size row.
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(page.locator('[data-framework-panel="native"] figure img').first()).toBeVisible()
-    await expect(api("native").locator("tr", { hasText: "size" })).toBeVisible()
-  })
-
-  test("the select preview on React Native (web) opens a list inside the frame", async ({ page }) => {
-    await page.goto("/docs/components/select")
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    const iframe = page.locator("iframe[data-native-preview]")
-    const frame = page.frameLocator("iframe[data-native-preview]")
-    await frame.getByRole("combobox", { name: "Fruit" }).click({ timeout: 60_000 })
-    const listbox = frame.getByRole("listbox")
-    await expect(listbox).toBeVisible()
-    const [frameBox, listBox] = [await iframe.boundingBox(), await listbox.boundingBox()]
-    expect(listBox!.y).toBeGreaterThanOrEqual(frameBox!.y)
-    expect(listBox!.y + listBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
-    await frame.getByRole("option", { name: "Carrot" }).click()
-    await expect(frame.getByRole("combobox", { name: "Fruit" })).toHaveText("Carrot")
+    await expect(api("svelte").locator("tr", { hasText: "size" })).toBeVisible()
   })
 
   test("install pages give every command per package manager", async ({ page }) => {
@@ -157,69 +133,18 @@ test.describe("docs component pages", () => {
     await expect(visible("pnpm create vite my-app --template react-ts")).toHaveCount(1)
     await expect(visible("pnpm add -D @types/node")).toHaveCount(1)
     await expect(visible("pnpm dlx shadcn@latest init")).toHaveCount(1)
-    // The choice carries over to the React Native page.
-    await page.goto("/docs/installation/react-native")
-    await expect(visible("pnpm create expo-app my-app --template blank-typescript")).toHaveCount(1)
-    await expect(visible("pnpm expo install react-native-reanimated")).toHaveCount(1)
-    await expect(visible("pnpm add -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
-    await expect(visible("/r/native/init.json")).toHaveCount(1)
+    // The choice carries over to the Vue page.
+    await page.goto("/docs/installation/vue")
+    await expect(visible("pnpm create vite my-app --template vue-ts --no-interactive")).toHaveCount(1)
+    await expect(visible("pnpm dlx shadcn-vue@latest init --preset")).toHaveCount(1)
     await page.getByRole("button", { name: "npm" }).first().click()
-    await expect(visible("npm install -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
+    await expect(visible("npm create vite@latest my-app -- --template vue-ts --no-interactive")).toHaveCount(1)
     // Svelte: sv's --install follows the package manager.
     await page.goto("/docs/installation/svelte")
     await page.getByRole("button", { name: "bun" }).first().click()
     await expect(visible("bunx --bun sv@latest create my-app --template minimal --types ts")).toContainText("--install bun")
     await expect(visible("bunx --bun shadcn-svelte@latest init --preset vega")).toHaveCount(1)
     await expect(visible("/r/svelte/dialog.json --yes --overwrite")).toHaveCount(1)
-  })
-
-  test("the React Native (web) preview loads on the tab, follows the theme and fits its content", async ({ page }) => {
-    await open(page)
-    const iframe = page.locator("iframe[data-native-preview]")
-    await expect(iframe).not.toHaveAttribute("src")
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(iframe).toHaveAttribute("src", /\/native-preview\/index\.html\?demo=button/)
-    const frame = page.frameLocator("iframe[data-native-preview]")
-    const outline = frame.getByRole("button", { name: "outline", exact: true })
-    await expect(outline).toBeVisible({ timeout: 60_000 })
-    // Sized to the demo (the frame starts at 120px), with nothing cut off.
-    await expect.poll(() => iframe.evaluate((f) => f.getBoundingClientRect().height)).toBeGreaterThan(200)
-    const last = frame.getByRole("button", { name: "link" }).last()
-    const [frameBox, lastBox] = [await iframe.boundingBox(), await last.boundingBox()]
-    expect(lastBox!.y + lastBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
-    // The docs' theme reaches the frame: its background matches the page's.
-    const background = (dark: boolean) =>
-      expect.poll(async () => {
-        // The first painted background under the frame's top-left corner (ThemeRoot's view).
-        const frameBg = await frame.locator("body").evaluate(() => {
-          for (let el = document.elementFromPoint(4, 4); el; el = el.parentElement) {
-            const bg = getComputedStyle(el).backgroundColor
-            if (bg !== "rgba(0, 0, 0, 0)") return bg
-          }
-        })
-        const pageBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
-        const same = (await rgba(page, frameBg ?? "")) === (await rgba(page, pageBg))
-        return [same, await page.evaluate(() => document.documentElement.classList.contains("dark"))]
-      }).toEqual([true, dark])
-    await page.getByRole("button", { name: "light", exact: true }).click()
-    await background(false)
-    await page.getByRole("button", { name: "dark", exact: true }).click()
-    await background(true)
-  })
-
-  test("the dialog preview opens a dialog that fits the frame", async ({ page }) => {
-    await page.goto("/docs/components/dialog")
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    const iframe = page.locator("iframe[data-native-preview]")
-    const frame = page.frameLocator("iframe[data-native-preview]")
-    await frame.getByRole("button", { name: "Open dialog" }).click({ timeout: 60_000 })
-    const dialog = frame.getByRole("dialog", { name: "Delete project?" })
-    await expect(dialog).toBeVisible()
-    const [frameBox, dialogBox] = [await iframe.boundingBox(), await dialog.locator(".dialog-panel").boundingBox()]
-    expect(dialogBox!.y).toBeGreaterThanOrEqual(frameBox!.y)
-    expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(frameBox!.y + frameBox!.height)
-    await frame.getByRole("button", { name: "Cancel" }).click()
-    await expect(dialog).toBeHidden()
   })
 
   test("works when storage is blocked", async ({ page }, testInfo) => {
@@ -233,8 +158,8 @@ test.describe("docs component pages", () => {
       })
     })
     await open(page)
-    await page.getByRole("tab", { name: "React Native" }).first().click()
-    await expect(panels(page, "native").first()).toBeVisible()
-    await expect(page.locator('[data-framework-panel="native"] figure img').first()).toBeVisible()
+    await page.getByRole("tab", { name: "Svelte" }).first().click()
+    await expect(panels(page, "svelte").first()).toBeVisible()
+    await expect(panels(page, "react").first()).toBeHidden()
   })
 })

@@ -9,12 +9,6 @@ export const dialogContentProps = [
     description: "Show the close button in the corner.",
     platforms: allPlatforms,
   },
-  {
-    name: "portalHost",
-    type: "string",
-    description: "Name of the `<PortalHost />` to render into.",
-    platforms: ["native"],
-  },
 ] as const satisfies readonly PropDoc[]
 
 /** DialogFooter props for the docs' API reference. */

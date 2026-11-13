@@ -4,11 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm -w registry:build && pnpm native-preview && astro dev",
-    "build": "pnpm -w registry:build && pnpm native-preview && astro build",
+    "dev": "pnpm -w registry:build && astro dev",
+    "build": "pnpm -w registry:build && astro build",
     "preview": "astro preview",
-    "typecheck": "astro check",
-    "native-preview": "node scripts/native-preview.ts"
+    "typecheck": "astro check"
   },
   "dependencies": {
     "@astrojs/react": "7.1.1",

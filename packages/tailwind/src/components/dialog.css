@@ -1,7 +1,7 @@
 /*
  * Dialog
  *   dialog-overlay      backdrop (DialogOverlay)
- *   dialog-panel        the panel's look (all platforms; native centers it itself)
+ *   dialog-panel        the panel's look (dialog-content composes it)
  *   dialog-content      dialog-panel + web positioning (DialogContent on web)
  *   dialog-close        corner close button inside dialog-content
  *   dialog-header       title + description stack
@@ -9,7 +9,7 @@
  *   dialog-title
  *   dialog-description
  *
- * Open/close states use data-state="open|closed" (Radix, Reka, rn-primitives).
+ * Open/close states use data-state="open|closed" (Radix, Reka, Bits UI).
  * Exit uses keyframe animations because Radix/Reka Presence waits for animations
  * (not transitions) before unmounting.
  */
@@ -58,7 +58,7 @@
   }
 }
 
-/* The panel's look, shared by every platform (native centers it in an overlay). */
+/* The panel's look; dialog-content adds the positioning and animation. */
 @utility dialog-panel {
   gap: --spacing(4);
   padding: --spacing(6);

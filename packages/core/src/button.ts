@@ -47,9 +47,7 @@ export const buttonProps = [
     default: "false",
     description: "Render the child element instead, with the button's props and classes.",
     // shadcn-svelte's Button has no child snippet; it renders an `<a>` when given `href`.
-    platforms: ["react", "vue", "native"],
-    // React Native Reusables' Button has no asChild; native keeps shadcn's.
-    addition: ["native"],
+    platforms: ["react", "vue"],
   },
   {
     name: "href",

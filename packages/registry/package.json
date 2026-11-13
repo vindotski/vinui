@@ -2,7 +2,7 @@
   "name": "@vinui/registry",
   "version": "0.0.0",
   "private": true,
-  "description": "Builds the vinui React, Vue, Svelte and React Native registries, injecting CSS from @vinui/tailwind",
+  "description": "Builds the vinui React, Vue and Svelte registries, injecting CSS from @vinui/tailwind",
   "type": "module",
   "exports": {
     "./config": "./src/config.ts"

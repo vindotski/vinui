@@ -26,7 +26,7 @@ const nav = [
       // Remembered framework tab and package manager, applied before paint (CSS shows the matching panels).
       try {
         const framework = localStorage.getItem("vinui:framework")
-        if (["react", "vue", "svelte", "native"].includes(framework)) document.documentElement.dataset.framework = framework
+        if (["react", "vue", "svelte"].includes(framework)) document.documentElement.dataset.framework = framework
         const pm = localStorage.getItem("vinui:pm")
         if (["npm", "pnpm", "yarn", "bun"].includes(pm)) document.documentElement.dataset.pm = pm
       } catch {}
@@ -69,7 +69,7 @@ const nav = [
     </header>
     <slot />
     <script>
-      // Light / dark / system, like the native playground. "system" follows the OS live.
+      // Light / dark / system. "system" follows the OS live.
       const media = matchMedia("(prefers-color-scheme: dark)")
       const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-theme]")
       let theme = "system"

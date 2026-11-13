@@ -71,7 +71,6 @@ body {
 html:not([data-framework="react"]) [data-framework-panel="react"],
 html:not([data-framework="vue"]) [data-framework-panel="vue"],
 html:not([data-framework="svelte"]) [data-framework-panel="svelte"],
-html:not([data-framework="native"]) [data-framework-panel="native"],
 html:not([data-pm="npm"]) [data-pm-panel="npm"],
 html:not([data-pm="pnpm"]) [data-pm-panel="pnpm"],
 html:not([data-pm="yarn"]) [data-pm-panel="yarn"],
@@ -129,9 +128,4 @@ html:not([data-pm="bun"]) [data-pm-panel="bun"] {
 
 .badge {
   @apply border-border text-muted-foreground ml-2 inline-block rounded-full border px-2 py-0.5 align-middle text-[0.7rem] font-medium whitespace-nowrap;
-}
-
-/* Live "React Native (web)" preview above the device screenshots. */
-.native-web-preview {
-  @apply mb-6;
 }

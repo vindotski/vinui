@@ -6,7 +6,6 @@
 import { buttonSizeValues, buttonVariantValues } from "@vinui/core"
 import { Button as ReactButton, buttonVariants as reactButtonVariants } from "@vinui/react/ui/button"
 import { Button as VueButton, buttonVariants as vueButtonVariants } from "@vinui/vue/ui/button"
-import { buttonVariants as nativeButtonVariants } from "@vinui/native/ui/button"
 import { Button as SvelteButton, buttonVariants as svelteButtonVariants } from "@vinui/svelte/ui/button"
 import { renderToString as renderReact } from "react-dom/server"
 import { describe, expect, test } from "vitest"
@@ -21,7 +20,6 @@ const frameworks: [name: string, buttonVariants: ButtonVariantsFn][] = [
   ["react", reactButtonVariants],
   ["vue", vueButtonVariants],
   ["svelte", svelteButtonVariants],
-  ["native", nativeButtonVariants],
 ]
 
 /** Every variant × size, including omitted props (where "plain btn" lives). */
@@ -49,11 +47,6 @@ describe("buttonVariants class matrix", () => {
 
   test("Svelte matrix equals React matrix", () => {
     expect(matrix(svelteButtonVariants)).toEqual(reactMatrix)
-  })
-
-  // Native shares web's component classes (docs/decisions/0005), so it must match too.
-  test("native matrix equals React matrix", () => {
-    expect(matrix(nativeButtonVariants)).toEqual(reactMatrix)
   })
 })
 

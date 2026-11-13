@@ -10,14 +10,10 @@ const each = (command: (pm: PackageManager) => string) =>
 export const dlx = (args: string) =>
   each((pm) => `${{ npm: "npx", pnpm: "pnpm dlx", yarn: "yarn dlx", bun: "bunx --bun" }[pm]} ${args}`)
 
-/** Run a binary from the project's dependencies: `npx expo …`. */
-export const exec = (args: string) =>
-  each((pm) => `${{ npm: "npx", pnpm: "pnpm", yarn: "yarn", bun: "bunx" }[pm]} ${args}`)
-
-/** Add dependencies. `exact` saves the exact version instead of a `^` range. */
-export const add = (packages: string, { dev = false, exact = false } = {}) =>
+/** Add dependencies. */
+export const add = (packages: string, { dev = false } = {}) =>
   each((pm) => {
-    const flags = `${dev ? " -D" : ""}${exact ? " -E" : ""}`
+    const flags = dev ? " -D" : ""
     return `${pm === "npm" ? "npm install" : `${pm} add`}${flags} ${packages}`
   })
 

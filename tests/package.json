@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run --typecheck",
-    "test:e2e": "pnpm -w registry:build && pnpm --filter docs native-preview && playwright test",
+    "test:e2e": "pnpm -w registry:build && playwright test",
     "typecheck": "tsc -p ."
   },
   "devDependencies": {
@@ -16,7 +16,6 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vinui/core": "workspace:*",
-    "@vinui/native": "workspace:*",
     "@vinui/react": "workspace:*",
     "@vinui/svelte": "workspace:*",
     "@vinui/vue": "workspace:*",
