@@ -12,9 +12,8 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
   | React | shadcn/ui | Radix (`radix-ui`) | Tailwind 4 |
   | Vue | shadcn-vue | Reka UI | Tailwind 4 |
   | Svelte | shadcn-svelte | Bits UI | Tailwind 4 ([0009](decisions/0009-svelte-on-bits-ui.md)) |
-  | React Native | React Native Reusables (Uniwind flavour) | rn-primitives | Uniwind ([0005](decisions/0005-native-styling-engine.md)) |
 
-- **Scope until the apps integrate vinui** ([0010](decisions/0010-mvp-scope-web-first.md)): the MVP (Button, Dialog, Select) shipped on all four platforms (declared 2026-11-13). **New components are web-only** (React, Vue, Svelte). React Native is maintained (fixes, tests, upgrades) but gets no new components.
+- **Scope:** React, Vue and Svelte. The MVP (Button, Dialog, Select) was declared on 2026-11-13 ([0010](decisions/0010-mvp-scope-web-first.md)). **React Native is out for now** and will be reintroduced later ([0011](decisions/0011-drop-react-native-for-now.md)); don't add native code until then.
 - **Stay on the Radix family**; React Aria is not a vinui primitive. Apps may use both side by side ([0010](decisions/0010-mvp-scope-web-first.md)).
 - Before building a component, read the current source of its reference on every platform. Third-party-backed parts use whatever the matching reference uses.
 
@@ -25,8 +24,6 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
 - **Framework idioms only where unavoidable:**
   - Vue: `v-model`, slots, emits, `class`.
   - Svelte: the `child` snippet (in place of `asChild`), `bind:`, `class`, plain event props (`onclick`).
-  - Native: `onPress` only, with no `onClick` alias.
-- **Union rule:** where the native reference and the web style differ, accept both. For example, native Button takes `<Button>Save</Button>` and `<Button><Text>Save</Text></Button>`.
 - **`buttonVariants` (and future variant helpers) mirror cva exactly:**
   - `class` **or** `className`, any `ClassValue`,
   - appended with `clsx`, with no tailwind-merge inside.
@@ -37,9 +34,6 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
 Anything the references don't have. Each one is marked with a "vinui addition" badge in the docs.
 
 - Vue Button sets `data-variant` / `data-size` to `"default"` when they're omitted.
-- Native Button auto-wraps string / number children in `Text`.
-- Native `@vinui/engine`: missing-Uniwind detection.
-- Native `@vinui/theme-root`: `<ThemeRoot>` (the base layer) and `useNavigationTheme()`.
 - The `:active` pressed tint on web Button.
 
 ## Styling
@@ -48,26 +42,16 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 - **Token names match shadcn's** (`--primary`, `--radius`, …). Only the values are vinui's.
 - **Variant and size classes only set component custom properties** (`--btn-*`); the base class reads them.
 - **The default variant / size needs no class** (a bare `btn`). Every other value is `<base>-<value>`.
-- **Use longhands** (`border-width` / `-style` / `-color`, etc.), not shorthands React Native drops.
+- **Use longhands** (`border-width` / `-style` / `-color`, etc.), so variants can override one part. (They're also what React Native needs when it returns.)
 - **State hook:** `data-state` (`[data-state="open"]`). No `data-open` / `data-closed`.
-- **Overlays:** `*-panel` = the look; `*-content` = the look (`@apply <x>-panel`) + web positioning. Native uses `*-panel` inside a centred overlay with padding and a max width.
-- **Animations:** our own `@keyframes`, keyed on `data-state` (Presence waits for animations, not transitions). Honour `prefers-reduced-motion`. Native (devices and web) uses Reanimated with `ReduceMotion.System`.
+- **Overlays:** `*-panel` = the look; `*-content` = the look (`@apply <x>-panel`) + web positioning. Keep the split: React Native will build on `*-panel` again ([0011](decisions/0011-drop-react-native-for-now.md)).
+- **Animations:** our own `@keyframes`, keyed on `data-state` (Presence waits for animations, not transitions). Honour `prefers-reduced-motion`.
 - **One press-feedback mechanism:** the `:active` style. Motion work must replace or build on it, never stack another one on top.
 - **Dark mode on web:** `@custom-variant dark (&:is(.dark *))`, shadcn's exact string.
-- **Native has no CSS inheritance:**
-  - Text styles go on the `Text` itself: Button passes `btn-label` + the variant / size classes through `TextClassContext`, and Dialog titles set `text-foreground`.
-  - A parent's text classes **replace** a child's defaults; don't stack them. Custom utilities lose to single-property utilities in Tailwind's order, and tailwind-merge can't resolve them.
-  - **Only React Native core components take `className`.** Third-party components (`react-native-safe-area-context`'s `SafeAreaView`, …) need a core `View` behind them or `withUniwind`.
-  - **The base layer is `<ThemeRoot>`**; colours needed in JavaScript come from the tokens via the engine layer, never a JS copy ([0007](decisions/0007-native-base-layer.md)).
-  - Pseudo-classes React Native lacks (`:disabled`, `:hover`) get an explicit prop-driven class or are skipped on devices. On react-native-web the shared CSS applies them.
-- **Native on web (react-native-web, [0008](decisions/0008-native-web-support.md)):**
-  - Web-only styling goes in the class string with Uniwind's `web:` variant (`web:mx-auto`), never `Platform.select`.
-  - Shared CSS may carry a rule only web needs (e.g. `.btn:hover .btn-label`) when native ignores it. Check the native harness baselines and the web class snapshot.
-  - Positioning: native-on-web is for Expo universal apps; web-only apps use vinui React.
 
 ## Registry and dependencies
 
-- **Item names are the same on every platform**, under `/r/<platform>/{name}.json`. Platform-only items are marked as such in the docs (native: `text`, `icon`, `engine`, `theme-root`).
+- **Item names are the same on every platform**, under `/r/<platform>/{name}.json`.
 - **Components import `cn` from `"cn"`** and never ship a `lib/utils.ts` ([0004](decisions/0004-cva-exact-button-variants.md)).
   - Svelte follows shadcn-svelte instead: `cn` (and `WithElementRef`) from `$lib/utils.js`, the `utils` that `shadcn-svelte init` installs. Items don't list `utils` ([0009](decisions/0009-svelte-on-bits-ui.md)).
 - **Svelte items** ([0009](decisions/0009-svelte-on-bits-ui.md)):
@@ -76,16 +60,9 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
   - Packages go in `devDependencies`, as in shadcn-svelte.
   - Install commands are `shadcn-svelte add <url>/r/svelte/<name>.json --yes --overwrite` (no prompts without `--overwrite`).
 - **Items declare every npm package they import** (e.g. `clsx`). Never rely on something arriving indirectly.
-- **Native icons are imported per icon** (`lucide-react-native/icons/x`): Metro doesn't tree-shake the root export.
-- **Expo-managed native modules** (Reanimated, Worklets, Screens, SVG, Status Bar, System UI; for web: react-native-web, react-dom, `@expo/metro-runtime`) are **setup prerequisites**, installed with `npx expo install`. Native items don't list them: the shadcn CLI would install their latest versions, not SDK-matched ones.
-- **Setup prerequisites (Uniwind, Tailwind) are pinned in `init` and the install docs, never on component items.**
-- **Pin exact versions** of engines and primitives in the repo.
+- **Setup prerequisites (Tailwind, `tw-animate-css` on Vue) belong in `init` and the install docs, never on component items.**
+- **Pin exact versions** of primitives in the repo.
 - **pnpm's minimum release age is respected.** Pin the newest version past the window; don't add exclusions. Add a `minimumReleaseAgeExclude` only when a specific fix is needed, with a comment naming that fix.
-- **Engine-specific code lives in a marked engine layer** (header comment `Engine layer: Uniwind`):
-  - native `icon.tsx` and `lib/vinui-engine.ts`,
-  - `packages/registry/src/engines/uniwind.ts`,
-  - the docs' Uniwind setup, only on the React Native install page (`apps/docs/src/pages/docs/installation/react-native.astro`).
-- **Engine upgrades are one commit:** harness baselines, `init` pin, docs' tested version, repo version.
 
 ## Testing (required for every component)
 
@@ -96,8 +73,7 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
   - Plus explicit expectations per platform (defaults, one variant, one size), and the extra-class cases.
 - **Stale-docs guard:** every prop in core's metadata exists on each listed platform, under that platform's name.
 - **Behaviour specs on every platform:**
-  - Playwright for web (docs + playgrounds, dev and production), including native on react-native-web (`native-web-*` targets).
-  - Jest + Testing Library for native.
+  - Playwright (docs + playgrounds, dev and production).
   - The same scenario list on every platform.
 - **Behaviour specs query controls by role** (`getByRole("button", { name })`), not just by label or text. Simulated presses can bubble to a parent handler and hide a broken control.
 - **Fault injection** when adding a new kind of test: break the code on purpose once and confirm the test fails.
@@ -105,9 +81,8 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 
 ## Docs
 
-- **Native previews:** each component page's React Native tab shows a `<NativeWebPreview demo="…">` (add the demo to `apps/playground-native/docs-preview.tsx`, matching the React demo) above the device screenshots.
 - **Component pages:** preview, install (same `@vinui/<name>`, per-tab CLI, package-manager switcher), usage per framework, API reference from core metadata, platform notes.
-  - Tabs: React, Vue, Svelte, React Native. Svelte installs use `svelteAdd()` (`apps/docs/src/lib/registry.ts`) for the item URL and flags, and Svelte snippets import from `#lib/…` (SvelteKit 3).
+  - Tabs: React, Vue, Svelte. Svelte installs use `svelteAdd()` (`apps/docs/src/lib/registry.ts`) for the item URL and flags, and Svelte snippets import from `#lib/…` (SvelteKit 3).
   - Demos for the docs live in `apps/docs/src/components/` (`React*.tsx`, `Vue*.vue`, `Svelte*.svelte`) and match the playgrounds' scenarios.
 - **Every command is copy-paste runnable**, with no placeholders, and goes through the package-manager switcher (`<PmCommand>` / `<InstallCommand>`, built by `apps/docs/src/lib/pm.ts`); never a bare `npm …` code block.
 - **Multi-part components** get one API table per part that has vinui props.

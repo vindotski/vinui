@@ -1,6 +1,6 @@
 # 0001: vinui is a shadcn style with one API across frameworks
 
-- **Status:** Accepted
+- **Status:** Accepted (React Native dropped for now by [0011](0011-drop-react-native-for-now.md); Svelte added by [0009](0009-svelte-on-bits-ui.md))
 - **Date:** 2026-10-28
 
 ## Context

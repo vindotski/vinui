@@ -1,6 +1,6 @@
 # 0006: Native theme delivered as a file
 
-- **Status:** Accepted
+- **Status:** Superseded by [0011](0011-drop-react-native-for-now.md) (React Native dropped for now; kept as the starting point when it returns)
 - **Date:** 2026-10-28
 
 ## Context
