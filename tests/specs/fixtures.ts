@@ -1,12 +1,14 @@
 import { test as base, expect, type Locator, type Page } from "@playwright/test"
 
 /** "native" is vinui native on react-native-web (the Expo playground's web build). */
-export type Framework = "react" | "vue" | "native"
+export type Framework = "react" | "vue" | "svelte" | "native"
 
 export interface TargetOptions {
   /** "docs": side-by-side panels per framework; "playground": one app (in <main>, or #root for Expo web). */
   layout: "docs" | "playground"
   frameworks: Framework[]
+  /** Selector that appears once a server-rendered app has hydrated (SvelteKit). */
+  ready?: string
 }
 
 interface Fixtures {
@@ -21,9 +23,12 @@ interface Fixtures {
 export const test = base.extend<TargetOptions & Fixtures>({
   layout: ["playground", { option: true }],
   frameworks: [["react"], { option: true }],
-  visit: async ({ layout }, use) => {
+  ready: [undefined, { option: true }],
+  visit: async ({ layout, ready }, use) => {
     await use(async (page) => {
       await page.goto("/")
+      // Clicks on server-rendered markup before hydration do nothing.
+      if (ready) await page.locator(ready).waitFor({ state: "attached" })
       if (layout === "docs") {
         // Astro removes the `ssr` attribute once an island has hydrated.
         await page.waitForFunction(() => document.querySelectorAll("astro-island[ssr]").length === 0)

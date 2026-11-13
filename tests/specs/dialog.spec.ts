@@ -6,7 +6,7 @@ import { expect, test, type Framework } from "./fixtures.ts"
  * Its structure differs: the panel classes sit inside Radix's role="dialog" element, the
  * overlay positions it, and Reanimated runs the animations.
  */
-for (const framework of ["react", "vue", "native"] satisfies Framework[]) {
+for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework[]) {
   const native = framework === "native"
   test.describe(`${framework} Dialog`, () => {
     test.beforeEach(({ frameworks }) => {

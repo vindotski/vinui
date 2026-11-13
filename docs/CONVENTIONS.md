@@ -69,6 +69,12 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 
 - **Item names are the same on every platform**, under `/r/<platform>/{name}.json`. Platform-only items are marked as such in the docs (native: `text`, `icon`, `engine`, `theme-root`).
 - **Components import `cn` from `"cn"`** and never ship a `lib/utils.ts` ([0004](decisions/0004-cva-exact-button-variants.md)).
+  - Svelte follows shadcn-svelte instead: `cn` (and `WithElementRef`) from `$lib/utils.js`, the `utils` that `shadcn-svelte init` installs. Items don't list `utils` ([0009](decisions/0009-svelte-on-bits-ui.md)).
+- **Svelte items** ([0009](decisions/0009-svelte-on-bits-ui.md)):
+  - Sources live in `packages/svelte/src/lib/registry/ui/<name>/` and import `$lib/utils.js` / `$lib/registry/ui/…`, so `registry build` can turn them into alias placeholders.
+  - Dependencies on other vinui items are written `@vinui/<name>` in `registry.json`; the build makes them `./<name>.json`. Never a bare name: it would resolve to shadcn-svelte's own item.
+  - Packages go in `devDependencies`, as in shadcn-svelte.
+  - Install commands are `shadcn-svelte add <url>/r/svelte/<name>.json --yes --overwrite` (no prompts without `--overwrite`).
 - **Items declare every npm package they import** (e.g. `clsx`). Never rely on something arriving indirectly.
 - **Native icons are imported per icon** (`lucide-react-native/icons/x`): Metro doesn't tree-shake the root export.
 - **Expo-managed native modules** (Reanimated, Worklets, Screens, SVG, Status Bar, System UI; for web: react-native-web, react-dom, `@expo/metro-runtime`) are **setup prerequisites**, installed with `npx expo install`. Native items don't list them: the shadcn CLI would install their latest versions, not SDK-matched ones.

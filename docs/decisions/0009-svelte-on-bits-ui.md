@@ -17,15 +17,21 @@ Bits UI follows the same anatomy as the rest of the Radix family: the same part 
 - `registryDependencies` take shadcn-svelte item names, **or URLs for other registries**. Neither the docs nor the schema mention a `registries` map in `components.json`, or namespaced names (`@vinui/button`).
 - `init` takes `--preset <preset>`. It isn't documented whether a preset can be a URL.
 
+**Verified while building it** (same day, in a fresh SvelteKit 3 app):
+- The CLI has no `registries` map. But a `./name.json` registry dependency resolves against the URL of the item that lists it, and a bare name resolves to shadcn-svelte's own item.
+- `init --preset` takes a style name (`vega`, …) or a preset code from shadcn-svelte.com/create, not a URL. `init` has no `--yes`.
+
 ## Decision
 - **Svelte is the fourth platform:** reference shadcn-svelte, primitives Bits UI, styling Tailwind 4 with the shared `@vinui/tailwind` classes.
 - shadcn-svelte's idioms only where unavoidable: the `child` snippet, `bind:`, `class`, and plain event props.
 - **Same item names** at `/r/svelte/{name}.json`.
-- **The registry build rewrites registry dependencies to absolute URLs for the Svelte target**, unless step 2 shows that shadcn-svelte resolves namespaced names. React, Vue and native keep `@vinui/...`.
-- The Svelte `init` uses `registry:base` if `init --preset <url>` works. If it doesn't, the install docs fall back to stock `shadcn-svelte init`, followed by `add <url>/r/svelte/init.json`.
+- **The registry build rewrites `@vinui/<name>` dependencies to relative `./<name>.json` for the Svelte target.** React, Vue and native keep `@vinui/...`.
+- **No vinui `init` item for Svelte.** Setup is stock `shadcn-svelte init --preset <style>`, then `shadcn-svelte add <url>/r/svelte/<item>.json --yes --overwrite`. The `theme` item comes with the first component.
+- Svelte items rely on the `utils` that `init` installs and import `cn` from it, as shadcn-svelte's own items do.
 
 ## Consequences
 - The parity tests, class matrix, stale-docs guard and Playwright specs gain a Svelte target. Svelte unions live in `index.ts`, like Vue's, so the tests don't compile `.svelte` files.
-- The Svelte target ties into the paused registry-deploy decision. Absolute dependency URLs depend on `VINUI_REGISTRY_URL`.
+- Because the dependencies are relative, the Svelte items don't depend on `VINUI_REGISTRY_URL`. Users still type the full item URL, since there's no namespace.
+- shadcn-svelte's stylesheet update is a vinui-free prompt during `init`. vinui's `add` stays prompt-free only with `--overwrite`, which also replaces existing component files of the same name.
 - The docs (Astro) add the `@astrojs/svelte` integration for live Svelte previews.
 - Bits UI's release pace and the experimental registry are known risks. The CLI version used is pinned in the install docs.

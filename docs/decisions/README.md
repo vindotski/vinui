@@ -38,6 +38,11 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native items are named the same as web. `text`, `icon` and `engine` are native-only items. | — | 2026-10-28 |
 | **Setup prerequisites** (Uniwind) are pinned in `init` and the install docs, never on component items | The CLI runs `npm install <dep>`, so a pinned dependency on an item would downgrade a user's newer version. | 2026-10-28 |
 | Stock `shadcn init` with a web preset fails in Expo (`ERESOLVE`); native users use vinui's native `init` | — | 2026-10-28 |
+| Svelte items at `/r/svelte/{name}.json`, same names; **no vinui `init` item**. Setup is stock `shadcn-svelte init --preset <style>`, then `shadcn-svelte add <url>/r/svelte/<item>.json --yes --overwrite`; the `theme` item comes with the first component | shadcn-svelte has no `registries` map, no `extends: "none"`, and `init --preset` takes a style name or a preset code, not a URL ([0009](0009-svelte-on-bits-ui.md)). | 2026-11-13 |
+| Svelte registry dependencies on vinui items are **relative** (`./button.json`); the build rewrites `@vinui/<name>` for that target | shadcn-svelte resolves `./` and `../` against the URL of the item that lists them, so the items don't depend on `VINUI_REGISTRY_URL`. A bare name (`button`) would resolve to **shadcn-svelte's own** item. | 2026-11-13 |
+| Svelte items don't list `utils`; they rely on the `utils` that `shadcn-svelte init` installs (`cn` + `WithElementRef` types), and import `cn` from `$lib/utils.js` | That's what shadcn-svelte's own items do. Listing `utils` made `add` ask "overwrite all existing files?" in every initialized project. | 2026-11-13 |
+| Svelte `add` needs `--yes --overwrite` for no prompts | `--yes` skips the confirmation, but the CLI asks "Updates to your … .css are required … Continue?" for any item with CSS unless `--overwrite` is set. With `--overwrite`, existing component files of the same name are replaced too. | 2026-11-13 |
+| Svelte items put packages in `devDependencies` (`bits-ui`, `@internationalized/date`, `clsx`) | shadcn-svelte's convention: SvelteKit bundles everything. | 2026-11-13 |
 
 ### API
 | Native Button keeps shadcn's `asChild` (via `@rn-primitives/slot`) | RNR's Button has no `asChild`. API parity follows shadcn, so this is a vinui addition relative to RNR. | 2026-10-28 |
@@ -60,6 +65,10 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Native `<ThemeRoot>` and `useNavigationTheme()` (`@vinui/theme-root`), with `portalHost` / `statusBar` opt-outs | Native has no `body` base layer ([0007](0007-native-base-layer.md)). A vinui addition. | 2026-10-28 |
 | Native `<Button asChild>` needs a **box child** (`Pressable`, or anything that renders a `View`). For links, put the router's link around the Button: `<Link href asChild><Button>…</Button></Link>` | On web the `btn` classes turn an `<a>` into a centring flex box. A React Native `Text` is a leaf and can't centre its own glyphs (iOS has no `textAlignVertical`), so a bare `Text` child shows its label at the top. A `lineHeight` hack would tie labels to fixed heights. The `Link asChild` nesting is the Expo Router / RNR idiom. | 2026-10-28 |
 | Prop metadata: `addition` lists the **platforms** where something is a vinui addition (e.g. Button `asChild` is standard in shadcn/ui and shadcn-vue, an addition vs RNR); `type` shows a type when there are no fixed `values` | One prop can be standard on one platform and an addition on another. | 2026-10-29 |
+| Svelte Button follows shadcn-svelte: `href` renders an `<a>` (disabled links lose `href` and leave the tab order); no child snippet | shadcn-svelte's Button has no composition API. Elsewhere composition is Bits UI's `child` snippet, e.g. `<Dialog.Trigger>{#snippet child({ props })}<Button {...props}>…`. | 2026-11-13 |
+| Svelte Button takes every core size (`xs`, `icon-xs` included) and sets `data-variant` / `data-size` | The shared contract is core's unions and classes; shadcn-svelte's Button lacks `xs` / `icon-xs` and the data attributes. | 2026-11-13 |
+| Svelte `DialogFooter` has `showCloseButton` (**vinui addition**); the close icon is inline SVG | Parity with React and Vue; shadcn-svelte has neither (it uses `@lucide/svelte`). | 2026-11-13 |
+| Svelte unions and `buttonVariants` live in `button/index.ts` (shadcn-svelte keeps them in `button.svelte`'s module script) | Type tests stay off `.svelte` files, as with Vue. | 2026-11-13 |
 
 ### Styling
 
@@ -98,6 +107,9 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Every command on the docs (install pages included) has the package-manager switcher, built by `apps/docs/src/lib/pm.ts` (`dlx`, `exec`, `add`, `create`, `run`) | One place translates npm → pnpm / yarn / bun, so commands stay consistent. | 2026-10-29 |
 | Component pages show a live **"React Native (web)"** iframe above the device screenshots, loaded only when the React Native tab is shown ([0008](0008-native-web-support.md)) | Honest about what it is (react-native-web, not a device), costs nothing for React / Vue readers, and the screenshots stay the reference for devices. | 2026-10-29 |
 | The preview export is cached by a hash of the playground's inputs (source, installed components, CSS, config, `pnpm-lock.yaml`) | `expo export` takes tens of seconds; docs builds only pay for it when native demos change. | 2026-10-29 |
+| Svelte stale-docs guard reads the keys each component destructures from `$props()` with `svelte/compiler`'s `parse` | Svelte 5 props have no runtime list (Vue's compiled `props` has one). The helper has its own test. | 2026-11-13 |
+| SvelteKit playground targets wait for `body[data-hydrated]` (set in `+layout.svelte`'s `onMount`) before acting | SvelteKit server-renders; in dev, clicks before hydration did nothing and every dialog spec failed. Vite's React and Vue playgrounds render on the client only. | 2026-11-13 |
+| The Svelte fresh-app check runs the CLIs in a pseudo-terminal (`expect`) that answers only the prompts we allow and fails on any other | clack prompts need a TTY. They draw text with cursor escapes between characters, so the script matches on de-escaped text. | 2026-11-13 |
 
 ### Native platform setup
 | The native theme file's target is `vinui-theme.css` (no `~/`), so it lands next to `global.css` in src-layout apps too | `~/` always means the project root; in Expo Router's template (`src/global.css`) the `@import "./vinui-theme.css"` didn't resolve ([0006](0006-native-theme-as-file.md)). | 2026-10-29 |
@@ -123,28 +135,28 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 
 ## Cross-framework differences (intentional)
 
-| Area | React (shadcn/ui) | Vue (shadcn-vue) | React Native (RNR) |
-|---|---|---|---|
-| Primitives | Radix | Reka UI | rn-primitives |
-| Composition | `asChild` | `as-child` (+ `as`) | `asChild` |
-| Class prop | `className` | `class` | `className` |
-| Button `data-variant` / `data-size` | always set | set to `"default"` when omitted (**vinui addition**; shadcn-vue omits them) | n/a (no data attributes) |
-| `buttonVariants` in Button | `cn(buttonVariants({ variant, size, className }))` | `cn(buttonVariants({ variant, size }), props.class)` | `cn(buttonVariants({ variant, size, className }), disabled && "opacity-50")`; label via `buttonTextVariants` |
-| Button text | inherits colour | inherits colour | `Text` + `btn-label`; strings auto-wrapped (**vinui addition**) |
-| Events | `onClick` | `@click` | `onPress` |
-| Dialog positioning | `dialog-content` | `dialog-content` | `dialog-panel w-full max-w-lg` in a padded, centred overlay |
-| `DialogScrollContent` | — | in shadcn-vue, skipped | — |
-| Hover styles | yes | yes | devices: none (`:active` only); **react-native-web: yes**, from the shared CSS (changed 2026-10-28, [0008](0008-native-web-support.md)) |
-| Dialog close icon | inline SVG | inline SVG | lucide `X` via `Icon` (per-icon import) |
-| Animations | CSS `@keyframes` | CSS `@keyframes` | Reanimated (devices and react-native-web) |
-| Web support | — | — | react-native-web, for Expo universal apps ([0008](0008-native-web-support.md)) |
-| Theme via `init` | `cssVars` + `css` | `cssVars` + `css`; shadcn-vue also adds an Inter `@import` and `@lucide/vue`, and needs `tw-animate-css` | `vinui-theme.css` file + `@import` |
-| Dark mode | `.dark` class | `.dark` class | Uniwind themes (`Uniwind.setTheme`, follows the system) |
-| Missing-setup detection | — | — | `@vinui/engine` (**vinui addition**) |
-| Base layer (page background) | CSS `body` rule | CSS `body` rule | `<ThemeRoot>` (**vinui addition**) |
-| Button `asChild` | yes | `as-child` | yes (**vinui addition** vs RNR) |
-| Text component | — | — | `Text` + `TextClassContext` (subset of RNR's) |
-| Dialog title colour | inherits | inherits | explicit `text-foreground` |
+| Area | React (shadcn/ui) | Vue (shadcn-vue) | Svelte (shadcn-svelte) | React Native (RNR) |
+|---|---|---|---|---|
+| Primitives | Radix | Reka UI | Bits UI | rn-primitives |
+| Composition | `asChild` | `as-child` (+ `as`) | `child` snippet (`{#snippet child({ props })}`) | `asChild` |
+| Class prop | `className` | `class` | `class` | `className` |
+| Button `data-variant` / `data-size` | always set | set to `"default"` when omitted (**vinui addition**; shadcn-vue omits them) | always set (**vinui addition**; shadcn-svelte omits them) | n/a (no data attributes) |
+| `buttonVariants` in Button | `cn(buttonVariants({ variant, size, className }))` | `cn(buttonVariants({ variant, size }), props.class)` | `cn(buttonVariants({ variant, size }), className)`; clsx, not shadcn-svelte's `tailwind-variants` | `cn(buttonVariants({ variant, size, className }), disabled && "opacity-50")`; label via `buttonTextVariants` |
+| Button text | inherits colour | inherits colour | inherits colour | `Text` + `btn-label`; strings auto-wrapped (**vinui addition**) |
+| Events | `onClick` | `@click` | `onclick` | `onPress` |
+| Dialog positioning | `dialog-content` | `dialog-content` | `dialog-content` | `dialog-panel w-full max-w-lg` in a padded, centred overlay |
+| `DialogScrollContent` | — | in shadcn-vue, skipped | — | — |
+| Hover styles | yes | yes | yes | devices: none (`:active` only); **react-native-web: yes**, from the shared CSS (changed 2026-10-28, [0008](0008-native-web-support.md)) |
+| Dialog close icon | inline SVG | inline SVG | inline SVG (shadcn-svelte: `@lucide/svelte`) | lucide `X` via `Icon` (per-icon import) |
+| Animations | CSS `@keyframes` | CSS `@keyframes` | CSS `@keyframes` (Bits UI waits for the exit animation) | Reanimated (devices and react-native-web) |
+| Web support | — | — | — | react-native-web, for Expo universal apps ([0008](0008-native-web-support.md)) |
+| Theme via `init` | `cssVars` + `css` | `cssVars` + `css`; shadcn-vue also adds an Inter `@import` and `@lucide/vue`, and needs `tw-animate-css` | no vinui `init`: stock `shadcn-svelte init`, then the `theme` item (`cssVars` + `css`) comes with the first component | `vinui-theme.css` file + `@import` |
+| Dark mode | `.dark` class | `.dark` class | `.dark` class | Uniwind themes (`Uniwind.setTheme`, follows the system) |
+| Missing-setup detection | — | — | — | `@vinui/engine` (**vinui addition**) |
+| Base layer (page background) | CSS `body` rule | CSS `body` rule | CSS `body` rule | `<ThemeRoot>` (**vinui addition**) |
+| Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) | yes (**vinui addition** vs RNR) |
+| Text component | — | — | — | `Text` + `TextClassContext` (subset of RNR's) |
+| Dialog title colour | inherits | inherits | inherits | explicit `text-foreground` |
 
 ## Tooling quirks we work around
 
@@ -174,11 +186,16 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - Build scripts need an explicit allow or deny (`@parcel/watcher` is denied).
   - The registry is built once before the browser specs, because concurrent builds race on the output folder.
 
+- **shadcn-svelte 1.8.1:**
+  - `registry build` reads item `files` paths from the process cwd, ignoring `--cwd`, and requires `files` on every item; the build passes absolute paths and `files: []` for the theme (they don't appear in the output).
+  - Sources import `$lib/utils` and `$lib/registry/ui/…`; `registry build` turns them into `$UTILS$` / `$UI$` placeholders, and `add` writes the project's own aliases (SvelteKit 3's template uses `#lib`).
+  - `init` has no `--yes`: even with every alias flag it asks "Continue?" once before updating the stylesheet. That's stock shadcn-svelte, before any vinui item.
+- **SvelteKit 3** templates use subpath imports (`#lib`, `#lib/*` in `package.json`) instead of `$lib`; its config lives in `vite.config.ts`. `bits-ui`'s dependency `runed` still declares a `@sveltejs/kit ^2` peer (a warning only).
+
 ## Open / deferred
 
 - Registry deploy (host, domain, `VINUI_REGISTRY_URL`).
 - vinui's own visual identity (palette, radius, typography, motion).
-- Svelte (step 2): does shadcn-svelte resolve namespaced `@vinui/...` names or a `registries` map, and does `init --preset <url>` take a URL? Its docs and schema don't say ([0009](0009-svelte-on-bits-ui.md)).
 - React Aria coexistence in the apps: check overlays (focus trap, outside click) when a vinui and a React Aria overlay are open together ([0010](0010-mvp-scope-web-first.md)).
 - Combobox API divergence (shadcn/ui Popover + Command vs shadcn-vue Reka Combobox): resolve before building it.
 - Native: global icon interop, device e2e, a `minSdk` emulator.

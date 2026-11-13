@@ -50,6 +50,18 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     command: "pnpm --filter playground-vue build && pnpm --filter playground-vue exec vite preview --port 4402 --strictPort",
     options: { layout: "playground", frameworks: ["vue"] },
   },
+  {
+    name: "svelte-dev",
+    port: 4503,
+    command: "pnpm --filter playground-svelte dev --port 4503 --strictPort",
+    options: { layout: "playground", frameworks: ["svelte"], ready: "body[data-hydrated]" },
+  },
+  {
+    name: "svelte-prod",
+    port: 4403,
+    command: "pnpm --filter playground-svelte build && pnpm --filter playground-svelte preview --port 4403 --strictPort",
+    options: { layout: "playground", frameworks: ["svelte"], ready: "body[data-hydrated]" },
+  },
   // vinui native on react-native-web (Expo universal apps).
   {
     name: "native-web-dev",

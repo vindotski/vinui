@@ -7,16 +7,20 @@ import { buttonSizeValues, buttonVariantValues } from "@vinui/core"
 import { Button as ReactButton, buttonVariants as reactButtonVariants } from "@vinui/react/ui/button"
 import { Button as VueButton, buttonVariants as vueButtonVariants } from "@vinui/vue/ui/button"
 import { buttonVariants as nativeButtonVariants } from "@vinui/native/ui/button"
+import { Button as SvelteButton, buttonVariants as svelteButtonVariants } from "@vinui/svelte/ui/button"
 import { renderToString as renderReact } from "react-dom/server"
 import { describe, expect, test } from "vitest"
 import { createSSRApp, h } from "vue"
 import { renderToString as renderVue } from "@vue/server-renderer"
+import { createRawSnippet } from "svelte"
+import { render as renderSvelte } from "svelte/server"
 
 type ButtonVariantsFn = typeof reactButtonVariants
 
 const frameworks: [name: string, buttonVariants: ButtonVariantsFn][] = [
   ["react", reactButtonVariants],
   ["vue", vueButtonVariants],
+  ["svelte", svelteButtonVariants],
   ["native", nativeButtonVariants],
 ]
 
@@ -41,6 +45,10 @@ describe("buttonVariants class matrix", () => {
   // Plain equality, not a second snapshot: `vitest -u` can't paper over drift.
   test("Vue matrix equals React matrix", () => {
     expect(matrix(vueButtonVariants)).toEqual(reactMatrix)
+  })
+
+  test("Svelte matrix equals React matrix", () => {
+    expect(matrix(svelteButtonVariants)).toEqual(reactMatrix)
   })
 
   // Native shares web's component classes (docs/decisions/0005), so it must match too.
@@ -82,6 +90,11 @@ async function renderVueButton(props: Record<string, unknown>) {
   return renderVue(createSSRApp({ render: () => h(VueButton, props, () => "Go") }))
 }
 
+function renderSvelteButton(props: Record<string, unknown>) {
+  const children = createRawSnippet(() => ({ render: () => "<span>Go</span>" }))
+  return renderSvelte(SvelteButton, { props: { ...props, children } }).body
+}
+
 describe("Button component merges its class prop with cn()", () => {
   test.each([
     [{ variant: "outline", extra: "w-full" }, "btn btn-outline w-full"],
@@ -90,7 +103,9 @@ describe("Button component merges its class prop with cn()", () => {
   ] as const)("%o → %s", async ({ variant, extra }, expected) => {
     const react = classOf(renderReact(<ReactButton variant={variant} className={extra}>Go</ReactButton>))
     const vue = classOf(await renderVueButton({ variant, class: extra }))
+    const svelte = classOf(renderSvelteButton({ variant, class: extra }))
     expect(react).toBe(expected)
     expect(vue).toBe(expected)
+    expect(svelte).toBe(expected)
   })
 })

@@ -25,5 +25,7 @@ export const dialogFooterProps = [
     default: "false",
     description: "Render an outline Close button after the footer's content.",
     platforms: allPlatforms,
+    // shadcn-svelte's DialogFooter has no showCloseButton.
+    addition: ["svelte"],
   },
 ] as const satisfies readonly PropDoc[]

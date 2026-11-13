@@ -15,15 +15,15 @@ packages/
   tailwind/   tokens + @utility component classes (single styling source)
   react/      Radix components (registry source)
   vue/        Reka UI components (registry source)
-  svelte/     Bits UI components (registry source; planned, ADR 0009)
+  svelte/     Bits UI components (registry source; src/lib/registry/ui/<name>/)
   native/     React Native components on rn-primitives + Uniwind (registry source; Jest specs)
   core/       repo-only: variant/size unions + prop metadata for parity tests and docs
-  registry/   builds /r/{react,vue,native}/*.json into apps/docs/public/r
+  registry/   builds /r/{react,vue,svelte,native}/*.json into apps/docs/public/r
               (engines/uniwind.ts = the Uniwind engine layer)
 spikes/native-engine/   native engine harness (outside the workspace): `pnpm spike:native-engine`
 apps/
   docs/       Astro docs site (React + Vue islands); serves the registry
-  playground-react/, playground-vue/   install from the local registry like a user
+  playground-react/, playground-vue/, playground-svelte/ (SvelteKit)   install from the local registry like a user
 tests/        parity tests (Vitest) + browser specs (Playwright)
 ```
 
@@ -37,7 +37,7 @@ tests/        parity tests (Vitest) + browser specs (Playwright)
   3. the browser specs (docs, web playgrounds, and the native playground's web build).
   - Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to reuse an installed Chromium, or run `pnpm --filter @vinui/tests exec playwright install chromium` once.
 - `pnpm -r typecheck` typechecks every package.
-- In a playground, `pnpm --filter playground-<react|vue> registry:add` reinstalls from the local registry (the docs dev server must be running).
+- In a playground, `pnpm --filter playground-<react|vue|svelte> registry:add` reinstalls from the local registry (the docs dev server must be running).
 
 ## Working agreements
 - Commit each finished, verified step with a Conventional Commits message (see CONVENTIONS) ending in a `Co-Authored-By` line. Never push.

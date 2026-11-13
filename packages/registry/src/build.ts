@@ -21,11 +21,15 @@ const NAMESPACE = "@vinui"
 /**
  * Registry targets. `theme` picks how tokens are delivered: web CLIs write
  * `cssVars`; the native engine needs a nested theme file (ADR 0006).
+ * `deps: "relative"` writes items in shadcn-svelte's shape (`forShadcnSvelte`):
+ * it has no `registries` map, so `@vinui/<name>` becomes `./<name>.json` (ADR 0009). shadcn-svelte has no
+ * `extends: "none"` base either, so its target has no `init` item.
  */
 const targets = [
-  { name: "react", cli: "shadcn", pkg: join(root, "packages/react"), theme: "css-vars" },
-  { name: "vue", cli: "shadcn-vue", pkg: join(root, "packages/vue"), theme: "css-vars" },
-  { name: "native", cli: "shadcn", pkg: join(root, "packages/native"), theme: "uniwind-file" },
+  { name: "react", cli: ["shadcn", "build"], pkg: join(root, "packages/react"), theme: "css-vars", deps: "namespace", init: true },
+  { name: "vue", cli: ["shadcn-vue", "build"], pkg: join(root, "packages/vue"), theme: "css-vars", deps: "namespace", init: true },
+  { name: "svelte", cli: ["shadcn-svelte", "registry", "build"], pkg: join(root, "packages/svelte"), theme: "css-vars", deps: "relative", init: false },
+  { name: "native", cli: ["shadcn", "build"], pkg: join(root, "packages/native"), theme: "uniwind-file", deps: "namespace", init: true },
 ] as const
 
 type Target = (typeof targets)[number]
@@ -154,6 +158,23 @@ async function withComponentCss(item: RegistryItem): Promise<RegistryItem> {
   }
 }
 
+/**
+ * shadcn-svelte's shape of an item:
+ * - `@vinui/<name>` → `./<name>.json`, resolved by the CLI next to the item that lists it;
+ * - `files` on every item (the theme has none), with absolute paths: its
+ *   `registry build` reads them from the process cwd, ignoring `--cwd`.
+ */
+function forShadcnSvelte(item: RegistryItem, pkg: string): RegistryItem {
+  const files = (item.files as { path: string }[] | undefined) ?? []
+  return {
+    ...item,
+    files: files.map((file) => ({ ...file, path: join(pkg, file.path) })),
+    registryDependencies: (item.registryDependencies ?? []).map((dep) =>
+      dep.startsWith(`${NAMESPACE}/`) ? `./${dep.slice(NAMESPACE.length + 1)}.json` : dep,
+    ),
+  }
+}
+
 const webTheme = await buildThemeItem()
 await mkdir(cacheDir, { recursive: true })
 
@@ -162,13 +183,14 @@ for (const target of targets) {
   const source = JSON.parse(
     await readFile(join(target.pkg, "registry.json"), "utf8"),
   ) as Registry
+  const items = [
+    ...(target.init ? [buildInitItem(theme, target.name)] : []),
+    theme,
+    ...(await Promise.all(source.items.map(withComponentCss))),
+  ]
   const registry: Registry = {
     ...source,
-    items: [
-      buildInitItem(theme, target.name),
-      theme,
-      ...(await Promise.all(source.items.map(withComponentCss))),
-    ],
+    items: target.deps === "relative" ? items.map((item) => forShadcnSvelte(item, target.pkg)) : items,
   }
 
   const manifest = join(cacheDir, `${target.name}.registry.json`)
@@ -179,7 +201,7 @@ for (const target of targets) {
   console.log(`\n▸ ${target.name}`)
   execFileSync(
     "pnpm",
-    ["exec", target.cli, "build", manifest, "--cwd", target.pkg, "--output", output],
+    ["exec", ...target.cli, manifest, "--cwd", target.pkg, "--output", output],
     { cwd: pkgDir, stdio: "inherit" },
   )
 }
