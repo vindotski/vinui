@@ -112,5 +112,5 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
   - component names (`button`, `dialog`) for a component's API, style or behaviour,
   - infrastructure scopes (`registry`, `cli`, `docs`, `tokens`, `build`, `ci`),
   - no scope for repo-wide changes,
-  - **no framework scopes** (`react`, `vue`): name the framework in the subject or body instead.
+  - **no framework scopes** (`react`, `vue`, `svelte`): name the framework in the subject or body instead.
 - **No `!` / `BREAKING CHANGE` before the first release.**

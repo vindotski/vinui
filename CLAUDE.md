@@ -40,6 +40,6 @@ tests/        parity tests (Vitest) + browser specs (Playwright)
 - In a playground, `pnpm --filter playground-<react|vue> registry:add` reinstalls from the local registry (the docs dev server must be running).
 
 ## Working agreements
-- Don't commit or push. Suggest a Conventional Commits message (see CONVENTIONS) and let the maintainer commit.
+- Commit each finished, verified step with a Conventional Commits message (see CONVENTIONS) ending in a `Co-Authored-By` line. Never push.
 - Work in reviewable steps and stop after each one.
 - Verify behaviour, don't assume it: fresh-app installs, dev **and** production builds, and fault injection for new tests.
