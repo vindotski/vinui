@@ -1,6 +1,6 @@
 # 0010: MVP of three components on every platform, then web first
 
-- **Status:** Accepted (replaces the "Switch…Select on every platform" order of work)
+- **Status:** Accepted (replaces the "Switch…Select on every platform" order of work). **MVP declared 2026-11-13.**
 - **Date:** 2026-11-13
 
 ## Context
@@ -33,4 +33,9 @@ What was verified, at the commits that finish Select and its docs:
 - **Automated suites:** parity (types, classes, documented props), native Jest, Playwright on the docs site, the three web playgrounds and react-native-web, in development and production builds; the native engine harness on iOS and Android.
 - **Corrected during the check:** the React and Vue install pages now pass `--no-interactive` to create-vite (it asks about a linter otherwise), and the component pages link to every platform's setup.
 
-**Still open: the hands-on pass on physical devices.** When it's done, the MVP is declared here and native moves to "maintained, no new components".
+- **Physical devices:** the hands-on pass on an iPhone and an Android phone, in light and dark (Button variants and sizes; Dialog closing by Cancel, the corner button, an outside tap and Android back; Select opening, choosing, the check mark, closing, the small trigger's text; screen reader and Reduce Motion), was done by the maintainer and passed.
+
+## MVP declared (2026-11-13)
+**The MVP is done:** Button, Dialog and Select ship on React, Vue, Svelte and React Native.
+- From here, new components are **web-only** (React, Vue, Svelte) until vinui is integrated into Vinskiano, Sokobanko and TagTape.
+- React Native is **maintained, with no new components**: fixes, the tests and engine harness, and dependency and Uniwind upgrades keep running.

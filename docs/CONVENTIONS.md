@@ -14,7 +14,7 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
   | Svelte | shadcn-svelte | Bits UI | Tailwind 4 ([0009](decisions/0009-svelte-on-bits-ui.md)) |
   | React Native | React Native Reusables (Uniwind flavour) | rn-primitives | Uniwind ([0005](decisions/0005-native-styling-engine.md)) |
 
-- **Scope until the apps integrate vinui** ([0010](decisions/0010-mvp-scope-web-first.md)): the MVP (Button, Dialog, Select) ships on all four platforms. Components after the MVP are web-only (React, Vue, Svelte); native gets maintenance, not new components.
+- **Scope until the apps integrate vinui** ([0010](decisions/0010-mvp-scope-web-first.md)): the MVP (Button, Dialog, Select) shipped on all four platforms (declared 2026-11-13). **New components are web-only** (React, Vue, Svelte). React Native is maintained (fixes, tests, upgrades) but gets no new components.
 - **Stay on the Radix family**; React Aria is not a vinui primitive. Apps may use both side by side ([0010](decisions/0010-mvp-scope-web-first.md)).
 - Before building a component, read the current source of its reference on every platform. Third-party-backed parts use whatever the matching reference uses.
 

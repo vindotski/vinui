@@ -19,7 +19,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | [0007](0007-native-base-layer.md) | Native base layer: ThemeRoot | Accepted |
 | [0008](0008-native-web-support.md) | vinui native supports react-native-web (Expo universal apps) | Accepted |
 | [0009](0009-svelte-on-bits-ui.md) | Svelte on Bits UI, referencing shadcn-svelte | Accepted |
-| [0010](0010-mvp-scope-web-first.md) | MVP of three components on every platform, then web first | Accepted |
+| [0010](0010-mvp-scope-web-first.md) | MVP of three components on every platform, then web first | Accepted; MVP declared 2026-11-13 |
 
 ---
 
