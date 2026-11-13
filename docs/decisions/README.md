@@ -70,6 +70,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Svelte `DialogFooter` has `showCloseButton` (**vinui addition**); the close icon is inline SVG | Parity with React and Vue; shadcn-svelte has neither (it uses `@lucide/svelte`). | 2026-11-13 |
 | Svelte unions and `buttonVariants` live in `button/index.ts` (shadcn-svelte keeps them in `button.svelte`'s module script) | Type tests stay off `.svelte` files, as with Vue. | 2026-11-13 |
 | Select (React) follows shadcn/ui's new-york-v4 Select on Radix: the same ten parts, `SelectTrigger size="sm" | "default"` (with `data-size`), `SelectContent position` defaulting to `"item-aligned"`; icons are inline SVG, like Dialog's close icon | radix-vega has the same API, only icon placeholders and classes differ. Exports a `SelectTriggerSize` type (shadcn writes the union inline) for the parity tests. | 2026-11-13 |
+| Select (Vue) follows shadcn-vue's new-york-v4 Select on Reka UI: eleven parts (adds `SelectItemText`), `v-model`, an `indicator-icon` slot on `SelectItem`, and **`SelectContent position` defaulting to `"popper"`**, as shadcn-vue does; `SelectTriggerSize` and the size classes live in `select/index.ts` | Each port keeps its reference's defaults, so existing shadcn-vue code behaves the same after switching to vinui. `position` takes the same values on both, so `position="item-aligned"` (or `"popper"`) gives the same result everywhere. Delegation uses `computed`, not `@vueuse/core`'s `reactiveOmit`, so the item has no extra dependency. | 2026-11-13 |
 
 ### Styling
 
@@ -165,12 +166,15 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) | yes (**vinui addition** vs RNR) |
 | Text component | — | — | — | `Text` + `TextClassContext` (subset of RNR's) |
 | Dialog title colour | inherits | inherits | inherits | explicit `text-foreground` |
+| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | (Svelte step) | (Native step) |
+| Select value binding | `value` / `onValueChange` | `v-model` | (Svelte step) | (Native step) |
 
 ## Tooling quirks we work around
 
 - **shadcn-vue:**
   - It mis-resolves file paths when all files share only a `src/` root, so registry sources have no `src/` folder.
   - Its `add` inserts `@import "tw-animate-css"` whenever an item brings `cssVars`, so the Vue `init` installs `tw-animate-css`.
+  - Its `add` re-prints the stylesheet: closing braces of nested rules end up on one line (`scale: 0.95;}}`). The CSS stays valid; it's only formatting.
 - **Both CLIs:**
   - Re-adding an item duplicates nested `@media` / `@variant` blocks inside `@utility`. Delete the component's `@utility` blocks before updating.
   - The `css` writer flattens nested rules ([0006](0006-native-theme-as-file.md)).

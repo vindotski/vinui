@@ -19,7 +19,7 @@ const token = (page: import("@playwright/test").Page, name: string) =>
     return color
   }, name)
 
-for (const framework of ["react"] satisfies Framework[]) {
+for (const framework of ["react", "vue"] satisfies Framework[]) {
   test.describe(`${framework} Select`, () => {
     test.beforeEach(({ frameworks, layout }) => {
       test.skip(!frameworks.includes(framework), `no ${framework} app on this target`)
