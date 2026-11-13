@@ -1,6 +1,6 @@
 # vinui
 
-A shadcn-style component library with one API across React, Vue and React Native, distributed through its own shadcn-compatible registry.
+A shadcn-style component library with one API across React, Vue, Svelte and React Native, distributed through its own shadcn-compatible registry.
 
 ## Read first
 - **[docs/CONVENTIONS.md](docs/CONVENTIONS.md)**: the rules (API, styling, registry, dependencies, testing, docs, commits). Follow them.
@@ -15,6 +15,7 @@ packages/
   tailwind/   tokens + @utility component classes (single styling source)
   react/      Radix components (registry source)
   vue/        Reka UI components (registry source)
+  svelte/     Bits UI components (registry source; planned, ADR 0009)
   native/     React Native components on rn-primitives + Uniwind (registry source; Jest specs)
   core/       repo-only: variant/size unions + prop metadata for parity tests and docs
   registry/   builds /r/{react,vue,native}/*.json into apps/docs/public/r

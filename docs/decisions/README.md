@@ -18,6 +18,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | [0006](0006-native-theme-as-file.md) | Native theme delivered as a file | Accepted |
 | [0007](0007-native-base-layer.md) | Native base layer: ThemeRoot | Accepted |
 | [0008](0008-native-web-support.md) | vinui native supports react-native-web (Expo universal apps) | Accepted |
+| [0009](0009-svelte-on-bits-ui.md) | Svelte on Bits UI, referencing shadcn-svelte | Accepted |
+| [0010](0010-mvp-scope-web-first.md) | MVP of three components on every platform, then web first | Accepted |
 
 ---
 
@@ -176,6 +178,8 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 
 - Registry deploy (host, domain, `VINUI_REGISTRY_URL`).
 - vinui's own visual identity (palette, radius, typography, motion).
+- Svelte (step 2): does shadcn-svelte resolve namespaced `@vinui/...` names or a `registries` map, and does `init --preset <url>` take a URL? Its docs and schema don't say ([0009](0009-svelte-on-bits-ui.md)).
+- React Aria coexistence in the apps: check overlays (focus trap, outside click) when a vinui and a React Aria overlay are open together ([0010](0010-mvp-scope-web-first.md)).
 - Combobox API divergence (shadcn/ui Popover + Command vs shadcn-vue Reka Combobox): resolve before building it.
 - Native: global icon interop, device e2e, a `minSdk` emulator.
 - CI: none yet. When it exists, run the native engine harness on PRs that change the Uniwind version (needs a macOS runner).

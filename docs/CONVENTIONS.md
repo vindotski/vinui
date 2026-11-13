@@ -11,8 +11,11 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
   |---|---|---|---|
   | React | shadcn/ui | Radix (`radix-ui`) | Tailwind 4 |
   | Vue | shadcn-vue | Reka UI | Tailwind 4 |
+  | Svelte | shadcn-svelte | Bits UI | Tailwind 4 ([0009](decisions/0009-svelte-on-bits-ui.md)) |
   | React Native | React Native Reusables (Uniwind flavour) | rn-primitives | Uniwind ([0005](decisions/0005-native-styling-engine.md)) |
 
+- **Scope until the apps integrate vinui** ([0010](decisions/0010-mvp-scope-web-first.md)): the MVP (Button, Dialog, Select) ships on all four platforms. Components after the MVP are web-only (React, Vue, Svelte); native gets maintenance, not new components.
+- **Stay on the Radix family**; React Aria is not a vinui primitive. Apps may use both side by side ([0010](decisions/0010-mvp-scope-web-first.md)).
 - Before building a component, read the current source of its reference on every platform. Third-party-backed parts use whatever the matching reference uses.
 
 ## API
@@ -21,6 +24,7 @@ Short, actionable rules. The reasons are in [decisions/](decisions/README.md); a
 - **The shared contract** across frameworks is the prop *values* (variant / size unions from `packages/core`) and the produced *classes*. Where the references differ, each framework follows its own reference and the difference goes in the cross-framework table in [decisions/README.md](decisions/README.md).
 - **Framework idioms only where unavoidable:**
   - Vue: `v-model`, slots, emits, `class`.
+  - Svelte: the `child` snippet (in place of `asChild`), `bind:`, `class`, plain event props (`onclick`).
   - Native: `onPress` only, with no `onClick` alias.
 - **Union rule:** where the native reference and the web style differ, accept both. For example, native Button takes `<Button>Save</Button>` and `<Button><Text>Save</Text></Button>`.
 - **`buttonVariants` (and future variant helpers) mirror cva exactly:**
