@@ -3,11 +3,12 @@
  * must exist on that platform's component, under that platform's name.
  * Vue is checked at runtime (props.test.ts) to keep type tests off .vue files.
  */
-import { buttonProps, dialogContentProps, dialogFooterProps, type Platform } from "@vinui/core"
+import { buttonProps, dialogContentProps, dialogFooterProps, selectTriggerProps, type Platform } from "@vinui/core"
 import type { ButtonProps as NativeButtonProps } from "@vinui/native/ui/button"
 import type { DialogContent as NativeDialogContent, DialogFooter as NativeDialogFooter } from "@vinui/native/ui/dialog"
 import type { ButtonProps as ReactButtonProps } from "@vinui/react/ui/button"
 import type { DialogContent as ReactDialogContent, DialogFooter as ReactDialogFooter } from "@vinui/react/ui/dialog"
+import type { SelectTrigger as ReactSelectTrigger } from "@vinui/react/ui/select"
 import type { ComponentProps } from "react"
 import { describe, expectTypeOf, test } from "vitest"
 
@@ -26,6 +27,7 @@ describe("documented props exist", () => {
     expectTypeOf<Missing<ReactButtonProps, typeof buttonProps, "react">>().toEqualTypeOf<never>()
     expectTypeOf<Missing<ComponentProps<typeof ReactDialogContent>, typeof dialogContentProps, "react">>().toEqualTypeOf<never>()
     expectTypeOf<Missing<ComponentProps<typeof ReactDialogFooter>, typeof dialogFooterProps, "react">>().toEqualTypeOf<never>()
+    expectTypeOf<Missing<ComponentProps<typeof ReactSelectTrigger>, typeof selectTriggerProps, "react">>().toEqualTypeOf<never>()
   })
 
   test("React Native", () => {

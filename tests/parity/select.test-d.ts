@@ -1,0 +1,12 @@
+/** Type-level parity for Select: SelectTrigger's `size` union equals core's, both ways. */
+import type { SelectTriggerSize } from "@vinui/core"
+import type { SelectTrigger as ReactSelectTrigger, SelectTriggerSize as ReactSelectTriggerSize } from "@vinui/react/ui/select"
+import type { ComponentProps } from "react"
+import { describe, expectTypeOf, test } from "vitest"
+
+describe("SelectTrigger size equals core", () => {
+  test("React", () => {
+    expectTypeOf<ReactSelectTriggerSize>().toEqualTypeOf<SelectTriggerSize>()
+    expectTypeOf<NonNullable<ComponentProps<typeof ReactSelectTrigger>["size"]>>().toEqualTypeOf<SelectTriggerSize>()
+  })
+})
