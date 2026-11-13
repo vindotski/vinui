@@ -1,12 +1,11 @@
 import { execFileSync } from "node:child_process"
-import { existsSync } from "node:fs"
+import { existsSync, readdirSync } from "node:fs"
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { REGISTRY_URL } from "./config.ts"
 import { type CssObject, parseCss, toCssObject, toCssVars } from "./css.ts"
-import { UNIWIND_VERSION, uniwindTheme } from "./engines/uniwind.ts"
 
 const pkgDir = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const root = resolve(pkgDir, "../..")
@@ -19,23 +18,16 @@ const INIT_ITEM = "init"
 const NAMESPACE = "@vinui"
 
 /**
- * Registry targets. `theme` picks how tokens are delivered: web CLIs write
- * `cssVars`; the native engine needs a nested theme file (ADR 0006).
+ * Registry targets. Tokens go out as `cssVars` (the `theme` item).
  * `deps: "relative"` writes items in shadcn-svelte's shape (`forShadcnSvelte`):
  * it has no `registries` map, so `@vinui/<name>` becomes `./<name>.json` (ADR 0009). shadcn-svelte has no
  * `extends: "none"` base either, so its target has no `init` item.
  */
 const targets = [
-  { name: "react", cli: ["shadcn", "build"], pkg: join(root, "packages/react"), theme: "css-vars", deps: "namespace", init: true },
-  { name: "vue", cli: ["shadcn-vue", "build"], pkg: join(root, "packages/vue"), theme: "css-vars", deps: "namespace", init: true },
-  { name: "svelte", cli: ["shadcn-svelte", "registry", "build"], pkg: join(root, "packages/svelte"), theme: "css-vars", deps: "relative", init: false },
-  { name: "native", cli: ["shadcn", "build"], pkg: join(root, "packages/native"), theme: "uniwind-file", deps: "namespace", init: true },
+  { name: "react", cli: ["shadcn", "build"], pkg: join(root, "packages/react"), deps: "namespace", init: true },
+  { name: "vue", cli: ["shadcn-vue", "build"], pkg: join(root, "packages/vue"), deps: "namespace", init: true },
+  { name: "svelte", cli: ["shadcn-svelte", "registry", "build"], pkg: join(root, "packages/svelte"), deps: "relative", init: false },
 ] as const
-
-type Target = (typeof targets)[number]
-
-/** Native theme file name, written next to global.css in the user's project. */
-const NATIVE_THEME_FILE = "vinui-theme.css"
 
 interface RegistryItem {
   name: string
@@ -87,23 +79,6 @@ async function buildThemeItem(): Promise<RegistryItem> {
  * does not resolve yet while init is running).
  */
 function buildInitItem(theme: RegistryItem, target: string): RegistryItem {
-  if (target === "native") {
-    return {
-      name: INIT_ITEM,
-      type: "registry:base",
-      extends: "none",
-      title: "vinui",
-      description: "Initialize an Expo app with the vinui style (Uniwind).",
-      config: {
-        registries: { [NAMESPACE]: `${REGISTRY_URL}/${target}/{name}.json` },
-      },
-      registryDependencies: ["utils"],
-      // Setup prerequisites are pinned here, never on component items (docs/CONVENTIONS.md).
-      dependencies: [`uniwind@${UNIWIND_VERSION}`, "tailwindcss@4.3.3"],
-      files: theme.files,
-      css: theme.css,
-    }
-  }
   return {
     name: INIT_ITEM,
     type: "registry:base",
@@ -119,26 +94,6 @@ function buildInitItem(theme: RegistryItem, target: string): RegistryItem {
     ...(target === "vue" && { dependencies: ["tw-animate-css"] }),
     cssVars: theme.cssVars,
     css: theme.css,
-  }
-}
-
-/**
- * Native `theme` item: the Uniwind-shaped theme as a file next to global.css,
- * plus an `@import` of it in global.css (the CLI can't write the nesting itself).
- * The target has no `~/`, so the CLI puts it under `src/` in src-layout apps (Expo
- * Router's template), where global.css lives too; `~/` would always mean the root.
- */
-async function buildNativeThemeItem(target: Target): Promise<RegistryItem> {
-  const generated = join(target.pkg, ".generated", NATIVE_THEME_FILE)
-  await mkdir(dirname(generated), { recursive: true })
-  await writeFile(generated, await uniwindTheme(join(tailwindSrc, "theme.css")))
-  return {
-    name: THEME_ITEM,
-    type: "registry:item",
-    title: "Theme",
-    description: "vinui design tokens (colors, radius) for Uniwind, light and dark.",
-    files: [{ path: `.generated/${NATIVE_THEME_FILE}`, type: "registry:file", target: NATIVE_THEME_FILE }],
-    css: { [`@import "./${NATIVE_THEME_FILE}"`]: {} },
   }
 }
 
@@ -175,11 +130,25 @@ function forShadcnSvelte(item: RegistryItem, pkg: string): RegistryItem {
   }
 }
 
-const webTheme = await buildThemeItem()
+/**
+ * Output that older builds left in apps/docs/public and nothing regenerates: registry
+ * folders of retired targets (`r/native`), and the React Native preview (ADR 0011).
+ * Both are gitignored, so a pull doesn't remove them, and Astro would keep serving
+ * them. `docs` dev and build run this build first.
+ */
+async function removeRetiredOutput() {
+  const current = new Set<string>(targets.map((target) => target.name))
+  const stale = existsSync(outDir) ? readdirSync(outDir).filter((dir) => !current.has(dir)) : []
+  for (const dir of stale) await rm(join(outDir, dir), { recursive: true, force: true })
+  await rm(join(outDir, "../native-preview"), { recursive: true, force: true })
+  if (stale.length) console.log(`Removed retired registry output: ${stale.join(", ")}`)
+}
+
+await removeRetiredOutput()
+const theme = await buildThemeItem()
 await mkdir(cacheDir, { recursive: true })
 
 for (const target of targets) {
-  const theme = target.theme === "uniwind-file" ? await buildNativeThemeItem(target) : webTheme
   const source = JSON.parse(
     await readFile(join(target.pkg, "registry.json"), "utf8"),
   ) as Registry

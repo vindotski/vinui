@@ -1,6 +1,6 @@
 ---
 /**
- * React / Vue / Svelte / React Native panels. The choice is site-wide and remembered
+ * React / Vue / Svelte panels. The choice is site-wide and remembered
  * (see Layout.astro): pick Vue once and every page opens on Vue.
  */
 interface Props {
@@ -12,7 +12,6 @@ const frameworks = [
   ["react", "React"],
   ["vue", "Vue"],
   ["svelte", "Svelte"],
-  ["native", "React Native"],
 ] as const
 const id = `tabs-${Math.random().toString(36).slice(2, 8)}`
 ---
@@ -40,7 +39,6 @@ const id = `tabs-${Math.random().toString(36).slice(2, 8)}`
         {framework === "react" && <slot name="react" />}
         {framework === "vue" && <slot name="vue" />}
         {framework === "svelte" && <slot name="svelte" />}
-        {framework === "native" && <slot name="native" />}
       </div>
     ))
   }

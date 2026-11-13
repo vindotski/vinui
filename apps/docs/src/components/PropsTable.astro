@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { props, framework } = Astro.props
-const platformNames: Record<Platform, string> = { react: "React", vue: "Vue", svelte: "Svelte", native: "React Native" }
+const platformNames: Record<Platform, string> = { react: "React", vue: "Vue", svelte: "Svelte" }
 const rows = props.filter((prop) => prop.platforms.includes(framework))
 const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 /** `backticks` in descriptions become inline code. */

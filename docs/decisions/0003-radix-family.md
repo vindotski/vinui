@@ -1,6 +1,6 @@
 # 0003: The Radix family across frameworks
 
-- **Status:** Accepted (supersedes [0002](0002-react-on-base-ui.md); extended by [0009](0009-svelte-on-bits-ui.md) with Bits UI for Svelte)
+- **Status:** Accepted (supersedes [0002](0002-react-on-base-ui.md); extended by [0009](0009-svelte-on-bits-ui.md) with Bits UI for Svelte; rn-primitives out for now with React Native, [0011](0011-drop-react-native-for-now.md))
 - **Date:** 2026-10-28
 
 ## Context

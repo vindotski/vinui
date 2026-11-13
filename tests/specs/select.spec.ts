@@ -7,23 +7,10 @@ import { expect, test, type Framework } from "./fixtures.ts"
  * While the list is open, the primitives aria-hide everything outside it, the
  * trigger included, so the open trigger is found by attribute, not by role, inside
  * its framework's demo (the docs show the frameworks side by side).
- * Native (react-native-web) wraps the same Radix Select but sets no data-slot, so
- * parts are found by role or by vinui class.
  */
 const trigger = (root: import("@playwright/test").Locator, name: string) =>
   root.locator(`[role="combobox"][aria-label="${name}"]`)
-/** The list's look: select-content on the web ports, select-panel on native web (see listState). */
-const selectContent = (page: import("@playwright/test").Page, native = false) =>
-  page.locator(native ? ".select-panel" : ".select-content")
-/**
- * Where Radix's data-state / data-side live, and what animates. On the web ports that's
- * select-content itself. On native web, select-content is a View inside Radix's listbox,
- * and the list fades in with Reanimated on the overlay around Radix's popper wrapper.
- */
-const listState = (page: import("@playwright/test").Page, native: boolean) =>
-  native ? page.getByRole("listbox") : selectContent(page, native)
-const animated = (page: import("@playwright/test").Page, native: boolean) =>
-  native ? page.locator("[data-radix-popper-content-wrapper]").locator("xpath=..") : selectContent(page, native)
+const selectContent = (page: import("@playwright/test").Page) => page.locator(".select-content")
 const token = (page: import("@playwright/test").Page, name: string) =>
   page.evaluate((name) => {
     const probe = document.createElement("div")
@@ -34,8 +21,7 @@ const token = (page: import("@playwright/test").Page, name: string) =>
     return color
   }, name)
 
-for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework[]) {
-  const native = framework === "native"
+for (const framework of ["react", "vue", "svelte"] satisfies Framework[]) {
   test.describe(`${framework} Select`, () => {
     test.beforeEach(({ frameworks }) => {
       test.skip(!frameworks.includes(framework), `no ${framework} app on this target`)
@@ -60,8 +46,7 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
         return c
       }))
       const size = root.getByRole("combobox", { name: "Size" })
-      // Native sets no data attributes (cross-framework table).
-      if (!native) await expect(size).toHaveAttribute("data-size", "sm")
+      await expect(size).toHaveAttribute("data-size", "sm")
       await expect(size).toHaveClass(/\bselect-trigger-sm\b/)
       await expect(size).toHaveCSS("height", "32px")
       await expect(size).toHaveText("Medium")
@@ -74,12 +59,12 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
       const listbox = page.getByRole("listbox")
       await expect(listbox).toBeVisible()
       await expect(trigger(demo(page, framework, "Select"), "Fruit")).toHaveAttribute("aria-expanded", "true")
-      const content = selectContent(page, native)
-      await expect(listState(page, native)).toHaveAttribute("data-state", "open")
-      await expect(content).toHaveClass(native ? /\bselect-panel\b/ : /\bselect-content\b/)
+      const content = selectContent(page)
+      await expect(content).toHaveAttribute("data-state", "open")
+      await expect(content).toHaveClass(/\bselect-content\b/)
       await expect(content).toHaveCSS("background-color", await token(page, "--color-popover"))
       await expect(content).toHaveCSS("border-top-width", "1px")
-      await expect(animated(page, native)).toHaveCSS("animation-name", native ? "FadeIn" : "vinui-zoom-in")
+      await expect(content).toHaveCSS("animation-name", "vinui-zoom-in")
       expect(await content.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none")
       await expect(listbox.getByRole("option")).toHaveCount(7)
       await expect(listbox.getByRole("group")).toHaveCount(2)
@@ -124,7 +109,7 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
       }
       await page.keyboard.press("Enter")
       await expect(fruit).toHaveText("Pineapple")
-      // Focus comes back to the trigger (on native web, once the list's exit animation ends).
+      // Focus comes back to the trigger.
       await expect(fruit).toBeFocused()
       // Typeahead on the open list.
       await page.keyboard.press("Enter")
@@ -151,14 +136,14 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
       const root = demo(page, framework, "Select")
       const size = root.getByRole("combobox", { name: "Size" })
       await expect(root.getByText("Size: m")).toBeVisible()
-      // Room below the trigger, so the popper opens downwards (the native playground is a long page).
+      // Room below the trigger, so the popper opens downwards.
       await size.evaluate((el) => el.scrollIntoView({ block: "start" }))
       const box = (await size.boundingBox())!
       await size.click()
-      const content = selectContent(page, native)
-      await expect(listState(page, native)).toHaveAttribute("data-side", "bottom")
+      const content = selectContent(page)
+      await expect(content).toHaveAttribute("data-side", "bottom")
       // Measure after the entry animation: mid-zoom the scaled box starts higher.
-      await animated(page, native).evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+      await content.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
       const list = (await content.boundingBox())!
       expect(list.y).toBeGreaterThanOrEqual(box.y + box.height)
       expect(list.width).toBeGreaterThanOrEqual(box.width - 1)
@@ -172,8 +157,7 @@ for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework
       const page = await context.newPage()
       await visit(page)
       await demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" }).click()
-      await expect(selectContent(page, native)).toBeVisible()
-      await expect(animated(page, native)).toHaveCSS("animation-name", "none")
+      await expect(selectContent(page)).toHaveCSS("animation-name", "none")
       await page.keyboard.press("Escape")
       await expect(page.getByRole("listbox")).toHaveCount(0)
       await context.close()

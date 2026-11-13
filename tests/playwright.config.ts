@@ -62,20 +62,6 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     command: "pnpm --filter playground-svelte build && pnpm --filter playground-svelte preview --port 4403 --strictPort",
     options: { layout: "playground", frameworks: ["svelte"], ready: "body[data-hydrated]" },
   },
-  // vinui native on react-native-web (Expo universal apps).
-  {
-    name: "native-web-dev",
-    port: 4601,
-    command: "pnpm --filter playground-native exec expo start --web --port 4601",
-    options: { layout: "playground", frameworks: ["native"] },
-  },
-  {
-    name: "native-web-prod",
-    port: 4602,
-    command:
-      "pnpm --filter playground-native exec expo export --platform web && pnpm --filter playground-native exec expo serve --port 4602",
-    options: { layout: "playground", frameworks: ["native"] },
-  },
 ]
 
 export default defineConfig<TargetOptions>({

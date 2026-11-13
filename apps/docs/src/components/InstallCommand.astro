@@ -4,13 +4,13 @@ import PmCommand from "./PmCommand.astro"
 
 /** A shadcn CLI command with the framework's CLI (`shadcn-vue` on Vue, `shadcn-svelte` on Svelte). */
 interface Props {
-  framework: "react" | "vue" | "svelte" | "native"
+  framework: "react" | "vue" | "svelte"
   /** Arguments after the CLI, e.g. `add @vinui/button`. */
   args: string
 }
 
 const { framework, args } = Astro.props
-const cli = { react: "shadcn@latest", vue: "shadcn-vue@latest", svelte: "shadcn-svelte@latest", native: "shadcn@latest" }[framework]
+const cli = { react: "shadcn@latest", vue: "shadcn-vue@latest", svelte: "shadcn-svelte@latest" }[framework]
 ---
 
 <PmCommand commands={dlx(`${cli} ${args}`)} />

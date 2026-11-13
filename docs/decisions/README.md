@@ -14,16 +14,19 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | [0002](0002-react-on-base-ui.md) | React components on Base UI | Superseded by 0003 |
 | [0003](0003-radix-family.md) | The Radix family across frameworks | Accepted |
 | [0004](0004-cva-exact-button-variants.md) | cva-exact `buttonVariants`, `cn` from "cn", explicit `clsx` | Accepted |
-| [0005](0005-native-styling-engine.md) | Native styling engine: Uniwind | Accepted |
-| [0006](0006-native-theme-as-file.md) | Native theme delivered as a file | Accepted |
-| [0007](0007-native-base-layer.md) | Native base layer: ThemeRoot | Accepted |
-| [0008](0008-native-web-support.md) | vinui native supports react-native-web (Expo universal apps) | Accepted |
+| [0005](0005-native-styling-engine.md) | Native styling engine: Uniwind | Superseded by 0011 |
+| [0006](0006-native-theme-as-file.md) | Native theme delivered as a file | Superseded by 0011 |
+| [0007](0007-native-base-layer.md) | Native base layer: ThemeRoot | Superseded by 0011 |
+| [0008](0008-native-web-support.md) | vinui native supports react-native-web (Expo universal apps) | Superseded by 0011 |
 | [0009](0009-svelte-on-bits-ui.md) | Svelte on Bits UI, referencing shadcn-svelte | Accepted |
-| [0010](0010-mvp-scope-web-first.md) | MVP of three components on every platform, then web first | Accepted; MVP declared 2026-11-13 |
+| [0010](0010-mvp-scope-web-first.md) | MVP of three components on every platform, then web first | Accepted; MVP declared 2026-11-13; amended by 0011 |
+| [0011](0011-drop-react-native-for-now.md) | React Native dropped for now (to be reintroduced later) | Accepted |
 
 ---
 
 ## Running log
+
+Rows about React Native stay as history: native was removed for now ([0011](0011-drop-react-native-for-now.md)) and will be reintroduced from them.
 
 ### Distribution and registry
 | **Expo-managed native modules (Reanimated, Worklets, Screens, SVG) are setup prerequisites**, installed with `npx expo install`; native items don't list them | **Corrected, same day.** The shadcn CLI runs `npx expo install -- <deps>` in Expo apps, but everything after `--` goes to the package manager, so it installs the *latest* versions, not SDK-matched ones. That produced Worklets 0.13.1 against Expo 58's expected 0.13.0, a JS/native mismatch in Expo Go. A plain `npx expo install <pkgs>` is SDK-aware. | 2026-10-28 |
@@ -43,6 +46,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Svelte items don't list `utils`; they rely on the `utils` that `shadcn-svelte init` installs (`cn` + `WithElementRef` types), and import `cn` from `$lib/utils.js` | That's what shadcn-svelte's own items do. Listing `utils` made `add` ask "overwrite all existing files?" in every initialized project. | 2026-11-13 |
 | Svelte `add` needs `--yes --overwrite` for no prompts | `--yes` skips the confirmation, but the CLI asks "Updates to your … .css are required … Continue?" for any item with CSS unless `--overwrite` is set. With `--overwrite`, existing component files of the same name are replaced too. | 2026-11-13 |
 | Svelte items put packages in `devDependencies` (`bits-ui`, `@internationalized/date`, `clsx`) | shadcn-svelte's convention: SvelteKit bundles everything. | 2026-11-13 |
+| The registry build deletes retired output in `apps/docs/public` (registry folders of targets no longer built, e.g. `r/native`, and the old `native-preview`); the docs keep `public/native-preview` in their tsconfig `exclude` and `.gitignore` | Both are gitignored, so pulling the removal ([0011](0011-drop-react-native-for-now.md)) doesn't delete them; Astro would keep serving the retired registry, and `astro check` once ran out of memory on the preview. Raised in review of the removal PR. | 2026-11-14 |
 
 ### API
 | Native Button keeps shadcn's `asChild` (via `@rn-primitives/slot`) | RNR's Button has no `asChild`. API parity follows shadcn, so this is a vinui addition relative to RNR. | 2026-10-28 |
@@ -159,31 +163,24 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 
 ## Cross-framework differences (intentional)
 
-| Area | React (shadcn/ui) | Vue (shadcn-vue) | Svelte (shadcn-svelte) | React Native (RNR) |
-|---|---|---|---|---|
-| Primitives | Radix | Reka UI | Bits UI | rn-primitives |
-| Composition | `asChild` | `as-child` (+ `as`) | `child` snippet (`{#snippet child({ props })}`) | `asChild` |
-| Class prop | `className` | `class` | `class` | `className` |
-| Button `data-variant` / `data-size` | always set | set to `"default"` when omitted (**vinui addition**; shadcn-vue omits them) | always set (**vinui addition**; shadcn-svelte omits them) | n/a (no data attributes) |
-| `buttonVariants` in Button | `cn(buttonVariants({ variant, size, className }))` | `cn(buttonVariants({ variant, size }), props.class)` | `cn(buttonVariants({ variant, size }), className)`; clsx, not shadcn-svelte's `tailwind-variants` | `cn(buttonVariants({ variant, size, className }), disabled && "opacity-50")`; label via `buttonTextVariants` |
-| Button text | inherits colour | inherits colour | inherits colour | `Text` + `btn-label`; strings auto-wrapped (**vinui addition**) |
-| Events | `onClick` | `@click` | `onclick` | `onPress` |
-| Dialog positioning | `dialog-content` | `dialog-content` | `dialog-content` | `dialog-panel w-full max-w-lg` in a padded, centred overlay |
-| `DialogScrollContent` | — | in shadcn-vue, skipped | — | — |
-| Hover styles | yes | yes | yes | devices: none (`:active` only); **react-native-web: yes**, from the shared CSS (changed 2026-10-28, [0008](0008-native-web-support.md)) |
-| Dialog close icon | inline SVG | inline SVG | inline SVG (shadcn-svelte: `@lucide/svelte`) | lucide `X` via `Icon` (per-icon import) |
-| Animations | CSS `@keyframes` | CSS `@keyframes` | CSS `@keyframes` (Bits UI waits for the exit animation) | Reanimated (devices and react-native-web) |
-| Web support | — | — | — | react-native-web, for Expo universal apps ([0008](0008-native-web-support.md)) |
-| Theme via `init` | `cssVars` + `css` | `cssVars` + `css`; shadcn-vue also adds an Inter `@import` and `@lucide/vue`, and needs `tw-animate-css` | no vinui `init`: stock `shadcn-svelte init`, then the `theme` item (`cssVars` + `css`) comes with the first component | `vinui-theme.css` file + `@import` |
-| Dark mode | `.dark` class | `.dark` class | `.dark` class | Uniwind themes (`Uniwind.setTheme`, follows the system) |
-| Missing-setup detection | — | — | — | `@vinui/engine` (**vinui addition**) |
-| Base layer (page background) | CSS `body` rule | CSS `body` rule | CSS `body` rule | `<ThemeRoot>` (**vinui addition**) |
-| Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) | yes (**vinui addition** vs RNR) |
-| Text component | — | — | — | `Text` + `TextClassContext` (subset of RNR's) |
-| Dialog title colour | inherits | inherits | inherits | explicit `text-foreground` |
-| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | popper only (Bits UI has no item-aligned; no `position` prop) | `"popper"` (as RNR); no item-aligned |
-| Select value binding | `value` / `onValueChange` | `v-model` | `type="single"` + `bind:value`; `items` on the root for the trigger label | `Option` object (`{ value, label }`) + `onValueChange` |
-| Select item check icon | `ItemIndicator` (hidden unless selected) | `SelectItemIndicator` | rendered only when `selected` (Bits UI has no indicator part) | `ItemIndicator` (lucide `Check` via `Icon`) |
+React Native's column was removed with React Native ([0011](0011-drop-react-native-for-now.md)); the last version with it is at commit `10fee94`.
+
+| Area | React (shadcn/ui) | Vue (shadcn-vue) | Svelte (shadcn-svelte) |
+|---|---|---|---|
+| Primitives | Radix | Reka UI | Bits UI |
+| Composition | `asChild` | `as-child` (+ `as`) | `child` snippet (`{#snippet child({ props })}`) |
+| Class prop | `className` | `class` | `class` |
+| Button `data-variant` / `data-size` | always set | set to `"default"` when omitted (**vinui addition**; shadcn-vue omits them) | always set (**vinui addition**; shadcn-svelte omits them) |
+| `buttonVariants` in Button | `cn(buttonVariants({ variant, size, className }))` | `cn(buttonVariants({ variant, size }), props.class)` | `cn(buttonVariants({ variant, size }), className)`; clsx, not shadcn-svelte's `tailwind-variants` |
+| Events | `onClick` | `@click` | `onclick` |
+| `DialogScrollContent` | — | in shadcn-vue, skipped | — |
+| Dialog close icon | inline SVG | inline SVG | inline SVG (shadcn-svelte: `@lucide/svelte`) |
+| Animations | CSS `@keyframes` | CSS `@keyframes` | CSS `@keyframes` (Bits UI waits for the exit animation) |
+| Theme via `init` | `cssVars` + `css` | `cssVars` + `css`; shadcn-vue also adds an Inter `@import` and `@lucide/vue`, and needs `tw-animate-css` | no vinui `init`: stock `shadcn-svelte init`, then the `theme` item (`cssVars` + `css`) comes with the first component |
+| Button `asChild` | yes | `as-child` | no; `href` renders an `<a>` (as in shadcn-svelte) |
+| `SelectContent position` default | `"item-aligned"` | `"popper"` (as shadcn-vue) | popper only (Bits UI has no item-aligned; no `position` prop) |
+| Select value binding | `value` / `onValueChange` | `v-model` | `type="single"` + `bind:value`; `items` on the root for the trigger label |
+| Select item check icon | `ItemIndicator` (hidden unless selected) | `SelectItemIndicator` | rendered only when `selected` (Bits UI has no indicator part) |
 
 ## Tooling quirks we work around
 
@@ -193,12 +190,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - Its `add` re-prints the stylesheet: closing braces of nested rules end up on one line (`scale: 0.95;}}`). The CSS stays valid; it's only formatting.
 - **Both CLIs:**
   - Re-adding an item duplicates nested `@media` / `@variant` blocks inside `@utility`. Delete the component's `@utility` blocks before updating.
-  - The `css` writer flattens nested rules ([0006](0006-native-theme-as-file.md)).
-- **shadcn CLI (native):** `add` drops a file's leading comment block, so the `Engine layer: Uniwind` header survives in the repo but not in users' copies.
-- **Expo CLI:** `CI=1 expo start` turns off Metro's file watching ("reloads are disabled"), so devices keep the old bundle.
-- **Expo SDK 58's default (Router) template** has one TypeScript error of its own (`src/components/app-tabs.web.tsx`), unrelated to vinui.
-- **Metro** doesn't tree-shake `lucide-react-native`'s root export; vinui uses per-icon imports.
-- **`uniwind/vite`** only covers styling (it also switches Vite's CSS transformer to lightningcss). Running React Native inside Vite / Astro additionally needs `.web.*` resolution, a JSX loader for `@rn-primitives` (it ships untranspiled JSX), CommonJS handling for Reanimated, and SSR that never loads `react-native`. The docs embed the Expo web export instead.
+  - The `css` writer flattens nested rules (why the native theme was a file, [0006](0006-native-theme-as-file.md)).
 - **Registry build:** PostCSS keeps `!important` as a separate flag; the converter re-attaches it.
 - **Astro (docs):**
   - plugin-vue injects React Fast Refresh calls into Vue SFC scripts in dev, so the docs stub `$RefreshSig$` / `$RefreshReg$` for SSR.
@@ -206,7 +198,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - HTML compression drops line-break whitespace before inline elements, so keep text and inline tags on one line.
   - `astro dev` / `astro preview` move to the background when run by AI agents; test servers pass `--ignore-lock`.
   - The dev toolbar reads `localStorage` without a guard and throws when storage is blocked, so the blocked-storage spec runs on production builds only.
-  - `astro check` type-checks everything the tsconfig includes, `public/` too; the docs exclude `public/native-preview` (the Expo export ran it out of memory).
+  - `astro check` type-checks everything the tsconfig includes, `public/` too (it ran out of memory on the old React Native preview's Expo export).
   - A module that exports a function named `then` hangs SSR: the module namespace becomes a thenable, so awaiting the dynamic import never resolves. `lib/pm.ts` uses `followedBy`.
 - **TypeScript 7** has no JS API, so `vue-tsc`, `astro check`, the Vue SFC compiler and the tests package use TS 6.0.3.
 - **pnpm 12:**
@@ -223,6 +215,12 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 - **Astro + Svelte (docs):**
   - `@astrojs/svelte` is pinned to **9.1.2**: 9.1.3+ require `vite ^8.3.6`. That adds a second Vite to the repo (which pins 8.3.5), and with it a newer rolldown, whose wasm binding brings `@emnapi/runtime@2.0.0-beta`. pnpm then reuses that beta as `@astrojs/check`'s peer, and `astro check` crashes (`this.bridge.deleteEnv is not a function`). When adding packages, restore the committed lockfile first if re-resolution moves unrelated versions.
   - Dev SSR needs `ssr.noExternal: ["bits-ui", "runed", "svelte-toolbelt"]`: `@vinui/svelte` is a workspace link, so the integration doesn't detect that those packages ship `.svelte` / `.svelte.js` files ("Unknown file extension .svelte", then `rune_outside_svelte`). Production builds were fine without it.
+- **React Native (removed for now, [0011](0011-drop-react-native-for-now.md)), for when it returns:**
+  - **shadcn CLI (native):** `add` drops a file's leading comment block, so the `Engine layer: Uniwind` header survives in the repo but not in users' copies.
+  - **Expo CLI:** `CI=1 expo start` turns off Metro's file watching ("reloads are disabled"), so devices keep the old bundle.
+  - **Expo SDK 58's default (Router) template** has one TypeScript error of its own (`src/components/app-tabs.web.tsx`), unrelated to vinui.
+  - **Metro** doesn't tree-shake `lucide-react-native`'s root export; vinui uses per-icon imports.
+  - **`uniwind/vite`** only covers styling (it also switches Vite's CSS transformer to lightningcss). Running React Native inside Vite / Astro additionally needs `.web.*` resolution, a JSX loader for `@rn-primitives` (it ships untranspiled JSX), CommonJS handling for Reanimated, and SSR that never loads `react-native`. The docs embed the Expo web export instead.
 
 ## Open / deferred
 
@@ -230,9 +228,7 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 - vinui's own visual identity (palette, radius, typography, motion).
 - React Aria coexistence in the apps: check overlays (focus trap, outside click) when a vinui and a React Aria overlay are open together ([0010](0010-mvp-scope-web-first.md)).
 - Combobox API divergence (shadcn/ui Popover + Command vs shadcn-vue Reka Combobox): resolve before building it.
-- Native: global icon interop, device e2e, a `minSdk` emulator.
-- CI: none yet. When it exists, run the native engine harness on PRs that change the Uniwind version (needs a macOS runner).
+- CI: none yet.
 - `DialogScrollContent`.
-- Android release build (2026-10-28): once, right after the first `expo run:android --variant release` launch, the app didn't follow the system switching to dark (night mode on, app stayed light). It wasn't reproducible: cold start, fresh install, after opening a Dialog, and after tapping "system" all followed correctly. Watch for it in the hands-on pass.
 - Move `@astrojs/svelte` past 9.1.2 when the repo moves to Vite ≥ 8.3.6.
-- Bump Uniwind from 1.13.0 once newer releases pass the release-age policy, using the upgrade checklist in [0005](0005-native-styling-engine.md).
+- **React Native, when it's reintroduced** ([0011](0011-drop-react-native-for-now.md)): the native items open at removal were global icon interop, device e2e, a `minSdk` emulator, the engine harness in CI (needs a macOS runner), an unreproduced Android release-build dark-mode glitch, and bumping Uniwind past 1.13.0.

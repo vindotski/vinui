@@ -180,9 +180,6 @@
 		background-color: var(--btn-bg-hover, color-mix(in oklab, var(--color-primary) 90%, transparent));
 		color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
 	}
-	&:hover .btn-label {
-		color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
-	}
 	&:active {
 		background-color: var(--btn-bg-active, color-mix(in oklab, var(--color-primary) 80%, transparent));
 		opacity: var(--btn-opacity-active, 1);
@@ -202,13 +199,6 @@
 		height: --spacing(4);
 		pointer-events: none;
 	}
-}
-
-@utility btn-label {
-	color: var(--btn-fg, var(--color-primary-foreground));
-	font-size: var(--btn-text, var(--text-sm));
-	line-height: var(--btn-leading, var(--text-sm--line-height));
-	font-weight: var(--font-weight-medium);
 }
 
 @utility btn-secondary {

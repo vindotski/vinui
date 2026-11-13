@@ -4,8 +4,6 @@ import { selectTriggerProps } from "@vinui/core"
 import CodeBlock from "../../../components/CodeBlock.astro"
 import FrameworkTabs from "../../../components/FrameworkTabs.astro"
 import InstallCommand from "../../../components/InstallCommand.astro"
-import NativePreview from "../../../components/NativePreview.astro"
-import NativeWebPreview from "../../../components/NativeWebPreview.astro"
 import PropsTable from "../../../components/PropsTable.astro"
 import { ReactSelect } from "../../../components/ReactSelect"
 import VueSelect from "../../../components/VueSelect.vue"
@@ -97,34 +95,6 @@ import {
     </Select.Group>
   </Select.Content>
 </Select.Root>`,
-  native: `
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
-export function Example() {
-  return (
-    <Select>
-      <SelectTrigger className="w-44">
-        <SelectValue placeholder="Pick a fruit" />
-      </SelectTrigger>
-      <SelectContent className="w-44">
-        <SelectGroup>
-          <SelectLabel>Fruits</SelectLabel>
-          <SelectItem value="apple" label="Apple" />
-          <SelectItem value="banana" label="Banana" />
-          <SelectItem value="grapes" label="Grapes" disabled />
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
-}`,
 }
 
 const controlled = {
@@ -154,21 +124,12 @@ const size = ref("m")
 <Select.Root type="single" {items} bind:value={size}>
   …
 </Select.Root>`,
-  native: `
-import { type Option } from "@/components/ui/select"
-
-const [size, setSize] = React.useState<Option>({ value: "m", label: "Medium" })
-
-<Select value={size} onValueChange={setSize}>
-  …
-</Select>`,
 }
 
 const small = {
   react: `<SelectTrigger size="sm">`,
   vue: `<SelectTrigger size="sm">`,
   svelte: `<Select.Trigger size="sm">`,
-  native: `<SelectTrigger size="sm">`,
 }
 
 const position = {
@@ -185,23 +146,14 @@ const position = {
     <div slot="react" class="border-border rounded-lg border p-6"><ReactSelect client:load /></div>
     <div slot="vue" class="border-border rounded-lg border p-6"><VueSelect client:load /></div>
     <div slot="svelte" class="border-border rounded-lg border p-6"><SvelteSelect client:load /></div>
-    <div slot="native">
-      <NativeWebPreview demo="select" title="Select demo" minHeight={380} />
-      <NativePreview shot="select-open" />
-      <p class="text-muted-foreground mt-3 text-xs">Device screenshots of the native playground's release build.</p>
-    </div>
   </FrameworkTabs>
 
   <h2 id="installation">Installation</h2>
-  <p>The same item, <code>@vinui/select</code>, on every framework (Svelte takes its URL). Set up vinui first (<a href="/docs/installation/react">React</a>, <a href="/docs/installation/vue">Vue</a>, <a href="/docs/installation/svelte">Svelte</a>, <a href="/docs/installation/react-native">React Native</a>), then:</p>
+  <p>The same item, <code>@vinui/select</code>, on every framework (Svelte takes its URL). Set up vinui first (<a href="/docs/installation/react">React</a>, <a href="/docs/installation/vue">Vue</a> or <a href="/docs/installation/svelte">Svelte</a>), then:</p>
   <FrameworkTabs label="Installation">
     <InstallCommand slot="react" framework="react" args="add @vinui/select" />
     <InstallCommand slot="vue" framework="vue" args="add @vinui/select" />
     <InstallCommand slot="svelte" framework="svelte" args={svelteAdd("select")} />
-    <div slot="native">
-      <InstallCommand framework="native" args="add @vinui/select" />
-      <p>It needs Reanimated and React Native Screens, which vinui's setup installs with <code>npx expo install</code> so their versions match your Expo SDK.</p>
-    </div>
   </FrameworkTabs>
 
   <h2 id="usage">Usage</h2>
@@ -214,12 +166,6 @@ const position = {
         Bits UI needs <code>type="single"</code> on the root. Pass the options as <code>items</code> too, so the trigger shows the chosen label before the list has opened, and give each item a <code>label</code>: typeahead searches it.
       </p>
     </div>
-    <div slot="native">
-      <CodeBlock code={usage.native} lang="tsx" />
-      <p>
-        Each item takes a <code>value</code> and a <code>label</code>; a plain string child works as the label too (<code>&lt;SelectItem value="apple"&gt;Apple&lt;/SelectItem&gt;</code>). The list renders into a <code>&lt;PortalHost /&gt;</code>; vinui's <code>ThemeRoot</code> renders one at the app root.
-      </p>
-    </div>
   </FrameworkTabs>
 
   <h3 id="controlled">Controlled</h3>
@@ -228,10 +174,6 @@ const position = {
     <CodeBlock slot="react" code={controlled.react} lang="tsx" />
     <CodeBlock slot="vue" code={controlled.vue} lang="vue" />
     <CodeBlock slot="svelte" code={controlled.svelte} lang="svelte" />
-    <div slot="native">
-      <CodeBlock code={controlled.native} lang="tsx" />
-      <p>On React Native the value is an <code>Option</code>, <code>{"{ value, label }"}</code>, not a string: that's what rn-primitives works with.</p>
-    </div>
   </FrameworkTabs>
 
   <h3 id="small">Small trigger</h3>
@@ -240,7 +182,6 @@ const position = {
     <CodeBlock slot="react" code={small.react} lang="tsx" />
     <CodeBlock slot="vue" code={small.vue} lang="vue" />
     <CodeBlock slot="svelte" code={small.svelte} lang="svelte" />
-    <CodeBlock slot="native" code={small.native} lang="tsx" />
   </FrameworkTabs>
 
   <h3 id="position">Position</h3>
@@ -257,7 +198,6 @@ const position = {
       <p>Vue defaults to <code>"popper"</code>, as shadcn-vue does.</p>
     </div>
     <p slot="svelte">Bits UI always opens the list below the trigger (a popper); there's no <code>position</code> prop.</p>
-    <p slot="native">React Native always opens the list below the trigger (<code>"popper"</code>), as RN Reusables does.</p>
   </FrameworkTabs>
 
   <h2 id="api-reference">API reference</h2>
@@ -278,11 +218,6 @@ const position = {
       <h4 id="select-trigger-svelte"><code>SelectTrigger</code></h4>
       <PropsTable props={selectTriggerProps} framework="svelte" />
     </div>
-    <div slot="native">
-      <p>See <a href="https://rnprimitives.com/select">rn-primitives Select</a>. <code>SelectContent</code> also takes a <code>portalHost</code> name.</p>
-      <h4 id="select-trigger-native"><code>SelectTrigger</code></h4>
-      <PropsTable props={selectTriggerProps} framework="native" />
-    </div>
   </FrameworkTabs>
 
   <h2 id="platform-notes">Platform notes</h2>
@@ -301,13 +236,6 @@ const position = {
       <li>Disabled options get <code>aria-disabled</code>, which Bits UI leaves out (a vinui addition).</li>
       <li><code>sideOffset</code> defaults to 0 (shadcn-svelte: 4): the 4px gap comes from vinui's CSS, so <code>sideOffset</code> adds the same extra space as on React and Vue.</li>
       <li>Headings for groups: <code>Select.Label</code> is a plain <code>div</code>, as in shadcn-svelte; <code>Select.GroupHeading</code> also names its group for screen readers.</li>
-    </ul>
-    <ul slot="native">
-      <li>Tapping outside the list closes it, and so does the Android back button.</li>
-      <li>The list fades in and out with Reanimated and follows the system's Reduce Motion setting.</li>
-      <li>The scroll arrows show on web only; on devices the list scrolls natively.</li>
-      <li>On react-native-web the trigger is announced as a combobox, as on the web ports (rn-primitives would announce a plain button).</li>
-      <li>No <code>data-*</code> attributes: state comes from props.</li>
     </ul>
   </FrameworkTabs>
 </DocsLayout>

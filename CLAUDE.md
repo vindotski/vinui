@@ -1,6 +1,8 @@
 # vinui
 
-A shadcn-style component library with one API across React, Vue, Svelte and React Native, distributed through its own shadcn-compatible registry.
+A shadcn-style component library with one API across React, Vue and Svelte, distributed through its own shadcn-compatible registry.
+
+React Native is out for now and will be reintroduced later ([ADR 0011](docs/decisions/0011-drop-react-native-for-now.md)).
 
 ## Read first
 - **[docs/CONVENTIONS.md](docs/CONVENTIONS.md)**: the rules (API, styling, registry, dependencies, testing, docs, commits). Follow them.
@@ -16,11 +18,8 @@ packages/
   react/      Radix components (registry source)
   vue/        Reka UI components (registry source)
   svelte/     Bits UI components (registry source; src/lib/registry/ui/<name>/)
-  native/     React Native components on rn-primitives + Uniwind (registry source; Jest specs)
   core/       repo-only: variant/size unions + prop metadata for parity tests and docs
-  registry/   builds /r/{react,vue,svelte,native}/*.json into apps/docs/public/r
-              (engines/uniwind.ts = the Uniwind engine layer)
-spikes/native-engine/   native engine harness (outside the workspace): `pnpm spike:native-engine`
+  registry/   builds /r/{react,vue,svelte}/*.json into apps/docs/public/r
 apps/
   docs/       Astro docs site (React, Vue and Svelte islands); serves the registry
   playground-react/, playground-vue/, playground-svelte/ (SvelteKit)   install from the local registry like a user
@@ -30,11 +29,9 @@ tests/        parity tests (Vitest) + browser specs (Playwright)
 ## Commands
 - `pnpm registry:build` builds the registry. `VINUI_REGISTRY_URL` sets its public URL.
 - `pnpm dev:docs` runs the docs and serves the registry at `http://localhost:4321/r`.
-  - It also builds the "React Native (web)" preview (`pnpm --filter docs native-preview`), skipped when the native playground hasn't changed.
 - `pnpm test` runs, in order:
   1. the type + class parity tests,
-  2. the native Jest specs,
-  3. the browser specs (docs, web playgrounds, and the native playground's web build).
+  2. the browser specs (docs and web playgrounds, dev and production builds).
   - Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to reuse an installed Chromium, or run `pnpm --filter @vinui/tests exec playwright install chromium` once.
 - `pnpm -r typecheck` typechecks every package.
 - In a playground, `pnpm --filter playground-<react|vue|svelte> registry:add` reinstalls from the local registry (the docs dev server must be running).

@@ -2,7 +2,7 @@
  * Select
  *   select-trigger        the field that shows the value (SelectTrigger)
  *   select-trigger-sm     size="sm" (sets --select-trigger-h only)
- *   select-panel          the list's look (all platforms)
+ *   select-panel          the list's look (select-content composes it)
  *   select-content        select-panel + web positioning and animation (SelectContent on web)
  *   select-viewport       the scrolling list inside select-content
  *   select-item           an option; its last <span> is the text

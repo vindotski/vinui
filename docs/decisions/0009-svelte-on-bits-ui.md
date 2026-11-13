@@ -25,7 +25,7 @@ Bits UI follows the same anatomy as the rest of the Radix family: the same part 
 - **Svelte is the fourth platform:** reference shadcn-svelte, primitives Bits UI, styling Tailwind 4 with the shared `@vinui/tailwind` classes.
 - shadcn-svelte's idioms only where unavoidable: the `child` snippet, `bind:`, `class`, and plain event props.
 - **Same item names** at `/r/svelte/{name}.json`.
-- **The registry build rewrites `@vinui/<name>` dependencies to relative `./<name>.json` for the Svelte target.** React, Vue and native keep `@vinui/...`.
+- **The registry build rewrites `@vinui/<name>` dependencies to relative `./<name>.json` for the Svelte target.** React and Vue keep `@vinui/...` (native did too, until [0011](0011-drop-react-native-for-now.md)).
 - **No vinui `init` item for Svelte.** Setup is stock `shadcn-svelte init --preset <style>`, then `shadcn-svelte add <url>/r/svelte/<item>.json --yes --overwrite`. The `theme` item comes with the first component.
 - Svelte items rely on the `utils` that `init` installs and import `cn` from it, as shadcn-svelte's own items do.
 

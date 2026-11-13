@@ -1,14 +1,14 @@
 /** A platform vinui ships components for. */
-export type Platform = "react" | "vue" | "svelte" | "native"
+export type Platform = "react" | "vue" | "svelte"
 
 /**
  * Docs metadata for a prop vinui defines or changes. Props passed straight
- * through to Radix / Reka / rn-primitives aren't listed (the docs link there).
+ * through to Radix / Reka / Bits UI aren't listed (the docs link there).
  */
 export interface PropDoc {
   /** Prop name as written on React (and the default for other platforms). */
   name: string
-  /** Name where a platform's idiom differs (e.g. Vue / Svelte `class`, native `onPress`). */
+  /** Name where a platform's idiom differs (e.g. Vue / Svelte `class`). */
   names?: Partial<Record<Platform, string>>
   values?: readonly string[]
   /** Type shown when there are no fixed `values` (e.g. `boolean`). */
@@ -20,4 +20,4 @@ export interface PropDoc {
   addition?: readonly Platform[]
 }
 
-export const allPlatforms = ["react", "vue", "svelte", "native"] as const satisfies readonly Platform[]
+export const allPlatforms = ["react", "vue", "svelte"] as const satisfies readonly Platform[]

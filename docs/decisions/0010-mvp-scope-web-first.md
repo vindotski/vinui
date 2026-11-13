@@ -1,6 +1,6 @@
 # 0010: MVP of three components on every platform, then web first
 
-- **Status:** Accepted (replaces the "Switch…Select on every platform" order of work). **MVP declared 2026-11-13.**
+- **Status:** Accepted (replaces the "Switch…Select on every platform" order of work). **MVP declared 2026-11-13.** Amended by [0011](0011-drop-react-native-for-now.md): React Native was then dropped for now.
 - **Date:** 2026-11-13
 
 ## Context
@@ -39,3 +39,4 @@ What was verified, at the commits that finish Select and its docs:
 **The MVP is done:** Button, Dialog and Select ship on React, Vue, Svelte and React Native.
 - From here, new components are **web-only** (React, Vue, Svelte) until vinui is integrated into Vinskiano, Sokobanko and TagTape.
 - React Native is **maintained, with no new components**: fixes, the tests and engine harness, and dependency and Uniwind upgrades keep running.
+  - **Changed the same day by [0011](0011-drop-react-native-for-now.md):** React Native is removed from the repo for now and will be reintroduced later.
