@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "vue-tsc -p .",
-    "registry:add": "shadcn-vue add @vinui/button @vinui/dialog --yes --overwrite"
+    "registry:add": "shadcn-vue add @vinui/button @vinui/dialog @vinui/select --yes --overwrite"
   },
   "dependencies": {
     "clsx": "^2.1.1",

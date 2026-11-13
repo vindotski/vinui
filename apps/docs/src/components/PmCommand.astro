@@ -1,0 +1,32 @@
+---
+import { Code } from "astro:components"
+
+import { packageManagers, type Commands } from "../lib/pm"
+
+/** A copy-paste runnable command, with a remembered package-manager switcher (see lib/pm.ts). */
+interface Props {
+  commands: Commands
+}
+
+const { commands } = Astro.props
+---
+
+<div class="install" data-install>
+  <div class="install-bar" role="group" aria-label="Package manager">
+    {
+      packageManagers.map((pm) => (
+        <button type="button" data-pm-tab={pm} aria-pressed={pm === "npm" ? "true" : "false"}>
+          {pm}
+        </button>
+      ))
+    }
+    <button type="button" data-copy>Copy</button>
+  </div>
+  {
+    packageManagers.map((pm) => (
+      <div data-pm-panel={pm}>
+        <Code code={commands[pm]} lang="bash" themes={{ light: "github-light", dark: "github-dark" }} />
+      </div>
+    ))
+  }
+</div>

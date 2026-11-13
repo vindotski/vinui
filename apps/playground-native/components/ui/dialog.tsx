@@ -1,7 +1,8 @@
 import * as React from "react"
 import * as DialogPrimitive from "@rn-primitives/dialog"
 import { cn } from "cn"
-import { X } from "lucide-react-native"
+// Per-icon import: Metro doesn't tree-shake the lucide-react-native root export.
+import X from "lucide-react-native/icons/x"
 import { Platform, View, type ViewProps } from "react-native"
 import { FadeIn, FadeOut, ReduceMotion } from "react-native-reanimated"
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens"
@@ -39,7 +40,7 @@ function DialogOverlay({
           exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
         >
           <NativeOnlyAnimatedView
-            className="w-full items-center"
+            className="w-full items-center web:items-stretch"
             entering={FadeIn.delay(50).reduceMotion(ReduceMotion.System)}
             exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
           >
@@ -65,8 +66,9 @@ function DialogContent({
   return (
     <DialogPortal hostName={portalHost}>
       <DialogOverlay>
-        {/* dialog-panel is the shared look; native centers it with overlay padding + max width. */}
-        <DialogPrimitive.Content className={cn("dialog-panel w-full max-w-lg", className)} {...props}>
+        {/* dialog-panel is the shared look; native centers it with overlay padding + max width.
+            On web, Radix wraps the panel in its own element: let that stretch, center the panel. */}
+        <DialogPrimitive.Content className={cn("dialog-panel w-full max-w-lg web:mx-auto", className)} {...props}>
           <>{children}</>
           {showCloseButton && (
             <DialogPrimitive.Close className="dialog-close" aria-label="Close" hitSlop={12}>

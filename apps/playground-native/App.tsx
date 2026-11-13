@@ -1,6 +1,6 @@
 import "./global.css"
 
-import { Plus } from "lucide-react-native"
+import Plus from "lucide-react-native/icons/plus"
 import * as React from "react"
 import { Linking, Pressable, ScrollView, View } from "react-native"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
@@ -21,6 +21,8 @@ import { Icon } from "@/components/ui/icon"
 import { Text } from "@/components/ui/text"
 import { ThemeRoot } from "@/components/ui/theme-root"
 
+import { SelectDemo } from "./docs-preview"
+
 const variants = ["default", "secondary", "outline", "ghost", "destructive", "link"] as const
 const sizes = ["xs", "sm", "default", "lg"] as const
 const iconSizes = ["icon-xs", "icon-sm", "icon", "icon-lg"] as const
@@ -35,8 +37,23 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+/** `?dialog=open` in the launch URL opens the first Dialog (screenshots, docs previews). */
+function useDialogFromUrl() {
+  const [open, setOpen] = React.useState(false)
+  React.useEffect(() => {
+    const apply = (url: string | null | undefined) => {
+      if (url && /[?&]dialog=open\b/.test(url)) setOpen(true)
+    }
+    void Linking.getInitialURL().then(apply)
+    const subscription = Linking.addEventListener("url", ({ url }) => apply(url))
+    return () => subscription.remove()
+  }, [])
+  return [open, setOpen] as const
+}
+
 export default function App() {
   const { theme } = useUniwind()
+  const [dialogOpen, setDialogOpen] = useDialogFromUrl()
   return (
     <SafeAreaProvider>
       {/* safe-area-context's SafeAreaView isn't a core component, so Uniwind ignores its
@@ -55,6 +72,11 @@ export default function App() {
                   {t}
                 </Button>
               ))}
+            </Section>
+
+            {/* Near the top, so the lists have room to open downwards. */}
+            <Section title="Select">
+              <SelectDemo />
             </Section>
 
             <Section title="Variants">
@@ -93,7 +115,7 @@ export default function App() {
             </Section>
 
             <Section title="Dialog">
-              <Dialog>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">Open dialog</Button>
                 </DialogTrigger>

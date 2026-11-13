@@ -1,0 +1,182 @@
+import { expect, test, type Framework } from "./fixtures.ts"
+
+/**
+ * Select: look, opening, choosing by pointer and keyboard (arrows skip disabled
+ * options, typeahead), Escape, a controlled popper select, reduced motion.
+ * Scenarios match the playgrounds' SelectDemo.
+ * While the list is open, the primitives aria-hide everything outside it, the
+ * trigger included, so the open trigger is found by attribute, not by role, inside
+ * its framework's demo (the docs show the frameworks side by side).
+ * Native (react-native-web) wraps the same Radix Select but sets no data-slot, so
+ * parts are found by role or by vinui class.
+ */
+const trigger = (root: import("@playwright/test").Locator, name: string) =>
+  root.locator(`[role="combobox"][aria-label="${name}"]`)
+/** The list's look: select-content on the web ports, select-panel on native web (see listState). */
+const selectContent = (page: import("@playwright/test").Page, native = false) =>
+  page.locator(native ? ".select-panel" : ".select-content")
+/**
+ * Where Radix's data-state / data-side live, and what animates. On the web ports that's
+ * select-content itself. On native web, select-content is a View inside Radix's listbox,
+ * and the list fades in with Reanimated on the overlay around Radix's popper wrapper.
+ */
+const listState = (page: import("@playwright/test").Page, native: boolean) =>
+  native ? page.getByRole("listbox") : selectContent(page, native)
+const animated = (page: import("@playwright/test").Page, native: boolean) =>
+  native ? page.locator("[data-radix-popper-content-wrapper]").locator("xpath=..") : selectContent(page, native)
+const token = (page: import("@playwright/test").Page, name: string) =>
+  page.evaluate((name) => {
+    const probe = document.createElement("div")
+    probe.style.backgroundColor = `var(${name})`
+    document.body.append(probe)
+    const color = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return color
+  }, name)
+
+for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework[]) {
+  const native = framework === "native"
+  test.describe(`${framework} Select`, () => {
+    test.beforeEach(({ frameworks }) => {
+      test.skip(!frameworks.includes(framework), `no ${framework} app on this target`)
+    })
+
+    test("trigger shows the placeholder, with vinui's look and sizes", async ({ page, demo, visit }) => {
+      await visit(page)
+      const root = demo(page, framework, "Select")
+      const fruit = root.getByRole("combobox", { name: "Fruit" })
+      await expect(fruit).toHaveText("Pick a fruit")
+      await expect(fruit).toHaveAttribute("data-placeholder", "")
+      await expect(fruit).toHaveAttribute("aria-expanded", "false")
+      await expect(fruit).toHaveClass(/\bselect-trigger\b/)
+      await expect(fruit).toHaveCSS("height", "36px")
+      await expect(fruit).toHaveCSS("border-top-width", "1px")
+      await expect(fruit).toHaveCSS("color", await page.evaluate(() => {
+        const probe = document.createElement("div")
+        probe.style.color = "var(--color-muted-foreground)"
+        document.body.append(probe)
+        const c = getComputedStyle(probe).color
+        probe.remove()
+        return c
+      }))
+      const size = root.getByRole("combobox", { name: "Size" })
+      // Native sets no data attributes (cross-framework table).
+      if (!native) await expect(size).toHaveAttribute("data-size", "sm")
+      await expect(size).toHaveClass(/\bselect-trigger-sm\b/)
+      await expect(size).toHaveCSS("height", "32px")
+      await expect(size).toHaveText("Medium")
+    })
+
+    test("opens a styled listbox with groups, and a disabled option", async ({ page, demo, visit }) => {
+      await visit(page)
+      const fruit = demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" })
+      await fruit.click()
+      const listbox = page.getByRole("listbox")
+      await expect(listbox).toBeVisible()
+      await expect(trigger(demo(page, framework, "Select"), "Fruit")).toHaveAttribute("aria-expanded", "true")
+      const content = selectContent(page, native)
+      await expect(listState(page, native)).toHaveAttribute("data-state", "open")
+      await expect(content).toHaveClass(native ? /\bselect-panel\b/ : /\bselect-content\b/)
+      await expect(content).toHaveCSS("background-color", await token(page, "--color-popover"))
+      await expect(content).toHaveCSS("border-top-width", "1px")
+      await expect(animated(page, native)).toHaveCSS("animation-name", native ? "FadeIn" : "vinui-zoom-in")
+      expect(await content.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none")
+      await expect(listbox.getByRole("option")).toHaveCount(7)
+      await expect(listbox.getByRole("group")).toHaveCount(2)
+      await expect(listbox.getByText("Fruits")).toHaveClass(/\bselect-label\b/)
+      await expect(page.locator(".select-separator")).toHaveCSS("height", "1px")
+      const grapes = listbox.getByRole("option", { name: "Grapes" })
+      await expect(grapes).toHaveAttribute("aria-disabled", "true")
+      await expect(grapes).toHaveCSS("opacity", "0.5")
+    })
+
+    test("choosing with the pointer sets the value, closes and refocuses the trigger", async ({ page, demo, visit }) => {
+      await visit(page)
+      const fruit = demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" })
+      await fruit.click()
+      const banana = page.getByRole("option", { name: "Banana" })
+      await banana.hover()
+      await expect(banana).toHaveCSS("background-color", await token(page, "--color-accent"))
+      await banana.click()
+      await expect(page.getByRole("listbox")).toHaveCount(0)
+      await expect(fruit).toHaveText("Banana")
+      await expect(fruit).not.toHaveAttribute("data-placeholder")
+      await expect(fruit).toBeFocused()
+      // Reopened, the chosen option is selected and shows the check.
+      await fruit.click()
+      const selected = page.getByRole("option", { name: "Banana" })
+      await expect(selected).toHaveAttribute("aria-selected", "true")
+      await expect(selected.locator(".select-item-indicator svg")).toBeVisible()
+      await expect(page.getByRole("option", { name: "Apple" }).locator("svg")).toHaveCount(0)
+    })
+
+    test("keyboard: arrows skip the disabled option, typeahead jumps, Enter chooses", async ({ page, demo, visit }) => {
+      await visit(page)
+      const fruit = demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" })
+      await fruit.focus()
+      await page.keyboard.press("Enter")
+      await expect(page.getByRole("listbox")).toBeVisible()
+      const highlighted = page.locator('[role="option"][data-highlighted]')
+      await expect(highlighted).toHaveText("Apple")
+      for (const next of ["Banana", "Blueberry", "Pineapple"]) {
+        await page.keyboard.press("ArrowDown")
+        await expect(highlighted).toHaveText(next)
+      }
+      await page.keyboard.press("Enter")
+      await expect(fruit).toHaveText("Pineapple")
+      // Focus comes back to the trigger (on native web, once the list's exit animation ends).
+      await expect(fruit).toBeFocused()
+      // Typeahead on the open list.
+      await page.keyboard.press("Enter")
+      await expect(page.getByRole("listbox")).toBeVisible()
+      await page.keyboard.type("ca")
+      await expect(highlighted).toHaveText("Carrot")
+      await page.keyboard.press("Enter")
+      await expect(fruit).toHaveText("Carrot")
+    })
+
+    test("Escape closes without changing the value", async ({ page, demo, visit }) => {
+      await visit(page)
+      const fruit = demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" })
+      await fruit.click()
+      await page.getByRole("option", { name: "Leek" }).hover()
+      await page.keyboard.press("Escape")
+      await expect(page.getByRole("listbox")).toHaveCount(0)
+      await expect(fruit).toHaveText("Pick a fruit")
+      await expect(fruit).toBeFocused()
+    })
+
+    test("controlled popper select: opens below the trigger and updates the state", async ({ page, demo, visit }) => {
+      await visit(page)
+      const root = demo(page, framework, "Select")
+      const size = root.getByRole("combobox", { name: "Size" })
+      await expect(root.getByText("Size: m")).toBeVisible()
+      // Room below the trigger, so the popper opens downwards (the native playground is a long page).
+      await size.evaluate((el) => el.scrollIntoView({ block: "start" }))
+      const box = (await size.boundingBox())!
+      await size.click()
+      const content = selectContent(page, native)
+      await expect(listState(page, native)).toHaveAttribute("data-side", "bottom")
+      // Measure after the entry animation: mid-zoom the scaled box starts higher.
+      await animated(page, native).evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+      const list = (await content.boundingBox())!
+      expect(list.y).toBeGreaterThanOrEqual(box.y + box.height)
+      expect(list.width).toBeGreaterThanOrEqual(box.width - 1)
+      await page.getByRole("option", { name: "Large" }).click()
+      await expect(size).toHaveText("Large")
+      await expect(root.getByText("Size: l")).toBeVisible()
+    })
+
+    test("reduced motion: no animation", async ({ browser, baseURL, demo, visit }) => {
+      const context = await browser.newContext({ reducedMotion: "reduce", baseURL })
+      const page = await context.newPage()
+      await visit(page)
+      await demo(page, framework, "Select").getByRole("combobox", { name: "Fruit" }).click()
+      await expect(selectContent(page, native)).toBeVisible()
+      await expect(animated(page, native)).toHaveCSS("animation-name", "none")
+      await page.keyboard.press("Escape")
+      await expect(page.getByRole("listbox")).toHaveCount(0)
+      await context.close()
+    })
+  })
+}

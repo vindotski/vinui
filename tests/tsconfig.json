@@ -9,6 +9,9 @@
     "paths": {
       "@/*": [
         "../packages/native/*"
+      ],
+      "$lib/*": [
+        "../packages/svelte/src/lib/*"
       ]
     }
   },

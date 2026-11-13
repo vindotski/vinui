@@ -10,6 +10,7 @@
  * It also exposes the resolved theme to JavaScript (ThemeRoot, useNavigationTheme), so
  * code that needs color strings reads them from the same CSS as the classes.
  */
+import * as React from "react"
 import { useCSSVariable, useResolveClassNames, useUniwind } from "uniwind"
 
 const MESSAGE =
@@ -19,8 +20,14 @@ const MESSAGE =
 
 /** A class that only resolves when Uniwind compiled global.css *and* vinui's theme is in it. */
 const PROBE_CLASS = "bg-background"
+/**
+ * On web, Uniwind resolves classes from the loaded stylesheet, which can arrive after the
+ * first render (Expo Router loads CSS asynchronously in development), so wait before judging.
+ */
+const CHECK_DELAY_MS = 1000
 
 let checked = false
+let pending = false
 let enabled = true
 
 /** Turn the dev-only setup check off (e.g. in a custom test environment). */
@@ -37,11 +44,24 @@ function isTestEnvironment() {
 /** Warns once per app session if Uniwind can't resolve vinui's theme. Dev-only. */
 export function useEngineCheck() {
   if (!__DEV__) return
-  // __DEV__ is a build-time constant, so this hook call is unconditional within a build.
+  // __DEV__ is a build-time constant, so these hook calls are unconditional within a build.
   const resolved = useResolveClassNames(PROBE_CLASS)
-  if (checked || !enabled || isTestEnvironment()) return
-  checked = true
-  if (!resolved || Object.keys(resolved).length === 0) console.warn(MESSAGE)
+  const latest = React.useRef(resolved)
+  latest.current = resolved
+  React.useEffect(() => {
+    if (checked || pending || !enabled || isTestEnvironment()) return
+    pending = true
+    const timer = setTimeout(() => {
+      pending = false
+      checked = true
+      if (enabled && (!latest.current || Object.keys(latest.current).length === 0)) console.warn(MESSAGE)
+    }, CHECK_DELAY_MS)
+    // Unmounted early: let the next vinui component check instead.
+    return () => {
+      clearTimeout(timer)
+      pending = false
+    }
+  }, [])
 }
 
 export type ColorScheme = "light" | "dark"

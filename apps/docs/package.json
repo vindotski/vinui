@@ -4,22 +4,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm -w registry:build && astro dev",
-    "build": "pnpm -w registry:build && astro build",
+    "dev": "pnpm -w registry:build && pnpm native-preview && astro dev",
+    "build": "pnpm -w registry:build && pnpm native-preview && astro build",
     "preview": "astro preview",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "native-preview": "node scripts/native-preview.ts"
   },
   "dependencies": {
     "@astrojs/react": "7.1.1",
+    "@astrojs/svelte": "9.1.2",
     "@astrojs/vue": "7.1.2",
     "@tailwindcss/vite": "4.3.3",
+    "@vinui/core": "workspace:*",
     "@vinui/react": "workspace:*",
     "@vinui/registry": "workspace:*",
+    "@vinui/svelte": "workspace:*",
     "@vinui/tailwind": "workspace:*",
     "@vinui/vue": "workspace:*",
     "astro": "7.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "svelte": "5.57.3",
     "tailwindcss": "4.3.3",
     "vue": "3.5.44"
   },

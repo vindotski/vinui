@@ -38,6 +38,11 @@
     color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
   }
 
+  /* React Native (web) puts the label on a child Text (btn-label), which doesn't inherit colour. */
+  &:hover .btn-label {
+    color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+  }
+
   /* The single press-feedback mechanism (web and native); motion builds on it. */
   &:active {
     background-color: var(--btn-bg-active, color-mix(in oklab, var(--color-primary) 80%, transparent));

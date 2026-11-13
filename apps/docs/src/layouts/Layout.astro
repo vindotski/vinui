@@ -8,13 +8,13 @@ interface Props {
 const { title } = Astro.props
 const path = Astro.url.pathname
 const nav = [
-  { href: "/", label: "Components", active: path === "/" },
-  { href: "/docs/installation/react", label: "Installation", active: path.startsWith("/docs") },
+  { href: "/", label: "Components", active: path === "/" || path.startsWith("/docs/components") },
+  { href: "/docs/installation/react", label: "Installation", active: path.startsWith("/docs/installation") },
 ]
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-framework="react" data-pm="npm">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,6 +23,13 @@ const nav = [
       if (matchMedia("(prefers-color-scheme: dark)").matches) {
         document.documentElement.classList.add("dark")
       }
+      // Remembered framework tab and package manager, applied before paint (CSS shows the matching panels).
+      try {
+        const framework = localStorage.getItem("vinui:framework")
+        if (["react", "vue", "svelte", "native"].includes(framework)) document.documentElement.dataset.framework = framework
+        const pm = localStorage.getItem("vinui:pm")
+        if (["npm", "pnpm", "yarn", "bun"].includes(pm)) document.documentElement.dataset.pm = pm
+      } catch {}
     </script>
   </head>
   <body>
@@ -82,6 +89,47 @@ const nav = [
         })
       }
       media.addEventListener("change", apply)
+
+      // Framework tabs and package-manager switchers: one choice for the whole site, remembered.
+      type Choice = "framework" | "pm"
+      function choose(key: Choice, value: string) {
+        document.documentElement.dataset[key] = value
+        try {
+          localStorage.setItem(`vinui:${key}`, value)
+        } catch {}
+        syncSelected()
+      }
+      function syncSelected() {
+        const { framework, pm } = document.documentElement.dataset
+        for (const tab of document.querySelectorAll<HTMLElement>("[data-framework-tab]"))
+          tab.setAttribute("aria-selected", String(tab.dataset.frameworkTab === framework))
+        for (const tab of document.querySelectorAll<HTMLElement>("[data-pm-tab]"))
+          tab.setAttribute("aria-pressed", String(tab.dataset.pmTab === pm))
+      }
+      document.addEventListener("click", (event) => {
+        const target = (event.target as HTMLElement).closest<HTMLElement>("[data-framework-tab], [data-pm-tab], [data-copy]")
+        if (!target) return
+        if (target.dataset.frameworkTab) choose("framework", target.dataset.frameworkTab)
+        else if (target.dataset.pmTab) choose("pm", target.dataset.pmTab)
+        else {
+          const block = target.closest("[data-install]")
+          const code = block?.querySelector(`[data-pm-panel="${document.documentElement.dataset.pm}"] pre`)?.textContent
+          if (code) void navigator.clipboard?.writeText(code.trim()).then(() => {
+            target.textContent = "Copied"
+            setTimeout(() => (target.textContent = "Copy"), 1500)
+          })
+        }
+      })
+      // Arrow keys move between framework tabs.
+      document.addEventListener("keydown", (event) => {
+        const tab = (event.target as HTMLElement).closest<HTMLElement>("[data-framework-tab]")
+        if (!tab || (event.key !== "ArrowRight" && event.key !== "ArrowLeft")) return
+        const tabs = [...tab.parentElement!.querySelectorAll<HTMLElement>("[data-framework-tab]")]
+        const next = tabs[(tabs.indexOf(tab) + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]
+        next.focus()
+        choose("framework", next.dataset.frameworkTab!)
+      })
+      syncSelected()
     </script>
   </body>
 </html>

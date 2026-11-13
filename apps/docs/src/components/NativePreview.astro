@@ -1,0 +1,37 @@
+---
+import { Image } from "astro:assets"
+import type { ImageMetadata } from "astro"
+
+/**
+ * Device screenshots for a native demo (from the playground's release builds),
+ * in the docs' current theme. Files: assets/native/{platform}-{theme}-{shot}.png
+ */
+interface Props {
+  /** `{component}-{state}`, e.g. `dialog-open`. */
+  shot: string
+}
+
+const { shot } = Astro.props
+const images = import.meta.glob<{ default: ImageMetadata }>("../assets/native/*.png", { eager: true })
+const image = (platform: string, theme: string) => {
+  const file = images[`../assets/native/${platform}-${theme}-${shot}.png`]
+  if (!file) throw new Error(`Missing native screenshot: ${platform}-${theme}-${shot}.png`)
+  return file.default
+}
+const devices = [
+  ["ios", "iOS · iPhone 17 Pro"],
+  ["android", "Android · API 36"],
+] as const
+---
+
+<div class="flex flex-wrap gap-6">
+  {
+    devices.map(([platform, label]) => (
+      <figure class="w-56">
+        <Image src={image(platform, "light")} alt={`${label}, light theme`} width={448} loading="eager" class="border-border rounded-2xl border dark:hidden" />
+        <Image src={image(platform, "dark")} alt={`${label}, dark theme`} width={448} loading="eager" class="border-border hidden rounded-2xl border dark:block" />
+        <figcaption class="text-muted-foreground mt-2 text-center text-xs">{label}</figcaption>
+      </figure>
+    ))
+  }
+</div>

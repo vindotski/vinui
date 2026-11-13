@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url"
 
 import react from "@astrojs/react"
+import svelte from "@astrojs/svelte"
 import vue from "@astrojs/vue"
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
@@ -11,16 +12,22 @@ const packageRoots = {
   vue: fileURLToPath(new URL("../../packages/vue/", import.meta.url)),
 }
 
+const svelteLib = fileURLToPath(new URL("../../packages/svelte/src/lib/", import.meta.url))
+
 /**
- * Registry sources import `@/lib/utils` the way they will inside a user's app.
- * Resolve `@/` to the root of whichever package the import comes from.
+ * Registry sources import `@/lib/utils` (React, Vue) or `$lib/utils.js` (Svelte)
+ * the way they will inside a user's app. Resolve them inside their own package.
  */
 function registryAlias(): Plugin {
   return {
     name: "vinui:registry-alias",
     enforce: "pre",
     async resolveId(source, importer, options) {
-      if (!source.startsWith("@/") || !importer) return null
+      if (!importer) return null
+      if (source.startsWith("$lib/") && importer.startsWith(svelteLib)) {
+        return this.resolve(svelteLib + source.slice(5), importer, { ...options, skipSelf: true })
+      }
+      if (!source.startsWith("@/")) return null
       const root = Object.values(packageRoots).find((dir) => importer.startsWith(dir))
       if (!root) return null
       return this.resolve(root + source.slice(2), importer, { ...options, skipSelf: true })
@@ -42,11 +49,17 @@ refreshGlobals.$RefreshReg$ ??= () => {}
 refreshGlobals.$RefreshSig$ ??= () => (type) => type
 
 export default defineConfig({
-  integrations: [react(), vue()],
+  integrations: [react(), vue(), svelte()],
   vite: {
     plugins: [registryAlias(), tailwindcss()],
     resolve: {
-      dedupe: ["react", "react-dom", "vue"],
+      dedupe: ["react", "react-dom", "vue", "svelte"],
+    },
+    // @vinui/svelte is a workspace link, so the Svelte integration doesn't see that its
+    // bits-ui and its helpers ship .svelte / .svelte.js files; without this, dev SSR loads
+    // them as plain Node modules.
+    ssr: {
+      noExternal: ["bits-ui", "runed", "svelte-toolbelt"],
     },
   },
 })

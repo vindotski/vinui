@@ -1,14 +1,14 @@
 import { expect, test } from "./fixtures.ts"
 
-/** The docs page renders every Button variant/size in both frameworks; they must match. */
+/** The docs page renders every Button variant/size in each web framework; they must match. */
 test.describe("Button parity (docs)", () => {
   test.beforeEach(({ layout }) => {
     test.skip(layout !== "docs", "needs the side-by-side docs page")
   })
 
-  test("React and Vue buttons are identical", async ({ page, demo, visit }) => {
+  test("React, Vue and Svelte buttons are identical", async ({ page, demo, visit }) => {
     await visit(page)
-    const read = (framework: "react" | "vue") =>
+    const read = (framework: "react" | "vue" | "svelte") =>
       demo(page, framework, "Button")
         .locator(".btn")
         .evaluateAll((els) =>
@@ -32,11 +32,12 @@ test.describe("Button parity (docs)", () => {
     const react = await read("react")
     expect(react.length).toBeGreaterThan(10)
     expect(await read("vue")).toEqual(react)
+    expect(await read("svelte")).toEqual(react)
   })
 
-  test("link variant underlines on hover in both", async ({ page, demo, visit }) => {
+  test("link variant underlines on hover in each", async ({ page, demo, visit }) => {
     await visit(page)
-    for (const framework of ["react", "vue"] as const) {
+    for (const framework of ["react", "vue", "svelte"] as const) {
       const link = demo(page, framework, "Button").locator(".btn-link").first()
       await expect(link).toHaveCSS("text-decoration-line", "none")
       await link.hover()
@@ -54,7 +55,7 @@ test.describe("Button parity (docs)", () => {
       probe.remove()
       return c
     })
-    for (const framework of ["react", "vue"] as const) {
+    for (const framework of ["react", "vue", "svelte"] as const) {
       const root = demo(page, framework, "Button")
       const outline = root.locator(".btn-outline").first()
       await expect(outline).toHaveCSS("border-top-width", "1px")
@@ -66,10 +67,10 @@ test.describe("Button parity (docs)", () => {
     }
   })
 
-  test(":active press tint changes the background, identically in both", async ({ page, demo, visit }) => {
+  test(":active press tint changes the background, identically in each", async ({ page, demo, visit }) => {
     await visit(page)
     const pressed: Record<string, [string, string]> = {}
-    for (const framework of ["react", "vue"] as const) {
+    for (const framework of ["react", "vue", "svelte"] as const) {
       const btn = demo(page, framework, "Button").locator('[data-variant="default"]').first()
       await btn.hover()
       await page.waitForTimeout(200) // let the hover transition settle
@@ -82,5 +83,6 @@ test.describe("Button parity (docs)", () => {
       pressed[framework] = [hover, active]
     }
     expect(pressed.vue).toEqual(pressed.react)
+    expect(pressed.svelte).toEqual(pressed.react)
   })
 })

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry.json",
+  "name": "vinui",
+  "homepage": "https://vinui.dev",
+  "items": [
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Button styled with vinui btn classes.",
+      "dependencies": [],
+      "devDependencies": [
+        "clsx"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/lib/registry/ui/button/button.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/button/index.ts",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog built on Bits UI, styled with vinui dialog classes.",
+      "dependencies": [],
+      "devDependencies": [
+        "bits-ui",
+        "@internationalized/date"
+      ],
+      "registryDependencies": [
+        "@vinui/button"
+      ],
+      "files": [
+        {
+          "path": "src/lib/registry/ui/dialog/dialog.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-close.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-content.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-description.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-footer.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-header.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-overlay.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-portal.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-title.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/dialog-trigger.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/dialog/index.ts",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Select built on Bits UI, styled with vinui select classes.",
+      "dependencies": [],
+      "devDependencies": [
+        "bits-ui",
+        "@internationalized/date"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/lib/registry/ui/select/select-content.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-group-heading.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-group.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-item.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-label.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-portal.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-scroll-down-button.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-scroll-up-button.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-separator.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-trigger.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select-value.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/select.svelte",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/lib/registry/ui/select/index.ts",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

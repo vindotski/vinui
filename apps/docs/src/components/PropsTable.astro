@@ -1,0 +1,48 @@
+---
+import type { Platform, PropDoc } from "@vinui/core"
+
+/** API reference for one framework, from @vinui/core's prop metadata. */
+interface Props {
+  props: readonly PropDoc[]
+  framework: Platform
+}
+
+const { props, framework } = Astro.props
+const platformNames: Record<Platform, string> = { react: "React", vue: "Vue", svelte: "Svelte", native: "React Native" }
+const rows = props.filter((prop) => prop.platforms.includes(framework))
+const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+/** `backticks` in descriptions become inline code. */
+const describe = (text: string) => escape(text).replace(/`([^`]+)`/g, "<code>$1</code>")
+const type = (prop: PropDoc) => prop.values?.map((value) => `"${value}"`).join(" | ") ?? prop.type ?? ""
+---
+
+{
+  rows.length > 0 && (
+    <table class="props-table">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((prop) => (
+          <tr>
+            <td>
+              <code>{prop.names?.[framework] ?? prop.name}</code>
+              {prop.platforms.length === 1 && <span class="badge">{platformNames[framework]} only</span>}
+              {prop.addition?.includes(framework) && <span class="badge">vinui addition</span>}
+            </td>
+            <td>
+              <code class="whitespace-normal!">{type(prop)}</code>
+            </td>
+            <td>{prop.default ? <code>{prop.default}</code> : "—"}</td>
+            <td set:html={describe(prop.description)} />
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}

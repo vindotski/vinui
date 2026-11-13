@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { parseArgs } from "node:util"
 
-import { buttonSizeValues, buttonVariantValues } from "../../packages/core/src/index.ts"
+import { buttonSizeValues, buttonVariantValues, selectTriggerSizeValues } from "../../packages/core/src/index.ts"
 import { UNIWIND_VERSION, uniwindTheme } from "../../packages/registry/src/engines/uniwind.ts"
 import { theme as nativewindTheme } from "./engines/nativewind5/theme.ts"
 
@@ -60,6 +60,7 @@ function cases() {
   const combos = [
     ...buttonVariantValues.filter((v) => v !== "default").flatMap((v) => [`btn btn-${v}`, `btn-label btn-${v}`]),
     ...buttonSizeValues.filter((s) => s !== "default").flatMap((s) => [`btn btn-${s}`, `btn-label btn-${s}`]),
+    ...selectTriggerSizeValues.filter((s) => s !== "default").map((s) => `select-trigger select-trigger-${s}`),
   ]
   return [...new Set([...tokens, ...utilities, ...combos])]
 }

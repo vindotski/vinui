@@ -18,13 +18,13 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     name: "docs-dev",
     port: 4321,
     command: "pnpm --filter docs exec astro dev --port 4321 --ignore-lock",
-    options: { layout: "docs", frameworks: ["react", "vue"] },
+    options: { layout: "docs", frameworks: ["react", "vue", "svelte"] },
   },
   {
     name: "docs-prod",
     port: 4322,
     command: "pnpm --filter docs exec astro build && pnpm --filter docs exec astro preview --port 4322 --ignore-lock",
-    options: { layout: "docs", frameworks: ["react", "vue"] },
+    options: { layout: "docs", frameworks: ["react", "vue", "svelte"] },
   },
   {
     name: "react-dev",
@@ -49,6 +49,32 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     port: 4402,
     command: "pnpm --filter playground-vue build && pnpm --filter playground-vue exec vite preview --port 4402 --strictPort",
     options: { layout: "playground", frameworks: ["vue"] },
+  },
+  {
+    name: "svelte-dev",
+    port: 4503,
+    command: "pnpm --filter playground-svelte dev --port 4503 --strictPort",
+    options: { layout: "playground", frameworks: ["svelte"], ready: "body[data-hydrated]" },
+  },
+  {
+    name: "svelte-prod",
+    port: 4403,
+    command: "pnpm --filter playground-svelte build && pnpm --filter playground-svelte preview --port 4403 --strictPort",
+    options: { layout: "playground", frameworks: ["svelte"], ready: "body[data-hydrated]" },
+  },
+  // vinui native on react-native-web (Expo universal apps).
+  {
+    name: "native-web-dev",
+    port: 4601,
+    command: "pnpm --filter playground-native exec expo start --web --port 4601",
+    options: { layout: "playground", frameworks: ["native"] },
+  },
+  {
+    name: "native-web-prod",
+    port: 4602,
+    command:
+      "pnpm --filter playground-native exec expo export --platform web && pnpm --filter playground-native exec expo serve --port 4602",
+    options: { layout: "playground", frameworks: ["native"] },
   },
 ]
 

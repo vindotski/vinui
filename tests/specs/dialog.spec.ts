@@ -1,7 +1,13 @@
 import { expect, test, type Framework } from "./fixtures.ts"
 
-/** Open/close behavior, accessibility wiring and exit animations of Dialog. */
-for (const framework of ["react", "vue"] satisfies Framework[]) {
+/**
+ * Open/close behavior, accessibility wiring and animations of Dialog.
+ * Native (react-native-web) wraps the same Radix Dialog, so behavior and a11y are shared.
+ * Its structure differs: the panel classes sit inside Radix's role="dialog" element, the
+ * overlay positions it, and Reanimated runs the animations.
+ */
+for (const framework of ["react", "vue", "svelte", "native"] satisfies Framework[]) {
+  const native = framework === "native"
   test.describe(`${framework} Dialog`, () => {
     test.beforeEach(({ frameworks }) => {
       test.skip(!frameworks.includes(framework), `no ${framework} app on this target`)
@@ -12,16 +18,22 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
       await demo(page, framework, "Dialog").getByRole("button", { name: "Open dialog" }).click()
       const dialog = page.getByRole("dialog")
       await expect(dialog).toBeVisible()
-      await expect(dialog).toHaveClass(/\bdialog-content\b/)
       await expect(dialog).toHaveAttribute("data-state", "open")
-      await expect(dialog).toHaveCSS("animation-name", "vinui-zoom-in")
-      await expect(dialog).toHaveCSS("position", "fixed")
-      await expect(page.locator(".dialog-overlay")).toHaveCSS("animation-name", "vinui-fade-in")
+      if (native) {
+        // Reanimated's FadeIn, on the view around Radix's element.
+        await expect(dialog.locator("xpath=..")).toHaveCSS("animation-name", "FadeIn")
+      } else {
+        await expect(dialog).toHaveClass(/\bdialog-content\b/)
+        await expect(dialog).toHaveCSS("animation-name", "vinui-zoom-in")
+        await expect(dialog).toHaveCSS("position", "fixed")
+        await expect(page.locator(".dialog-overlay")).toHaveCSS("animation-name", "vinui-fade-in")
+      }
       await expect(dialog).toHaveAccessibleName("Delete project?")
       await expect(dialog).toHaveAccessibleDescription(/permanently removes/)
       await expect(dialog.locator(":focus")).toHaveCount(1)
       await expect(dialog.locator(".dialog-close")).toBeVisible()
-      // dialog-content composes dialog-panel: the panel's look must be intact.
+      // dialog-content composes dialog-panel (native uses dialog-panel): the panel's look must be intact.
+      const panel = native ? dialog.locator(".dialog-panel") : dialog
       const tokenBg = await page.evaluate(() => {
         const probe = document.createElement("div")
         probe.style.backgroundColor = "var(--color-background)"
@@ -30,13 +42,20 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
         probe.remove()
         return c
       })
-      await expect(dialog).toHaveCSS("background-color", tokenBg)
-      await expect(dialog).toHaveCSS("border-top-width", "1px")
-      await expect(dialog).toHaveCSS("border-top-style", "solid")
-      await expect(dialog).toHaveCSS("padding-top", "24px")
-      await expect(dialog).toHaveCSS("border-top-left-radius", "10px")
-      await expect(dialog).toHaveCSS("display", "grid")
-      expect(await dialog.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none")
+      await expect(panel).toHaveCSS("background-color", tokenBg)
+      await expect(panel).toHaveCSS("border-top-width", "1px")
+      await expect(panel).toHaveCSS("border-top-style", "solid")
+      await expect(panel).toHaveCSS("padding-top", "24px")
+      await expect(panel).toHaveCSS("border-top-left-radius", "10px")
+      await expect(panel).toHaveCSS("display", native ? "flex" : "grid")
+      expect(await panel.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none")
+      if (native) {
+        // max-w-lg, centred (web:items-stretch + web:mx-auto around Radix's wrapper).
+        const box = (await panel.boundingBox())!
+        const viewport = page.viewportSize()!
+        expect(box.width).toBe(512)
+        expect(Math.abs(box.x - (viewport.width - box.x - box.width))).toBeLessThanOrEqual(1)
+      }
     })
 
     test("Escape plays the exit animation, unmounts, returns focus", async ({ page, demo, visit }) => {
@@ -46,9 +65,11 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
       const dialog = page.getByRole("dialog")
       await expect(dialog).toBeVisible()
       await page.keyboard.press("Escape")
-      // Still mounted while the exit animation runs.
-      await expect(dialog).toHaveAttribute("data-state", "closed")
-      await expect(dialog).toHaveCSS("animation-name", "vinui-zoom-out")
+      if (!native) {
+        // Still mounted while the exit animation runs.
+        await expect(dialog).toHaveAttribute("data-state", "closed")
+        await expect(dialog).toHaveCSS("animation-name", "vinui-zoom-out")
+      }
       await expect(dialog).toHaveCount(0)
       await expect(trigger).toBeFocused()
     })
@@ -83,17 +104,13 @@ for (const framework of ["react", "vue"] satisfies Framework[]) {
       await expect(dialog).toHaveCount(0)
     })
 
-    test("reduced motion: no animation, still closes", async ({ browser, baseURL, layout, visit }) => {
+    test("reduced motion: no animation, still closes", async ({ browser, baseURL, demo, visit }) => {
       const context = await browser.newContext({ reducedMotion: "reduce", baseURL })
       const page = await context.newPage()
       await visit(page)
-      const root =
-        layout === "docs"
-          ? page.locator(`section:has(h2:text-is("Dialog")) [data-framework="${framework}"]`)
-          : page.locator("main")
-      await root.getByRole("button", { name: "Open dialog" }).click()
+      await demo(page, framework, "Dialog").getByRole("button", { name: "Open dialog" }).click()
       const dialog = page.getByRole("dialog")
-      await expect(dialog).toHaveCSS("animation-name", "none")
+      await expect(native ? dialog.locator("xpath=..") : dialog).toHaveCSS("animation-name", "none")
       await page.keyboard.press("Escape")
       await expect(dialog).toHaveCount(0)
       await context.close()

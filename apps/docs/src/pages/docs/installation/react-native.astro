@@ -1,0 +1,387 @@
+---
+// Engine layer: Uniwind. The docs' only copy of the Uniwind setup (Metro, global.css, versions).
+import { REGISTRY_URL } from "@vinui/registry/config"
+
+import CodeBlock from "../../../components/CodeBlock.astro"
+import InstallCommand from "../../../components/InstallCommand.astro"
+import PmCommand from "../../../components/PmCommand.astro"
+import DocsLayout from "../../../layouts/DocsLayout.astro"
+import { add, create, exec, followedBy } from "../../../lib/pm"
+
+const registry = `${REGISTRY_URL}/native`
+
+/** Expo-managed native modules: `expo install` picks the versions that match the app's SDK. */
+const prerequisites = [
+  "react-native-reanimated",
+  "react-native-worklets",
+  "react-native-screens",
+  "react-native-svg",
+  "expo-status-bar",
+  "expo-system-ui",
+  "react-native-web",
+  "react-dom",
+  "@expo/metro-runtime",
+].join(" ")
+
+const globalCss = `
+@import "tailwindcss";
+@import "uniwind";`
+
+const metroConfig = `
+const { getDefaultConfig } = require("expo/metro-config")
+const { withUniwindConfig } = require("uniwind/metro")
+
+module.exports = withUniwindConfig(getDefaultConfig(__dirname), {
+  cssEntryFile: "./global.css",
+  dtsFile: "./uniwind-types.d.ts",
+})`
+
+const appJson = `
+{
+  "expo": {
+    "userInterfaceStyle": "automatic"
+    // ...keep the existing options
+  }
+}`
+
+const tsconfig = `
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}`
+
+const envDts = `
+// Lets TypeScript accept \`import "./global.css"\` (Metro and Uniwind compile it).
+declare module "*.css"`
+
+const app = `
+import "./global.css"
+
+import { View } from "react-native"
+
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { ThemeRoot } from "@/components/ui/theme-root"
+
+export default function App() {
+  return (
+    <ThemeRoot>
+      <View className="flex-1 items-center justify-center gap-2 p-6">
+        <Button>Save</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">Delete…</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete project?</DialogTitle>
+              <DialogDescription>This can't be undone.</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button variant="destructive">Delete</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </View>
+    </ThemeRoot>
+  )
+}`
+
+const routerGlobalCss = `
+@import "tailwindcss";
+@import "uniwind";
+
+/* ...the template's existing styles */`
+
+const routerMetroConfig = metroConfig.replace("./global.css", "./src/global.css")
+
+const routerLayout = `
+import "../global.css"
+
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router"
+
+import { ThemeRoot, useNavigationTheme } from "@/components/ui/theme-root"
+
+export default function RootLayout() {
+  const { dark, colors } = useNavigationTheme()
+  const base = dark ? DarkTheme : DefaultTheme
+  return (
+    <ThemeProvider value={{ ...base, dark, colors: { ...base.colors, ...colors } }}>
+      <ThemeRoot>
+        <Stack />
+      </ThemeRoot>
+    </ThemeProvider>
+  )
+}`
+
+const existingThemeRoot = `
+<ThemeProvider value={NAV_THEME[colorScheme]}>
+  <ThemeRoot portalHost={false} statusBar={false}>
+    <Stack />
+  </ThemeRoot>
+  <PortalHost />
+</ThemeProvider>`
+
+const registries = `
+{
+  "registries": {
+    "@vinui": "${registry}/{name}.json"
+  }
+}`
+
+const setTheme = `
+import { Uniwind } from "uniwind"
+
+Uniwind.setTheme("dark") // or "light", or "system" to follow the device again`
+
+const safeArea = `
+import { SafeAreaView } from "react-native-safe-area-context"
+
+// className is ignored here: SafeAreaView isn't a React Native core component.
+<SafeAreaView style={{ flex: 1 }}>
+  <View className="flex-1 p-4">…</View>
+</SafeAreaView>`
+
+const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+/** `backticks` become inline code. */
+const describe = (text: string) => escape(text).replace(/`([^`]+)`/g, "<code>$1</code>")
+
+const nativeOnly = [
+  ["theme-root", "The app's base layer: theme background, status bar, native root color and the portal host; plus `useNavigationTheme()`."],
+  ["text", "Text that takes its styles from its parent, so Button can style its label."],
+  ["icon", "A Lucide icon that takes `className`: `<Icon as={X} />`."],
+  ["engine", "The setup check (`lib/vinui-engine.ts`), installed with every component."],
+  ["native-only-animated-view", "The Reanimated view behind Dialog's enter and exit animations."],
+]
+---
+
+<DocsLayout title="Installation · React Native">
+  <h1>Installation · React Native</h1>
+  <p class="lead">
+    vinui for React Native follows <a href="https://reactnativereusables.com">React Native Reusables</a>: you use the shadcn CLI and shadcn's component API, and get vinui's look. Components are copied into your Expo app, built on <a href="https://rnprimitives.com">rn-primitives</a> and styled with <a href="https://docs.uniwind.dev">Uniwind</a> (Tailwind CSS v4 for React Native).
+  </p>
+  <p>
+    Already using React Native Reusables? Skip to <a href="#existing-project">Existing project</a>.
+  </p>
+
+  <h2 id="requirements">Requirements</h2>
+  <ul>
+    <li><strong>Expo</strong>, tested with SDK 58. Apps run on iOS, Android and the web from one codebase.</li>
+    <li>
+      <strong>Uniwind 1.13.0</strong> and Tailwind CSS 4.3.3, the versions vinui is tested with. Newer Uniwind versions are likely fine; if something looks wrong, please report it.
+    </li>
+    <li>
+      <strong>NativeWind isn't supported.</strong> NativeWind 4 uses Tailwind CSS v3, so vinui's theme can't be shared with it. Projects on NativeWind need to <a href="https://docs.uniwind.dev/migration-from-nativewind">move to Uniwind</a> first.
+    </li>
+    <li>
+      Building a web-only app? Use <a href="/docs/installation/react">vinui for React</a>: it's lighter and doesn't need React Native.
+    </li>
+  </ul>
+
+  <h2 id="new-project">New project</h2>
+
+  <h3>1. Create an Expo app</h3>
+  <PmCommand commands={followedBy(create("expo-app", "my-app", "--template blank-typescript"), "cd my-app")} />
+  <p>This guide uses the blank template. Using Expo Router? Follow along, then see <a href="#expo-router">With Expo Router</a>.</p>
+
+  <h3>2. Install the Expo modules vinui uses</h3>
+  <PmCommand commands={exec(`expo install ${prerequisites}`)} />
+  <p>
+    Reanimated, Worklets and Screens are for Dialog, SVG for icons, Status Bar and System UI for <code>ThemeRoot</code>, and the last three for the web. They're installed here rather than by the CLI, because <code>expo install</code> picks the versions that match your Expo SDK.
+  </p>
+
+  <h3>3. Install Uniwind and Tailwind CSS</h3>
+  <PmCommand commands={add("uniwind@1.13.0 tailwindcss@4.3.3", { exact: true })} />
+  <p>These come before vinui's <code>init</code>: the CLI checks for Tailwind CSS before it reads vinui's settings.</p>
+
+  <h3>4. Configure Uniwind</h3>
+  <p>Create <code>global.css</code> in the project root:</p>
+  <CodeBlock code={globalCss} lang="css" file="global.css" />
+  <p>Create <code>metro.config.js</code> in the project root:</p>
+  <CodeBlock code={metroConfig} lang="js" file="metro.config.js" />
+  <p>
+    Let the app follow the device's dark mode. Expo's template sets <code>"light"</code>, which turns it off:
+  </p>
+  <CodeBlock code={appJson} lang="jsonc" file="app.json" />
+
+  <h3>5. Set up the <code>@/</code> import alias</h3>
+  <p>Add <code>paths</code> to the TypeScript config:</p>
+  <CodeBlock code={tsconfig} lang="json" file="tsconfig.json" />
+  <p>Then let TypeScript accept the CSS import:</p>
+  <CodeBlock code={envDts} lang="ts" file="env.d.ts" />
+
+  <h3 id="init">6. Initialize vinui</h3>
+  <InstallCommand framework="native" args={`init ${registry}/init.json`} />
+  <p>This writes:</p>
+  <ul>
+    <li><code>components.json</code>, with the <code>@vinui</code> registry already configured</li>
+    <li><code>lib/utils.ts</code>, shadcn's standard <code>cn()</code> helper</li>
+    <li>
+      vinui's theme (colors, radius, dark mode) as <code>vinui-theme.css</code>, imported from <code>global.css</code>
+    </li>
+  </ul>
+
+  <h3>7. Add components</h3>
+  <InstallCommand framework="native" args="add @vinui/theme-root @vinui/button @vinui/dialog" />
+  <p>
+    Each component lands in <code>components/ui/</code>, and its styles are added to <code>global.css</code>.
+  </p>
+
+  <h3>8. Use them</h3>
+  <p>
+    Wrap the app in <code>ThemeRoot</code> once. It paints the theme's background, keeps the status bar readable in both themes, and renders the <code>&lt;PortalHost /&gt;</code> that Dialog renders into.
+  </p>
+  <CodeBlock code={app} lang="tsx" file="App.tsx" />
+  <PmCommand commands={exec("expo start")} />
+  <p>
+    Open the app (press <code>i</code>, <code>a</code> or <code>w</code>, or scan the QR code with Expo Go). The first bundle generates <code>uniwind-types.d.ts</code>; until then, TypeScript reports <code>className</code> as an unknown prop.
+  </p>
+
+  <h3 id="expo-router">With Expo Router</h3>
+  <p>
+    Expo's default template (<code>create-expo-app</code> without <code>--template</code>) uses Expo Router, with its files under <code>src/</code>. Follow the same steps, with these differences:
+  </p>
+  <ul>
+    <li><code>src/global.css</code> already exists: add the two imports at the top.</li>
+    <li>Point Metro at it with <code>cssEntryFile: "./src/global.css"</code>.</li>
+    <li>The <code>@/</code> alias, <code>userInterfaceStyle</code> and CSS imports are already set up, so skip step 5 and the <code>app.json</code> change.</li>
+    <li>Components land in <code>src/components/ui/</code>, and <code>vinui-theme.css</code> next to <code>src/global.css</code>.</li>
+  </ul>
+  <CodeBlock code={routerGlobalCss} lang="css" file="src/global.css" />
+  <CodeBlock code={routerMetroConfig} lang="js" file="metro.config.js" />
+  <p>
+    Then put <code>ThemeRoot</code> in the root layout, around whatever it renders (the template renders <code>&lt;AppTabs /&gt;</code>), and pass vinui's colors to React Navigation with <code>useNavigationTheme()</code>, so headers and tab bars follow the same theme:
+  </p>
+  <CodeBlock code={routerLayout} lang="tsx" file="src/app/_layout.tsx" />
+
+  <h2 id="existing-project">Existing project</h2>
+  <p>
+    For a React Native Reusables project on Uniwind (or any Expo app already set up with Uniwind and shadcn's <code>components.json</code>). Don't run vinui's <code>init</code>: it would replace your <code>components.json</code>.
+  </p>
+  <h3>1. Add the vinui registry</h3>
+  <CodeBlock code={registries} lang="json" file="components.json" />
+  <h3>2. Add vinui's theme</h3>
+  <InstallCommand framework="native" args="add @vinui/theme" />
+  <h3>3. Add components</h3>
+  <InstallCommand framework="native" args="add @vinui/button @vinui/dialog --overwrite" />
+  <p>
+    <code>--overwrite</code> replaces React Native Reusables' <code>text</code>, <code>icon</code>, <code>button</code>, <code>dialog</code> and <code>native-only-animated-view</code> with vinui's; without it, the CLI asks for each file. The props are the same, so your existing code keeps working.
+  </p>
+  <h3>4. Keep your root, or use <code>ThemeRoot</code></h3>
+  <p>
+    Your existing <code>&lt;PortalHost /&gt;</code>, status bar and <code>NAV_THEME</code> keep working. To use <code>ThemeRoot</code> for the background alone, turn off the parts you already have. Two portal hosts would show every dialog twice.
+  </p>
+  <CodeBlock code={existingThemeRoot} lang="tsx" file="app/_layout.tsx" />
+
+  <h2 id="dark-mode">Dark mode</h2>
+  <p>
+    The app follows the device's setting. To choose a theme in the app, call Uniwind; <code>ThemeRoot</code> updates the background, status bar and navigation colors with it:
+  </p>
+  <CodeBlock code={setTheme} lang="tsx" />
+
+  <h2 id="platform-differences">Differences from the web</h2>
+  <ul>
+    <li>
+      <strong>Text:</strong> React Native text doesn't inherit styles. Button wraps strings in vinui's <code>Text</code> for you; other text goes in a <code>Text</code> with its own classes.
+    </li>
+    <li><strong>Icons:</strong> wrap Lucide icons in <code>&lt;Icon as=&#123;X&#125; className="size-4" /&gt;</code> to style them with classes.</li>
+    <li><strong>Events:</strong> use <code>onPress</code>; there is no <code>onClick</code>.</li>
+    <li>
+      <strong><code>asChild</code></strong> needs a box child, such as a <code>Pressable</code>. For links, put the router's link around the button: <code>&lt;Link href="/login" asChild&gt;&lt;Button&gt;…&lt;/Button&gt;&lt;/Link&gt;</code>.
+    </li>
+    <li>
+      <strong>States:</strong> press feedback is the <code>:active</code> tint; hover and focus styles apply on the web only. There are no <code>data-*</code> attributes: state comes from props.
+    </li>
+    <li>
+      <strong><code>className</code></strong> works on React Native's own components (<code>View</code>, <code>Text</code>, <code>Pressable</code>, …) and vinui's. Other libraries' components ignore it unless wrapped with Uniwind's <code>withUniwind</code>; see <a href="#troubleshooting">Troubleshooting</a>.
+    </li>
+  </ul>
+
+  <h3 id="native-only">React Native-only items</h3>
+  <p>These have no React or Vue version. Most are installed for you as dependencies of the components.</p>
+  <table class="props-table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        nativeOnly.map(([name, description]) => (
+          <tr>
+            <td>
+              <code>@vinui/{name}</code>
+              <span class="badge">React Native only</span>
+            </td>
+            <td set:html={describe(description)} />
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <p>
+    Adding one to a React or Vue project fails with <code>The item at …/r/react/text.json was not found</code> (<code>/r/vue/</code> on Vue).
+  </p>
+
+  <h2 id="web">On the web</h2>
+  <p>
+    The same components run in Expo's web build through react-native-web, with the same look and keyboard and screen-reader behaviour as vinui for React. Use <a href="https://docs.uniwind.dev">Uniwind's</a> <code>web:</code> variant for web-only styles, for example <code>className="p-4 web:p-6"</code>.
+  </p>
+  <p>Measured on a production web build (gzipped JavaScript, Expo SDK 58):</p>
+  <table class="props-table">
+    <thead>
+      <tr>
+        <th>Build</th>
+        <th>Total</th>
+        <th>Adds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Empty Expo web app</td><td>103 KB</td><td>—</td></tr>
+      <tr><td>+ Uniwind</td><td>139 KB</td><td>36 KB</td></tr>
+      <tr><td>+ Reanimated</td><td>297 KB</td><td>158 KB</td></tr>
+      <tr><td>+ vinui Button, Dialog, ThemeRoot</td><td>376 KB</td><td>79 KB</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <h3><code>Unable to resolve "uniwind" from "lib/vinui-engine.ts"</code></h3>
+  <p>Uniwind isn't installed. Follow steps 3 and 4 of <a href="#new-project">New project</a>.</p>
+  <h3><code>[vinui] Uniwind isn't configured (or vinui's theme isn't loaded)…</code></h3>
+  <p>
+    The components render unstyled. Check that <code>metro.config.js</code> uses <code>withUniwindConfig()</code>, that the root component imports <code>global.css</code>, and that <code>global.css</code> imports <code>vinui-theme.css</code>. Then restart Metro. The warning only appears in development.
+  </p>
+  <h3><code>className</code> does nothing on a component</h3>
+  <p>
+    It's probably not a React Native core component. The common case is <code>SafeAreaView</code> from <code>react-native-safe-area-context</code>: style it with <code>style</code>, or put a <code>View</code> inside it.
+  </p>
+  <CodeBlock code={safeArea} lang="tsx" />
+  <h3>Every dialog shows up twice</h3>
+  <p>The app renders two <code>&lt;PortalHost /&gt;</code>s. Remove yours, or pass <code>portalHost=&#123;false&#125;</code> to <code>ThemeRoot</code>.</p>
+
+  <h2 id="updating">Updating components</h2>
+  <InstallCommand framework="native" args="add @vinui/button --overwrite" />
+  <p>
+    The CLI currently appends a component's nested <code>@media</code> and <code>@variant</code> rules again instead of replacing them. Before updating, delete the component's <code>@utility</code> blocks (for example <code>@utility btn</code> …) from <code>global.css</code>.
+  </p>
+</DocsLayout>

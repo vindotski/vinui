@@ -48,6 +48,9 @@
     height: --spacing(4);
     pointer-events: none;
     }
+  &:hover .btn-label {
+    color: var(--btn-fg-hover, var(--btn-fg, var(--color-primary-foreground)));
+    }
 }
 
 @utility btn-label {
@@ -288,4 +291,204 @@
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     color: var(--color-muted-foreground);
+}
+
+@utility select-trigger {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    justify-content: space-between;
+    gap: --spacing(2);
+    height: var(--select-trigger-h, --spacing(9));
+    padding-inline: --spacing(3);
+    padding-block: --spacing(2);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--color-input);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-foreground);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+    box-shadow: var(--shadow-xs);
+    outline: none;
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+  &[data-placeholder] {
+    color: var(--color-muted-foreground);
+    }
+  &:focus-visible {
+    border-color: var(--color-ring);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 50%, transparent);
+    }
+  &[aria-invalid="true"] {
+    border-color: var(--color-destructive);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-destructive) 20%, transparent);
+    }
+  &:disabled,
+  &[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    }
+  & > [data-slot="select-value"] {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: --spacing(2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+  & svg {
+    flex-shrink: 0;
+    width: --spacing(4);
+    height: --spacing(4);
+    color: var(--color-muted-foreground);
+    pointer-events: none;
+    }
+  @variant dark {
+    background-color: color-mix(in oklab, var(--color-input) 30%, transparent);
+    }
+  @variant dark:hover {
+    background-color: color-mix(in oklab, var(--color-input) 50%, transparent);
+    }
+}
+
+@utility select-trigger-sm {
+    --select-trigger-h: --spacing(8);
+}
+
+@utility select-panel {
+    position: relative;
+    min-width: --spacing(32);
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-popover);
+    color: var(--color-popover-foreground);
+    box-shadow: var(--shadow-md);
+}
+
+@utility select-content {
+    @apply select-panel;
+    z-index: 50;
+    max-height: var(
+    --radix-select-content-available-height,
+    var(--reka-select-content-available-height, var(--bits-select-content-available-height))
+  );
+    overflow-x: hidden;
+    overflow-y: auto;
+    transform-origin: var(
+    --radix-select-content-transform-origin,
+    var(--reka-select-content-transform-origin, var(--bits-select-content-transform-origin))
+  );
+  &[data-side="bottom"] {
+    translate: 0 --spacing(1);
+    }
+  &[data-side="top"] {
+    translate: 0 calc(--spacing(1) * -1);
+    }
+  &[data-state="open"] {
+    animation: vinui-zoom-in 150ms ease-out;
+    }
+  &[data-state="closed"] {
+    animation: vinui-zoom-out 150ms ease-in forwards;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+    }
+}
+
+@utility select-viewport {
+    padding: --spacing(1);
+  &[data-position="popper"] {
+    width: 100%;
+    min-width: var(
+      --radix-select-trigger-width,
+      var(--reka-select-trigger-width, var(--bits-select-anchor-width))
+    );
+    height: var(
+      --radix-select-trigger-height,
+      var(--reka-select-trigger-height, var(--bits-select-anchor-height))
+    );
+    scroll-margin-block: --spacing(1);
+    }
+}
+
+@utility select-item {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: --spacing(2);
+    padding-block: --spacing(1.5);
+    padding-right: --spacing(8);
+    padding-left: --spacing(2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    cursor: default;
+    user-select: none;
+    outline: none;
+  &:focus,
+  &[data-highlighted] {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+    }
+  &[data-disabled] {
+    pointer-events: none;
+    opacity: 0.5;
+    }
+  & > span:last-child {
+    display: flex;
+    align-items: center;
+    gap: --spacing(2);
+    }
+  & svg {
+    flex-shrink: 0;
+    width: --spacing(4);
+    height: --spacing(4);
+    color: var(--color-muted-foreground);
+    pointer-events: none;
+    }
+}
+
+@utility select-item-indicator {
+    position: absolute;
+    right: --spacing(2);
+    display: flex;
+    width: --spacing(3.5);
+    height: --spacing(3.5);
+    align-items: center;
+    justify-content: center;
+}
+
+@utility select-label {
+    padding-inline: --spacing(2);
+    padding-block: --spacing(1.5);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--color-muted-foreground);
+}
+
+@utility select-separator {
+    height: 1px;
+    margin-inline: calc(--spacing(1) * -1);
+    margin-block: --spacing(1);
+    background-color: var(--color-border);
+    pointer-events: none;
+}
+
+@utility select-scroll-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: --spacing(1);
+    cursor: default;
+  & svg {
+    width: --spacing(4);
+    height: --spacing(4);
+    }
 }

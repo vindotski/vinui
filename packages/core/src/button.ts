@@ -43,13 +43,24 @@ export const buttonProps = [
   },
   {
     name: "asChild",
+    type: "boolean",
     default: "false",
     description: "Render the child element instead, with the button's props and classes.",
-    platforms: allPlatforms,
+    // shadcn-svelte's Button has no child snippet; it renders an `<a>` when given `href`.
+    platforms: ["react", "vue", "native"],
+    // React Native Reusables' Button has no asChild; native keeps shadcn's.
+    addition: ["native"],
+  },
+  {
+    name: "href",
+    type: "string",
+    description: "Render an `<a>` with the button's classes. When `disabled`, the link has no `href` and is skipped by Tab.",
+    platforms: ["svelte"],
   },
   {
     name: "className",
-    names: { vue: "class" },
+    names: { vue: "class", svelte: "class" },
+    type: "string",
     description: "Extra classes, merged after vinui's with `cn()`.",
     platforms: allPlatforms,
   },

@@ -1,11 +1,14 @@
 import { test as base, expect, type Locator, type Page } from "@playwright/test"
 
-export type Framework = "react" | "vue"
+/** "native" is vinui native on react-native-web (the Expo playground's web build). */
+export type Framework = "react" | "vue" | "svelte" | "native"
 
 export interface TargetOptions {
-  /** "docs": side-by-side panels per framework; "playground": one app in <main>. */
+  /** "docs": side-by-side panels per framework; "playground": one app (in <main>, or #root for Expo web). */
   layout: "docs" | "playground"
   frameworks: Framework[]
+  /** Selector that appears once a server-rendered app has hydrated (SvelteKit). */
+  ready?: string
 }
 
 interface Fixtures {
@@ -20,9 +23,12 @@ interface Fixtures {
 export const test = base.extend<TargetOptions & Fixtures>({
   layout: ["playground", { option: true }],
   frameworks: [["react"], { option: true }],
-  visit: async ({ layout }, use) => {
+  ready: [undefined, { option: true }],
+  visit: async ({ layout, ready }, use) => {
     await use(async (page) => {
       await page.goto("/")
+      // Clicks on server-rendered markup before hydration do nothing.
+      if (ready) await page.locator(ready).waitFor({ state: "attached" })
       if (layout === "docs") {
         // Astro removes the `ssr` attribute once an island has hydrated.
         await page.waitForFunction(() => document.querySelectorAll("astro-island[ssr]").length === 0)
@@ -33,7 +39,7 @@ export const test = base.extend<TargetOptions & Fixtures>({
     await use((page, framework, section) =>
       layout === "docs"
         ? page.locator(`section:has(h2:text-is("${section}")) [data-framework="${framework}"]`)
-        : page.locator("main"),
+        : page.locator(framework === "native" ? "#root" : "main"),
     )
   },
   pageErrors: [
@@ -49,3 +55,12 @@ export const test = base.extend<TargetOptions & Fixtures>({
 })
 
 export { expect }
+
+/** Paints a CSS colour on a canvas and reads the pixel back, so any colour syntax compares equal. */
+export const rgba = (page: Page, color: string) =>
+  page.evaluate((color) => {
+    const ctx = Object.assign(document.createElement("canvas"), { width: 1, height: 1 }).getContext("2d")!
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, 1, 1)
+    return Array.from(ctx.getImageData(0, 0, 1, 1).data).join(",")
+  }, color)

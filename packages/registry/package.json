@@ -2,7 +2,7 @@
   "name": "@vinui/registry",
   "version": "0.0.0",
   "private": true,
-  "description": "Builds the vinui React and Vue registries, injecting CSS from @vinui/tailwind",
+  "description": "Builds the vinui React, Vue, Svelte and React Native registries, injecting CSS from @vinui/tailwind",
   "type": "module",
   "exports": {
     "./config": "./src/config.ts"
@@ -14,6 +14,7 @@
   "dependencies": {
     "postcss": "8.5.32",
     "shadcn": "4.23.0",
+    "shadcn-svelte": "1.8.1",
     "shadcn-vue": "2.9.0"
   },
   "devDependencies": {
