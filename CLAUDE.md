@@ -22,7 +22,7 @@ packages/
               (engines/uniwind.ts = the Uniwind engine layer)
 spikes/native-engine/   native engine harness (outside the workspace): `pnpm spike:native-engine`
 apps/
-  docs/       Astro docs site (React + Vue islands); serves the registry
+  docs/       Astro docs site (React, Vue and Svelte islands); serves the registry
   playground-react/, playground-vue/, playground-svelte/ (SvelteKit)   install from the local registry like a user
 tests/        parity tests (Vitest) + browser specs (Playwright)
 ```

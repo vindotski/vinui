@@ -9,6 +9,8 @@ import NativeWebPreview from "../../../components/NativeWebPreview.astro"
 import PropsTable from "../../../components/PropsTable.astro"
 import { ReactButtons } from "../../../components/ReactButtons"
 import VueButtons from "../../../components/VueButtons.vue"
+import SvelteButtons from "../../../components/SvelteButtons.svelte"
+import { svelteAdd } from "../../../lib/registry"
 import DocsLayout from "../../../layouts/DocsLayout.astro"
 
 const usage = {
@@ -26,6 +28,12 @@ import { Button } from "@/components/ui/button"
 <template>
   <Button variant="outline">Button</Button>
 </template>`,
+  svelte: `
+<script lang="ts">
+  import { Button } from "#lib/components/ui/button/index.js"
+</script>
+
+<Button variant="outline">Button</Button>`,
   native: `
 import { Button } from "@/components/ui/button"
 
@@ -47,6 +55,8 @@ const link = {
 <Button as-child>
   <a href="/login">Login</a>
 </Button>`,
+  svelte: `
+<Button href="/login">Login</Button>`,
   native: `
 import { Link } from "expo-router"
 
@@ -70,6 +80,12 @@ import { buttonVariants } from "@/components/ui/button"
 <template>
   <a href="/docs" :class="buttonVariants({ variant: 'outline' })">Docs</a>
 </template>`,
+  svelte: `
+<script lang="ts">
+  import { buttonVariants } from "#lib/components/ui/button/index.js"
+</script>
+
+<a href="/docs" class={buttonVariants({ variant: "outline" })}>Docs</a>`,
   native: `
 import { Pressable } from "react-native"
 
@@ -89,6 +105,7 @@ import { Text } from "@/components/ui/text"
   <FrameworkTabs label="Preview">
     <div slot="react" class="border-border rounded-lg border p-6"><ReactButtons client:load /></div>
     <div slot="vue" class="border-border rounded-lg border p-6"><VueButtons client:load /></div>
+    <div slot="svelte" class="border-border rounded-lg border p-6"><SvelteButtons client:load /></div>
     <div slot="native">
       <NativeWebPreview demo="button" title="Button demo" />
       <NativePreview shot="button-default" />
@@ -97,10 +114,11 @@ import { Text } from "@/components/ui/text"
   </FrameworkTabs>
 
   <h2 id="installation">Installation</h2>
-  <p>The same item, <code>@vinui/button</code>, on every framework. Set up vinui first (<a href="/docs/installation/react">installation</a>), then:</p>
+  <p>The same item, <code>@vinui/button</code>, on every framework (Svelte takes its URL). Set up vinui first (<a href="/docs/installation/react">installation</a>), then:</p>
   <FrameworkTabs label="Installation">
     <InstallCommand slot="react" framework="react" args="add @vinui/button" />
     <InstallCommand slot="vue" framework="vue" args="add @vinui/button" />
+    <InstallCommand slot="svelte" framework="svelte" args={svelteAdd("button")} />
     <InstallCommand slot="native" framework="native" args="add @vinui/button" />
   </FrameworkTabs>
 
@@ -108,6 +126,7 @@ import { Text } from "@/components/ui/text"
   <FrameworkTabs label="Usage">
     <CodeBlock slot="react" code={usage.react} lang="tsx" />
     <CodeBlock slot="vue" code={usage.vue} lang="vue" />
+    <CodeBlock slot="svelte" code={usage.svelte} lang="svelte" />
     <div slot="native">
       <CodeBlock code={usage.native} lang="tsx" />
       <p>Strings and numbers are wrapped in vinui's <code>Text</code> for you; <code>&lt;Button&gt;&lt;Text&gt;Button&lt;/Text&gt;&lt;/Button&gt;</code> works too.<span class="badge">vinui addition</span></p>
@@ -124,6 +143,10 @@ import { Text } from "@/components/ui/text"
       <p>Use <code>as-child</code> to render another element, such as a link, with the button's styles.</p>
       <CodeBlock code={link.vue} lang="vue" />
     </div>
+    <div slot="svelte">
+      <p>Pass <code>href</code> and the button renders an <code>&lt;a&gt;</code>. With <code>disabled</code>, the link loses its <code>href</code> and leaves the tab order. To give another component the button's styles, use <a href="#button-variants"><code>buttonVariants</code></a> or that component's <code>child</code> snippet.</p>
+      <CodeBlock code={link.svelte} lang="svelte" />
+    </div>
     <div slot="native">
       <p>Put the router's link <em>around</em> the button: <code>Link asChild</code> passes navigation to the Button, which keeps its centred label. Button's own <code>asChild</code> needs a box child (a <code>Pressable</code> or anything that renders a <code>View</code>); a bare <code>Text</code> can't centre its label.</p>
       <CodeBlock code={link.native} lang="tsx" />
@@ -135,6 +158,7 @@ import { Text } from "@/components/ui/text"
   <FrameworkTabs label="buttonVariants">
     <CodeBlock slot="react" code={variantsHelper.react} lang="tsx" />
     <CodeBlock slot="vue" code={variantsHelper.vue} lang="vue" />
+    <CodeBlock slot="svelte" code={variantsHelper.svelte} lang="svelte" />
     <div slot="native">
       <p>React Native text doesn't inherit styles, so the label takes <code>buttonTextVariants</code>.</p>
       <CodeBlock code={variantsHelper.native} lang="tsx" />
@@ -151,6 +175,10 @@ import { Text } from "@/components/ui/text"
       <PropsTable props={buttonProps} framework="vue" />
       <p>Other attributes go to the <code>&lt;button&gt;</code> (or to the child with <code>as-child</code>).</p>
     </div>
+    <div slot="svelte">
+      <PropsTable props={buttonProps} framework="svelte" />
+      <p>Other attributes go to the <code>&lt;button&gt;</code> (or the <code>&lt;a&gt;</code> with <code>href</code>). <code>bind:ref</code> gives you the element.</p>
+    </div>
     <div slot="native">
       <PropsTable props={buttonProps} framework="native" />
       <p>Other props go to the <a href="https://reactnative.dev/docs/pressable">Pressable</a>. Use <code>onPress</code>; there is no <code>onClick</code>.</p>
@@ -165,6 +193,11 @@ import { Text } from "@/components/ui/text"
     </ul>
     <ul slot="vue">
       <li>Sets <code>data-slot="button"</code>, and <code>data-variant</code> / <code>data-size</code> to <code>"default"</code> when they're omitted.<span class="badge">vinui addition</span></li>
+    </ul>
+    <ul slot="svelte">
+      <li>Sets <code>data-slot="button"</code>, <code>data-variant</code> and <code>data-size</code>.<span class="badge">vinui addition</span></li>
+      <li>Includes the <code>xs</code> and <code>icon-xs</code> sizes, which shadcn-svelte's Button doesn't have.<span class="badge">vinui addition</span></li>
+      <li><code>buttonVariants</code> appends classes with <code>clsx</code>, like cva; shadcn-svelte's uses <code>tailwind-variants</code>, which merges them.</li>
     </ul>
     <ul slot="native">
       <li>Press feedback is the <code>:active</code> tint. Hover styles apply on react-native-web only.</li>

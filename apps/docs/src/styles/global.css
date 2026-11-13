@@ -70,6 +70,7 @@ body {
 /* Framework tabs and package-manager switchers: <html data-framework / data-pm> picks the panel. */
 html:not([data-framework="react"]) [data-framework-panel="react"],
 html:not([data-framework="vue"]) [data-framework-panel="vue"],
+html:not([data-framework="svelte"]) [data-framework-panel="svelte"],
 html:not([data-framework="native"]) [data-framework-panel="native"],
 html:not([data-pm="npm"]) [data-pm-panel="npm"],
 html:not([data-pm="pnpm"]) [data-pm-panel="pnpm"],

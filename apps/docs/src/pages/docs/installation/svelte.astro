@@ -1,0 +1,129 @@
+---
+import { REGISTRY_URL } from "@vinui/registry/config"
+
+import CodeBlock from "../../../components/CodeBlock.astro"
+import InstallCommand from "../../../components/InstallCommand.astro"
+import PmCommand from "../../../components/PmCommand.astro"
+import DocsLayout from "../../../layouts/DocsLayout.astro"
+import { dlx, packageManagers, run, type Commands } from "../../../lib/pm"
+import { svelteAdd } from "../../../lib/registry"
+
+const registry = `${REGISTRY_URL}/svelte`
+
+/** `sv create` installs with the package manager it's told to, so the flag follows the switcher. */
+const createApp = Object.fromEntries(
+  packageManagers.map((pm) => [
+    pm,
+    `${dlx("sv@latest")[pm]} create my-app --template minimal --types ts --add tailwindcss="plugins:none" --install ${pm}\ncd my-app`,
+  ]),
+) as Commands
+
+const aliases = `--lib-alias "#lib" --components-alias "#lib/components" --ui-alias "#lib/components/ui" --utils-alias "#lib/utils" --hooks-alias "#lib/hooks"`
+const init = `init --preset vega --css src/routes/layout.css ${aliases}`
+
+const page = `
+<script lang="ts">
+  import { Button } from "#lib/components/ui/button/index.js"
+  import * as Dialog from "#lib/components/ui/dialog/index.js"
+</script>
+
+<main class="flex min-h-svh items-center justify-center gap-2">
+  <Button>Save</Button>
+  <Dialog.Root>
+    <Dialog.Trigger>
+      {#snippet child({ props })}
+        <Button variant="outline" {...props}>Delete…</Button>
+      {/snippet}
+    </Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Delete project?</Dialog.Title>
+        <Dialog.Description>This can't be undone.</Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Footer>
+        <Dialog.Close>
+          {#snippet child({ props })}
+            <Button variant="outline" {...props}>Cancel</Button>
+          {/snippet}
+        </Dialog.Close>
+        <Dialog.Close>
+          {#snippet child({ props })}
+            <Button variant="destructive" {...props}>Delete</Button>
+          {/snippet}
+        </Dialog.Close>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Root>
+</main>`
+---
+
+<DocsLayout title="Installation · Svelte">
+  <h1>Installation · Svelte</h1>
+  <p class="lead">
+    vinui works with <a href="https://www.shadcn-svelte.com">shadcn-svelte</a>: you use the shadcn-svelte CLI and its component API, and get vinui's look. Components are copied into your project, built on <a href="https://bits-ui.com">Bits UI</a> and Tailwind CSS v4.
+  </p>
+  <p>
+    Already using shadcn-svelte? Skip to <a href="#existing-project">Existing shadcn-svelte project</a>.
+  </p>
+
+  <h2 id="new-project">New project</h2>
+  <p>This guide uses SvelteKit 3. Tested with shadcn-svelte 1.8.1 and SvelteKit 3.2.</p>
+
+  <h3>1. Create a project</h3>
+  <PmCommand commands={createApp} />
+  <p>This sets up Tailwind CSS v4, with the stylesheet in <code>src/routes/layout.css</code>.</p>
+
+  <h3 id="init">2. Initialize shadcn-svelte</h3>
+  <InstallCommand framework="svelte" args={init} />
+  <p>
+    It asks once before it rewrites <code>src/routes/layout.css</code>; answer yes. The alias flags match SvelteKit 3's <code>#lib</code> imports (SvelteKit 2 projects use <code>$lib</code>). This writes:
+  </p>
+  <ul>
+    <li><code>components.json</code></li>
+    <li><code>src/lib/utils.ts</code>, the <code>cn()</code> helper vinui's components import</li>
+    <li>shadcn-svelte's <code>vega</code> theme into <code>src/routes/layout.css</code>; vinui's colors replace it when you add the first component</li>
+  </ul>
+  <p>
+    shadcn-svelte has no setting for a third-party registry, so there's no vinui <code>init</code> on Svelte: you add vinui's components by URL.
+  </p>
+
+  <h3>3. Add components</h3>
+  <InstallCommand framework="svelte" args={svelteAdd("button", "dialog")} />
+  <ul>
+    <li>Each component lands in <code>src/lib/components/ui/</code>, and its styles and vinui's theme are added to <code>src/routes/layout.css</code>.</li>
+    <li><code>--overwrite</code> lets the CLI update the stylesheet without asking. It also replaces a component file of the same name if you already have one.</li>
+  </ul>
+
+  <h3>4. Use them</h3>
+  <CodeBlock code={page} lang="svelte" file="src/routes/+page.svelte" />
+  <PmCommand commands={run("dev")} />
+
+  <h2 id="existing-project">Existing shadcn-svelte project</h2>
+  <p>vinui components can replace shadcn-svelte's one at a time:</p>
+  <InstallCommand framework="svelte" args={svelteAdd("button")} />
+  <ul>
+    <li>
+      This replaces your <code>button</code> files. vinui uses the same props (<code>variant="outline"</code>, <code>size="sm"</code>, <code>href</code>, …), so your existing code keeps working.
+    </li>
+    <li>
+      It also brings vinui's colors: the values of the tokens vinui defines (<code>--primary</code>, <code>--radius</code>, …) are replaced with vinui's. Tokens vinui doesn't define, such as <code>--card</code> or <code>--chart-1</code>, stay as they are.
+    </li>
+  </ul>
+  <p>Every item lives under <code>{registry}/</code>, by the same name as on React and Vue.</p>
+
+  <h2 id="dark-mode">Dark mode</h2>
+  <p>
+    Add the <code>dark</code> class to <code>&lt;html&gt;</code>; every component switches to the dark palette.
+  </p>
+
+  <h2 id="styling">Styling</h2>
+  <p>
+    Pass Tailwind classes with <code>class</code>; they override vinui's styles. For state-based styles, use the data attributes Bits UI sets, for example <code>class="data-[state=open]:shadow-xl"</code> on <code>Dialog.Content</code>.
+  </p>
+
+  <h2 id="updating">Updating components</h2>
+  <InstallCommand framework="svelte" args={svelteAdd("button")} />
+  <p>
+    Running the same command again replaces the component's files. As on Vue, the CLI may append a component's nested <code>@media</code> and <code>@variant</code> rules again instead of replacing them: before updating, delete the component's <code>@utility</code> blocks (for example <code>@utility btn</code> …) from <code>src/routes/layout.css</code>.
+  </p>
+</DocsLayout>

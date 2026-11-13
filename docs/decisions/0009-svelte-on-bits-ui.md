@@ -33,5 +33,5 @@ Bits UI follows the same anatomy as the rest of the Radix family: the same part 
 - The parity tests, class matrix, stale-docs guard and Playwright specs gain a Svelte target. Svelte unions live in `index.ts`, like Vue's, so the tests don't compile `.svelte` files.
 - Because the dependencies are relative, the Svelte items don't depend on `VINUI_REGISTRY_URL`. Users still type the full item URL, since there's no namespace.
 - shadcn-svelte's stylesheet update is a vinui-free prompt during `init`. vinui's `add` stays prompt-free only with `--overwrite`, which also replaces existing component files of the same name.
-- The docs (Astro) add the `@astrojs/svelte` integration for live Svelte previews.
-- Bits UI's release pace and the experimental registry are known risks. The CLI version used is pinned in the install docs.
+- The docs (Astro) add the `@astrojs/svelte` integration for live Svelte previews, and a Svelte tab on every component page.
+- Bits UI's release pace and the experimental registry are known risks. The install docs use `shadcn-svelte@latest`, like the other CLIs, and name the tested version (1.8.1).

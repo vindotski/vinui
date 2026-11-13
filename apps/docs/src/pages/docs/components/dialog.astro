@@ -9,6 +9,8 @@ import NativeWebPreview from "../../../components/NativeWebPreview.astro"
 import PropsTable from "../../../components/PropsTable.astro"
 import { ReactDialog } from "../../../components/ReactDialog"
 import VueDialog from "../../../components/VueDialog.vue"
+import SvelteDialog from "../../../components/SvelteDialog.svelte"
+import { svelteAdd } from "../../../lib/registry"
 import DocsLayout from "../../../layouts/DocsLayout.astro"
 
 const usage = {
@@ -84,6 +86,35 @@ import {
     </DialogContent>
   </Dialog>
 </template>`,
+  svelte: `
+<script lang="ts">
+  import { Button } from "#lib/components/ui/button/index.js"
+  import * as Dialog from "#lib/components/ui/dialog/index.js"
+</script>
+
+<Dialog.Root>
+  <Dialog.Trigger>
+    {#snippet child({ props })}
+      <Button variant="outline" {...props}>Open dialog</Button>
+    {/snippet}
+  </Dialog.Trigger>
+  <Dialog.Content>
+    <Dialog.Header>
+      <Dialog.Title>Delete project?</Dialog.Title>
+      <Dialog.Description>
+        This permanently removes the project and all of its data.
+      </Dialog.Description>
+    </Dialog.Header>
+    <Dialog.Footer>
+      <Dialog.Close>
+        {#snippet child({ props })}
+          <Button variant="outline" {...props}>Cancel</Button>
+        {/snippet}
+      </Dialog.Close>
+      <Button variant="destructive">Delete</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>`,
   native: `
 import { Button } from "@/components/ui/button"
 import {
@@ -139,6 +170,14 @@ const footerClose = {
   </DialogHeader>
   <DialogFooter show-close-button />
 </DialogContent>`,
+  svelte: `
+<Dialog.Content showCloseButton={false}>
+  <Dialog.Header>
+    <Dialog.Title>Saved</Dialog.Title>
+    <Dialog.Description>Your changes were saved.</Dialog.Description>
+  </Dialog.Header>
+  <Dialog.Footer showCloseButton />
+</Dialog.Content>`,
   native: `
 <DialogContent showCloseButton={false}>
   <DialogHeader>
@@ -168,6 +207,14 @@ const open = ref(false)
     …
   </Dialog>
 </template>`,
+  svelte: `
+<script lang="ts">
+  let open = $state(false)
+</script>
+
+<Dialog.Root bind:open>
+  …
+</Dialog.Root>`,
   native: `
 const [open, setOpen] = React.useState(false)
 
@@ -184,6 +231,7 @@ const [open, setOpen] = React.useState(false)
   <FrameworkTabs label="Preview">
     <div slot="react" class="border-border rounded-lg border p-6"><ReactDialog client:load /></div>
     <div slot="vue" class="border-border rounded-lg border p-6"><VueDialog client:load /></div>
+    <div slot="svelte" class="border-border rounded-lg border p-6"><SvelteDialog client:load /></div>
     <div slot="native">
       <NativeWebPreview demo="dialog" title="Dialog demo" minHeight={380} />
       <NativePreview shot="dialog-open" />
@@ -192,10 +240,11 @@ const [open, setOpen] = React.useState(false)
   </FrameworkTabs>
 
   <h2 id="installation">Installation</h2>
-  <p>The same item, <code>@vinui/dialog</code>, on every framework. It installs <code>@vinui/button</code> too. Set up vinui first (<a href="/docs/installation/react">installation</a>), then:</p>
+  <p>The same item, <code>@vinui/dialog</code>, on every framework (Svelte takes its URL). It installs <code>@vinui/button</code> too. Set up vinui first (<a href="/docs/installation/react">installation</a>), then:</p>
   <FrameworkTabs label="Installation">
     <InstallCommand slot="react" framework="react" args="add @vinui/dialog" />
     <InstallCommand slot="vue" framework="vue" args="add @vinui/dialog" />
+    <InstallCommand slot="svelte" framework="svelte" args={svelteAdd("dialog")} />
     <div slot="native">
       <InstallCommand framework="native" args="add @vinui/dialog" />
       <p>It needs Reanimated and React Native Screens, which vinui's setup installs with <code>npx expo install</code> so their versions match your Expo SDK.</p>
@@ -206,6 +255,10 @@ const [open, setOpen] = React.useState(false)
   <FrameworkTabs label="Usage">
     <CodeBlock slot="react" code={usage.react} lang="tsx" />
     <CodeBlock slot="vue" code={usage.vue} lang="vue" />
+    <div slot="svelte">
+      <CodeBlock code={usage.svelte} lang="svelte" />
+      <p>Bits UI composes with a <code>child</code> snippet: spread its <code>props</code> onto your element, here the Button.</p>
+    </div>
     <div slot="native">
       <CodeBlock code={usage.native} lang="tsx" />
       <p>The dialog renders into a <code>&lt;PortalHost /&gt;</code>; vinui's <code>ThemeRoot</code> renders one at the app root. Other text in the panel goes in a <code>Text</code>, as everywhere on React Native.</p>
@@ -217,6 +270,7 @@ const [open, setOpen] = React.useState(false)
   <FrameworkTabs label="Close button in the footer">
     <CodeBlock slot="react" code={footerClose.react} lang="tsx" />
     <CodeBlock slot="vue" code={footerClose.vue} lang="vue" />
+    <CodeBlock slot="svelte" code={footerClose.svelte} lang="svelte" />
     <CodeBlock slot="native" code={footerClose.native} lang="tsx" />
   </FrameworkTabs>
 
@@ -225,6 +279,7 @@ const [open, setOpen] = React.useState(false)
   <FrameworkTabs label="Controlled">
     <CodeBlock slot="react" code={controlled.react} lang="tsx" />
     <CodeBlock slot="vue" code={controlled.vue} lang="vue" />
+    <CodeBlock slot="svelte" code={controlled.svelte} lang="svelte" />
     <CodeBlock slot="native" code={controlled.native} lang="tsx" />
   </FrameworkTabs>
 
@@ -245,6 +300,13 @@ const [open, setOpen] = React.useState(false)
       <h4 id="dialog-footer-vue"><code>DialogFooter</code></h4>
       <PropsTable props={dialogFooterProps} framework="vue" />
     </div>
+    <div slot="svelte">
+      <p>See <a href="https://bits-ui.com/docs/components/dialog">Bits UI Dialog</a>. <code>DialogContent</code> also takes shadcn-svelte's <code>portalProps</code>.</p>
+      <h4 id="dialog-content-svelte"><code>DialogContent</code></h4>
+      <PropsTable props={dialogContentProps} framework="svelte" />
+      <h4 id="dialog-footer-svelte"><code>DialogFooter</code></h4>
+      <PropsTable props={dialogFooterProps} framework="svelte" />
+    </div>
     <div slot="native">
       <p>See <a href="https://rnprimitives.com/dialog">rn-primitives Dialog</a>.</p>
       <h4 id="dialog-content-native"><code>DialogContent</code></h4>
@@ -263,6 +325,10 @@ const [open, setOpen] = React.useState(false)
     <ul slot="vue">
       <li>Every part sets <code>data-slot</code>, and the overlay and panel set <code>data-state</code>, as on React.</li>
       <li>shadcn-vue's <code>DialogScrollContent</code> isn't available yet.</li>
+    </ul>
+    <ul slot="svelte">
+      <li>Every part sets <code>data-slot</code>, and the overlay and panel set <code>data-state</code>, as on React. Bits UI waits for the exit animation before unmounting.</li>
+      <li>Import the parts as a namespace (<code>import * as Dialog</code>) and write <code>Dialog.Content</code>, as shadcn-svelte does; the <code>DialogContent</code>-style names are exported too.</li>
     </ul>
     <ul slot="native">
       <li>Tapping the overlay closes the dialog, and so does the Android back button.</li>

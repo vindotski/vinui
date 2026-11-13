@@ -26,7 +26,7 @@ const nav = [
       // Remembered framework tab and package manager, applied before paint (CSS shows the matching panels).
       try {
         const framework = localStorage.getItem("vinui:framework")
-        if (["react", "vue", "native"].includes(framework)) document.documentElement.dataset.framework = framework
+        if (["react", "vue", "svelte", "native"].includes(framework)) document.documentElement.dataset.framework = framework
         const pm = localStorage.getItem("vinui:pm")
         if (["npm", "pnpm", "yarn", "bun"].includes(pm)) document.documentElement.dataset.pm = pm
       } catch {}

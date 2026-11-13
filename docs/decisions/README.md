@@ -110,6 +110,9 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 | Svelte stale-docs guard reads the keys each component destructures from `$props()` with `svelte/compiler`'s `parse` | Svelte 5 props have no runtime list (Vue's compiled `props` has one). The helper has its own test. | 2026-11-13 |
 | SvelteKit playground targets wait for `body[data-hydrated]` (set in `+layout.svelte`'s `onMount`) before acting | SvelteKit server-renders; in dev, clicks before hydration did nothing and every dialog spec failed. Vite's React and Vue playgrounds render on the client only. | 2026-11-13 |
 | The Svelte fresh-app check runs the CLIs in a pseudo-terminal (`expect`) that answers only the prompts we allow and fails on any other | clack prompts need a TTY. They draw text with cursor escapes between characters, so the script matches on de-escaped text. | 2026-11-13 |
+| Docs: a **Svelte** tab between Vue and React Native on every component page; Svelte installs show the item's URL (`svelteAdd()` in `apps/docs/src/lib/registry.ts`), `shadcn-svelte@latest`, and `--yes --overwrite` | shadcn-svelte has no namespace ([0009](0009-svelte-on-bits-ui.md)). The home page's side-by-side demo has a Svelte column, and the docs targets compare Svelte's buttons with React's. | 2026-11-13 |
+| Svelte docs snippets import from `#lib/…` | SvelteKit 3 removed `$lib`: importing it throws `module_removed_lib`. `sv create` sets up `#lib` subpath imports. The install page says SvelteKit 2 projects use `$lib`. | 2026-11-13 |
+| **The Svelte install page is verified by running its own snippets** (npm tab, parsed from the built page) in an empty folder: `sv create` → `shadcn-svelte init` (its one "Continue?" answered) → `add` with no prompts → the page snippet → `check` and `build` clean → a browser smoke test (styled buttons, Dialog open / animation / close, dark palette, no console errors). Also checked: an existing shadcn-svelte button is replaced without a prompt; vinui's token values replace the project's (`--primary`) while tokens vinui doesn't define stay (`--card`); re-running `add` appends the nested `@variant` / `@media` rules again (4 → 8), as the page warns | Same standard as the other install pages. npx's own "Ok to proceed?" (first run of an uncached package) is answered by the script; it isn't a vinui or shadcn-svelte prompt. | 2026-11-13 |
 
 ### Native platform setup
 | The native theme file's target is `vinui-theme.css` (no `~/`), so it lands next to `global.css` in src-layout apps too | `~/` always means the project root; in Expo Router's template (`src/global.css`) the `@import "./vinui-theme.css"` didn't resolve ([0006](0006-native-theme-as-file.md)). | 2026-10-29 |
@@ -192,6 +195,10 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
   - `init` has no `--yes`: even with every alias flag it asks "Continue?" once before updating the stylesheet. That's stock shadcn-svelte, before any vinui item.
 - **SvelteKit 3** templates use subpath imports (`#lib`, `#lib/*` in `package.json`) instead of `$lib`; its config lives in `vite.config.ts`. `bits-ui`'s dependency `runed` still declares a `@sveltejs/kit ^2` peer (a warning only).
 
+- **Astro + Svelte (docs):**
+  - `@astrojs/svelte` is pinned to **9.1.2**: 9.1.3+ require `vite ^8.3.6`. That adds a second Vite to the repo (which pins 8.3.5), and with it a newer rolldown, whose wasm binding brings `@emnapi/runtime@2.0.0-beta`. pnpm then reuses that beta as `@astrojs/check`'s peer, and `astro check` crashes (`this.bridge.deleteEnv is not a function`). When adding packages, restore the committed lockfile first if re-resolution moves unrelated versions.
+  - Dev SSR needs `ssr.noExternal: ["bits-ui", "runed", "svelte-toolbelt"]`: `@vinui/svelte` is a workspace link, so the integration doesn't detect that those packages ship `.svelte` / `.svelte.js` files ("Unknown file extension .svelte", then `rune_outside_svelte`). Production builds were fine without it.
+
 ## Open / deferred
 
 - Registry deploy (host, domain, `VINUI_REGISTRY_URL`).
@@ -202,4 +209,5 @@ The **why** behind vinui's rules. The rules themselves live in [../CONVENTIONS.m
 - CI: none yet. When it exists, run the native engine harness on PRs that change the Uniwind version (needs a macOS runner).
 - `DialogScrollContent`.
 - Android release build (2026-10-28): once, right after the first `expo run:android --variant release` launch, the app didn't follow the system switching to dark (night mode on, app stayed light). It wasn't reproducible: cold start, fresh install, after opening a Dialog, and after tapping "system" all followed correctly. Watch for it in the hands-on pass.
+- Move `@astrojs/svelte` past 9.1.2 when the repo moves to Vite ≥ 8.3.6.
 - Bump Uniwind from 1.13.0 once newer releases pass the release-age policy, using the upgrade checklist in [0005](0005-native-styling-engine.md).

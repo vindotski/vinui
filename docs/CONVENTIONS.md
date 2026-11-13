@@ -107,6 +107,8 @@ Anything the references don't have. Each one is marked with a "vinui addition" b
 
 - **Native previews:** each component page's React Native tab shows a `<NativeWebPreview demo="…">` (add the demo to `apps/playground-native/docs-preview.tsx`, matching the React demo) above the device screenshots.
 - **Component pages:** preview, install (same `@vinui/<name>`, per-tab CLI, package-manager switcher), usage per framework, API reference from core metadata, platform notes.
+  - Tabs: React, Vue, Svelte, React Native. Svelte installs use `svelteAdd()` (`apps/docs/src/lib/registry.ts`) for the item URL and flags, and Svelte snippets import from `#lib/…` (SvelteKit 3).
+  - Demos for the docs live in `apps/docs/src/components/` (`React*.tsx`, `Vue*.vue`, `Svelte*.svelte`) and match the playgrounds' scenarios.
 - **Every command is copy-paste runnable**, with no placeholders, and goes through the package-manager switcher (`<PmCommand>` / `<InstallCommand>`, built by `apps/docs/src/lib/pm.ts`); never a bare `npm …` code block.
 - **Multi-part components** get one API table per part that has vinui props.
 - **Install pages are verified** by running their own extracted snippets in a fresh app.

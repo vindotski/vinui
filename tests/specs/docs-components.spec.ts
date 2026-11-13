@@ -40,6 +40,9 @@ test.describe("docs component pages", () => {
     await page.keyboard.press("ArrowRight")
     await expect(page.locator("html")).toHaveAttribute("data-framework", "vue")
     await expect(page.getByRole("tab", { name: "Vue" }).first()).toBeFocused()
+    await page.keyboard.press("ArrowRight")
+    await expect(page.locator("html")).toHaveAttribute("data-framework", "svelte")
+    await page.keyboard.press("ArrowLeft")
     await page.keyboard.press("ArrowLeft")
     await page.keyboard.press("ArrowLeft")
     await expect(page.locator("html")).toHaveAttribute("data-framework", "native")
@@ -53,6 +56,9 @@ test.describe("docs component pages", () => {
     await expect(installFor(page, "react")).toContainText("pnpm dlx shadcn@latest add @vinui/button")
     await page.getByRole("tab", { name: "Vue" }).first().click()
     await expect(installFor(page, "vue")).toContainText("pnpm dlx shadcn-vue@latest add @vinui/button")
+    // shadcn-svelte has no @vinui namespace: the item's URL, with --yes --overwrite.
+    await page.getByRole("tab", { name: "Svelte" }).first().click()
+    await expect(installFor(page, "svelte")).toContainText(/pnpm dlx shadcn-svelte@latest add https?:\/\/\S+\/r\/svelte\/button\.json --yes --overwrite/)
     await page.getByRole("tab", { name: "React Native" }).first().click()
     await expect(installFor(page, "native")).toContainText("pnpm dlx shadcn@latest add @vinui/button")
     // Copy copies exactly the visible command.
@@ -71,6 +77,11 @@ test.describe("docs component pages", () => {
     await expect(api("react")).not.toContainText("vinui addition")
     await page.getByRole("tab", { name: "Vue" }).first().click()
     await expect(api("vue").locator("td code").filter({ hasText: /^class$/ })).toHaveCount(1)
+    // Svelte: class, href instead of asChild.
+    await page.getByRole("tab", { name: "Svelte" }).first().click()
+    await expect(api("svelte").locator("td code").filter({ hasText: /^class$/ })).toHaveCount(1)
+    await expect(api("svelte").locator("tr", { hasText: "href" })).toContainText("Svelte only")
+    await expect(api("svelte")).not.toContainText("asChild")
     await page.getByRole("tab", { name: "React Native" }).first().click()
     await expect(api("native").locator("tr", { hasText: "asChild" })).toContainText("vinui addition")
   })
@@ -91,6 +102,12 @@ test.describe("docs component pages", () => {
     await page.getByRole("tab", { name: "React", exact: true }).first().click()
     await page.getByRole("button", { name: "Open dialog" }).click()
     await expect(page.getByRole("dialog", { name: "Delete project?" })).toBeVisible()
+    await page.keyboard.press("Escape")
+    // Svelte: the footer's showCloseButton is a vinui addition; its preview opens too.
+    await page.getByRole("tab", { name: "Svelte" }).first().click()
+    await expect(api("svelte").locator("tr", { hasText: "showCloseButton" }).last()).toContainText("vinui addition")
+    await page.locator('[data-framework-panel="svelte"]').first().getByRole("button", { name: "Open dialog" }).click()
+    await expect(page.getByRole("dialog", { name: "Delete project?" })).toBeVisible()
   })
 
   test("install pages give every command per package manager", async ({ page }) => {
@@ -108,6 +125,12 @@ test.describe("docs component pages", () => {
     await expect(visible("/r/native/init.json")).toHaveCount(1)
     await page.getByRole("button", { name: "npm" }).first().click()
     await expect(visible("npm install -E uniwind@1.13.0 tailwindcss@4.3.3")).toHaveCount(1)
+    // Svelte: sv's --install follows the package manager.
+    await page.goto("/docs/installation/svelte")
+    await page.getByRole("button", { name: "bun" }).first().click()
+    await expect(visible("bunx --bun sv@latest create my-app --template minimal --types ts")).toContainText("--install bun")
+    await expect(visible("bunx --bun shadcn-svelte@latest init --preset vega")).toHaveCount(1)
+    await expect(visible("/r/svelte/dialog.json --yes --overwrite")).toHaveCount(1)
   })
 
   test("the React Native (web) preview loads on the tab, follows the theme and fits its content", async ({ page }) => {

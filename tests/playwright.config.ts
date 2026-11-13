@@ -18,13 +18,13 @@ const targets: { name: string; port: number; command: string; options: TargetOpt
     name: "docs-dev",
     port: 4321,
     command: "pnpm --filter docs exec astro dev --port 4321 --ignore-lock",
-    options: { layout: "docs", frameworks: ["react", "vue"] },
+    options: { layout: "docs", frameworks: ["react", "vue", "svelte"] },
   },
   {
     name: "docs-prod",
     port: 4322,
     command: "pnpm --filter docs exec astro build && pnpm --filter docs exec astro preview --port 4322 --ignore-lock",
-    options: { layout: "docs", frameworks: ["react", "vue"] },
+    options: { layout: "docs", frameworks: ["react", "vue", "svelte"] },
   },
   {
     name: "react-dev",
